@@ -1,0 +1,7 @@
+/**
+ *
+ * @author Anarmat
+ */
+class CreatureController {
+    
+}
