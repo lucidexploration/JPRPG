@@ -1,10 +1,10 @@
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -12,9 +12,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /**
  *
@@ -23,10 +25,15 @@ import javax.swing.JTextArea;
 class GameGUI {
 
     //the framework
+    private static JFrame window;
     private static JLabel worldDisplay;
     private static JTextArea chatBox;
-    private static JFrame window;
-    private static BorderLayout bl;
+    //login boxes/buttons
+    private static JTextField loginBox;
+    private static JTextField passwordBox;
+    private static JButton loginButton;
+    //layout manager
+    private static GridBagLayout gbl;
     //controls input
     private static final Set<Character> keysPressed = new HashSet<>();
     public static Timer timer = new Timer();
@@ -54,11 +61,12 @@ class GameGUI {
         window = new JFrame("JPRPG");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //
-        bl = new BorderLayout();
-        window.setLayout(bl);
+        gbl = new GridBagLayout();
+        window.setLayout(gbl);
         //
         addWorldDisplay(window.getContentPane());
         addChatBox(window.getContentPane());
+        addLoginBoxes(window.getContentPane());
         //
         window.addKeyListener(new KeyAdapter() {
             @Override
@@ -98,10 +106,16 @@ class GameGUI {
         };
 
         //set sizes
-        worldDisplay.setPreferredSize(new Dimension(1000, 960));
-        worldDisplay.setMinimumSize(new Dimension(1000, 960));
-        worldDisplay.setMaximumSize(new Dimension(1000, 960));
-        window.getContentPane().add(worldDisplay,bl.WEST);
+        worldDisplay.setPreferredSize(new Dimension(1000, 940));
+        worldDisplay.setMinimumSize(new Dimension(1000, 940));
+        worldDisplay.setMaximumSize(new Dimension(1000, 940));
+        //add worldDisplay with proper constraints
+        GridBagConstraints wc = new GridBagConstraints();
+        wc.gridx = 0;
+        wc.gridy = 0;
+        wc.gridwidth = 2;
+        wc.fill = wc.BOTH;
+        window.getContentPane().add(worldDisplay, wc);
 
         //start the time to check for input
         timer.schedule(task, 0, 50);
@@ -109,12 +123,39 @@ class GameGUI {
 
     public static void addChatBox(Container pane) {
         chatBox = new JTextArea("Why won't this display?");
-        window.getContentPane().add(chatBox,bl.EAST);
+        //add chatbox with constraints
+        GridBagConstraints cc = new GridBagConstraints();
+        cc.gridx = 2;
+        cc.gridy = 0;
+        cc.gridheight = 2;
+        cc.fill = cc.BOTH;
+        window.getContentPane().add(chatBox, cc);
         //set sizes
-        chatBox.setMinimumSize(new Dimension(440, 960));
-        chatBox.setMaximumSize(new Dimension(440, 960));
-        chatBox.setPreferredSize(new Dimension(440, 960));
-        System.out.println(chatBox.toString());
+        chatBox.setMinimumSize(new Dimension(440, 940));
+        chatBox.setMaximumSize(new Dimension(440, 940));
+        chatBox.setPreferredSize(new Dimension(440, 940));
+    }
+
+    private static void addLoginBoxes(Container contentPane) {
+        GridBagConstraints lc = new GridBagConstraints();
+        loginBox = new JTextField("insert acc number here");
+        loginBox.setMinimumSize(new Dimension(100, 20));
+        passwordBox = new JTextField("inser password here");
+        passwordBox.setMinimumSize(new Dimension(100, 20));
+        loginButton = new JButton("Login");
+        //add buttons and boxes with constraints
+        GridBagConstraints ltc = new GridBagConstraints();
+        ltc.gridx = 0;
+        ltc.gridy = 2;
+        window.getContentPane().add(loginBox, ltc);
+        GridBagConstraints pbc = new GridBagConstraints();
+        pbc.gridx = 1;
+        pbc.gridy = 2;
+        window.getContentPane().add(passwordBox, pbc);
+        GridBagConstraints lbc = new GridBagConstraints();
+        lbc.gridx = 2;
+        lbc.gridy = 2;
+        window.getContentPane().add(loginButton, lbc);
     }
 
     private static void checkForInput() {
