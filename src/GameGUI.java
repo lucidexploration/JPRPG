@@ -28,6 +28,7 @@ class GameGUI {
     private static JFrame window;
     private static JLabel worldDisplay;
     private static JTextArea chatBox;
+    private static JTextArea statusDisplay;
     //login boxes/buttons
     private static JTextField loginBox;
     private static JTextField passwordBox;
@@ -45,6 +46,7 @@ class GameGUI {
         }
     };
 
+
     public void actionPerformed(ActionEvent e) {
     }
 
@@ -59,12 +61,14 @@ class GameGUI {
 
     public static void makeGUI() {
         window = new JFrame("JPRPG");
+        window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //
         gbl = new GridBagLayout();
         window.setLayout(gbl);
         //
         addWorldDisplay(window.getContentPane());
+        addStatusDisplay(window.getContentPane());
         addChatBox(window.getContentPane());
         addLoginBoxes(window.getContentPane());
         //
@@ -120,41 +124,57 @@ class GameGUI {
         //start the time to check for input
         timer.schedule(task, 0, 50);
     }
+    
+    private static void addStatusDisplay(Container contentPane) {
+        int health = 0;
+        int mana = 0;
+        statusDisplay = new JTextArea("Current Health : "+health+"\n"
+                +"Current Mana : "+mana);
+        GridBagConstraints sdc = new GridBagConstraints();
+        sdc.gridx=2;
+        sdc.gridy=0;
+        sdc.anchor=sdc.NORTH;
+        window.getContentPane().add(statusDisplay,sdc);
+        statusDisplay.setMaximumSize(new Dimension(400,200));
+        statusDisplay.setPreferredSize(new Dimension(400,200));
+        statusDisplay.setEditable(false);
+    }
 
     public static void addChatBox(Container pane) {
-        chatBox = new JTextArea("Why won't this display?");
+        chatBox = new JTextArea("This is the chatbox");
+        chatBox.setEditable(false);
         //add chatbox with constraints
         GridBagConstraints cc = new GridBagConstraints();
         cc.gridx = 2;
         cc.gridy = 0;
-        cc.gridheight = 2;
-        cc.fill = cc.BOTH;
+        cc.anchor=cc.EAST;
+        //cc.gridheight = 1;
         window.getContentPane().add(chatBox, cc);
         //set sizes
-        chatBox.setMinimumSize(new Dimension(440, 940));
-        chatBox.setMaximumSize(new Dimension(440, 940));
-        chatBox.setPreferredSize(new Dimension(440, 940));
+        chatBox.setMaximumSize(new Dimension(400, 400));
+        chatBox.setPreferredSize(new Dimension(400, 400));
     }
 
     private static void addLoginBoxes(Container contentPane) {
         GridBagConstraints lc = new GridBagConstraints();
-        loginBox = new JTextField("insert acc number here");
-        loginBox.setMinimumSize(new Dimension(100, 20));
-        passwordBox = new JTextField("inser password here");
-        passwordBox.setMinimumSize(new Dimension(100, 20));
+        loginBox = new JTextField("Insert Acc. number here");
+        passwordBox = new JTextField("Insert password here");
         loginButton = new JButton("Login");
         //add buttons and boxes with constraints
         GridBagConstraints ltc = new GridBagConstraints();
-        ltc.gridx = 0;
+        ltc.anchor=ltc.WEST;
+        ltc.gridx = 2;
         ltc.gridy = 2;
         window.getContentPane().add(loginBox, ltc);
         GridBagConstraints pbc = new GridBagConstraints();
-        pbc.gridx = 1;
+        pbc.gridx = 2;
         pbc.gridy = 2;
+        pbc.anchor=ltc.CENTER;
         window.getContentPane().add(passwordBox, pbc);
         GridBagConstraints lbc = new GridBagConstraints();
         lbc.gridx = 2;
         lbc.gridy = 2;
+        lbc.anchor=ltc.EAST;
         window.getContentPane().add(loginButton, lbc);
     }
 
