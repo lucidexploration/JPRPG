@@ -43,7 +43,7 @@ class GameController {
     /*
      * Updates player/monster informations.
      */
-    public void recieveAttack() {
+    public void recieveAttack(int targetID, int damage) {
     }
 
     /*
@@ -58,7 +58,7 @@ class GameController {
     /*
      * Updates chat window.
      */
-    public void recieveChat() {
+    public void recieveChat(String text) {
     }
 
     /*
@@ -70,14 +70,14 @@ class GameController {
         output.flush();
     }
 
-    public void recieveMovement() {
+    public void recieveMovement(int moverID, int xPos, int yPos) {
     }
 
     /*
      * Sends acc# and pw to server for the server to verify.
      */
     public void logIn(int accNumber, String password) {
-        output.println("++LOGI++" + accNumber + " " + password);
+        output.println("++LOGIN++" + accNumber + " " + password);
         output.flush();
     }
 }

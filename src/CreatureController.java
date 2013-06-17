@@ -4,4 +4,7 @@
  */
 class CreatureController {
     
+    public CreatureController(){
+        
+    }
 }

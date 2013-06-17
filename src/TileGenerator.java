@@ -4,4 +4,7 @@
  */
 class TileGenerator {
     
+    public TileGenerator(){
+        
+    }
 }

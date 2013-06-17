@@ -1,7 +1,10 @@
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -11,29 +14,30 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
+
 /**
  *
- * @author Anarmat
+ *
  */
 class GameGUI {
-    
+
     //the framework
     private static JLabel worldDisplay;
+    private static JTextArea chatBox;
     private static JFrame window;
+    private static BorderLayout bl;
     //controls input
     private static final Set<Character> keysPressed = new HashSet<>();
     public static Timer timer = new Timer();
     public static TimerTask task = new TimerTask() {
         @Override
         public void run() {
-            finalLoop();
+            checkForInput();
             worldDisplay.repaint();
         }
     };
 
-    
-
-    //empty command required to compile
     public void actionPerformed(ActionEvent e) {
     }
 
@@ -49,7 +53,13 @@ class GameGUI {
     public static void makeGUI() {
         window = new JFrame("JPRPG");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        addToPane(window.getContentPane());
+        //
+        bl = new BorderLayout();
+        window.setLayout(bl);
+        //
+        addWorldDisplay(window.getContentPane());
+        addChatBox(window.getContentPane());
+        //
         window.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -61,48 +71,67 @@ class GameGUI {
                 keysPressed.remove(e.getKeyChar());
             }
         });
+        //
         window.pack();
         window.setVisible(true);
-        window.setPreferredSize(new Dimension(1440, 960));
+        worldDisplay.setVisible(true);
+        chatBox.setVisible(true);
     }
 
-    public static void addToPane(Container pane) {
+    public static void addWorldDisplay(Container pane) {
         worldDisplay = new JLabel() {
             @Override
             public void paint(Graphics g) {
-                //draw the paddels, score, and boundaries
-                
-                
-                
-                //
+                //draw the boundary of the worldDisplay
+                g.setColor(Color.red);
+                g.drawRect(worldDisplay.getBounds().x,
+                        worldDisplay.getBounds().y,
+                        worldDisplay.getBounds().height,
+                        worldDisplay.getBounds().width);
+                //draw the boundary of the chatBox
+                g.setColor(Color.BLUE);
+                g.drawRect(chatBox.getBounds().x,
+                        chatBox.getBounds().y,
+                        chatBox.getBounds().height,
+                        chatBox.getBounds().width);
             }
         };
-        
-        //set size to 800x600
-        //label.setPreferredSize(new Dimension(800, 600));
-        window.getContentPane().add(worldDisplay);
-        
+
+        //set sizes
+        worldDisplay.setPreferredSize(new Dimension(1000, 960));
+        worldDisplay.setMinimumSize(new Dimension(1000, 960));
+        worldDisplay.setMaximumSize(new Dimension(1000, 960));
+        window.getContentPane().add(worldDisplay,bl.WEST);
+
         //start the time to check for input
         timer.schedule(task, 0, 50);
     }
-    
-    private static void finalLoop() {
-        if (keysPressed.contains('w')) {
-            //add space button here
 
+    public static void addChatBox(Container pane) {
+        chatBox = new JTextArea("Why won't this display?");
+        window.getContentPane().add(chatBox,bl.EAST);
+        //set sizes
+        chatBox.setMinimumSize(new Dimension(440, 960));
+        chatBox.setMaximumSize(new Dimension(440, 960));
+        chatBox.setPreferredSize(new Dimension(440, 960));
+        System.out.println(chatBox.toString());
+    }
+
+    private static void checkForInput() {
+        if (keysPressed.contains('w')) {
+            //add action here
         }
         //right movement
         if (keysPressed.contains('s')) {
-            //add down button here
-
+            //add action here
         }
         //left movement
         if (keysPressed.contains('a')) {
-            //add left button here
+            //add action here
         }
         //down movement
         if (keysPressed.contains('d')) {
-            //add right button here
+            //add action here
         }
     }
 }
