@@ -13,4 +13,12 @@ class GameClient {
         cc = new CreatureController();
         gc = new GameController();
     }
+    
+    public GameController returnGameController(){
+        return gc;
+    }
+    
+    public TileGenerator returnTileGenerator(){
+        return tg;
+    }
 }

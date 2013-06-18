@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -44,7 +42,6 @@ class GameGUI {
     private static JButton loginButton;
     private static JButton createAccount;
     //account creation
-    private static JOptionPane accCreationWindow;
     private static JPanel accCreationPanel;
     private static JTextField accCreationBox;
     private static JTextField passCreationBox;
@@ -133,28 +130,56 @@ class GameGUI {
                         chatBox.getBounds().y,
                         chatBox.getBounds().height,
                         chatBox.getBounds().width);
-                drawWorld();
+                drawWorld(g);
 //                drawItems();
-//                drawPlayersNPCS();
+                drawPlayersNPCS(g);
+            }
+            
+
+            private void drawWorld(Graphics g) {
+                int x = 0;
+                int y = 0;
+                int width = 900;
+                int height = 900;
+                while (90*x<900){
+                    while(90*y<900){
+                        gc.returnTileGenerator().emptySquare(g,90*x,90*y);
+                        g.setColor(Color.red);
+                        g.drawRect(90*x, 90*y, 90, 90);
+                        y++;
+                    }
+                    x++;
+                    y=0;
+                }
             }
 
-            private void drawWorld() {
-                int i = 0;
-                int width = 1000;
-                int height = 940;
-                //while (i<)
+            private void drawPlayersNPCS(Graphics g) {
+                int x = 0;
+                int y = 0;
+                int width = 900;
+                int height = 900;
+                while (90*x<900){
+                    while(90*y<900){
+                        gc.returnTileGenerator().admin(g,90*x,90*y);
+                        g.setColor(Color.red);
+                        g.drawRect(90*x, 90*y, 90, 90);
+                        y++;
+                    }
+                    x++;
+                    y=0;
+                }
             }
         };
 
         //set size
-        worldDisplay.setPreferredSize(new Dimension(1000, 940));
+        worldDisplay.setPreferredSize(new Dimension(900, 900));
         //add worldDisplay with proper constraints
         GridBagConstraints wc = new GridBagConstraints();
         //position
         wc.gridx = 0;
         wc.gridy = 0;
         wc.gridwidth = 2;
-        wc.fill = wc.BOTH;
+        wc.fill = GridBagConstraints.BOTH;
         //add to frame
         window.getContentPane().add(worldDisplay, wc);
 
@@ -171,7 +196,7 @@ class GameGUI {
         //position
         sdc.gridx = 2;
         sdc.gridy = 0;
-        sdc.anchor = sdc.NORTH;
+        sdc.anchor = GridBagConstraints.NORTH;
         //add it to frame
         window.getContentPane().add(statusDisplay, sdc);
         //set size
@@ -189,12 +214,12 @@ class GameGUI {
         //chatbox position
         cc.gridx = 2;
         cc.gridy = 0;
-        cc.anchor = cc.CENTER;
+        cc.anchor = GridBagConstraints.CENTER;
         cc.fill = 0;
         //chatboxInput position
         cbic.gridx = 2;
         cbic.gridy = 0;
-        cbic.anchor = cbic.SOUTH;
+        cbic.anchor = GridBagConstraints.SOUTH;
         cbic.fill = 2;
         //add them to frame
         window.getContentPane().add(chatboxInput, cbic);
@@ -213,7 +238,7 @@ class GameGUI {
         //add buttons and boxes with constraints
         //----------------login box-----------------
         GridBagConstraints ltc = new GridBagConstraints();
-        ltc.anchor = ltc.WEST;
+        ltc.anchor = GridBagConstraints.WEST;
         //position
         ltc.gridx = 2;
         ltc.gridy = 2;
@@ -224,7 +249,7 @@ class GameGUI {
         //position
         pbc.gridx = 2;
         pbc.gridy = 2;
-        pbc.anchor = ltc.CENTER;
+        pbc.anchor = GridBagConstraints.CENTER;
         //add to frame
         window.getContentPane().add(passwordBox, pbc);
         //-------------login button----------------
@@ -233,12 +258,11 @@ class GameGUI {
         lbc.gridx = 2;
         lbc.gridy = 2;
         //add to frame
-        lbc.anchor = ltc.EAST;
+        lbc.anchor = GridBagConstraints.EAST;
         window.getContentPane().add(loginButton, lbc);
         //-------------account creation button and window-----------
         createAccount = new JButton("Create Account");
         createAccount.setText("Create Account");
-        accCreationWindow = new JOptionPane();
         accCreationPanel = new JPanel();
         accCreationBox = new JTextField("Insert Acc Number here");
         passCreationBox = new JTextField("Insert password here");
@@ -258,16 +282,16 @@ class GameGUI {
         createAccount.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                accCreationWindow.showConfirmDialog(null, accCreationPanel,
+                JOptionPane.showConfirmDialog(null, accCreationPanel,
                         "Insert acc number and password",
-                        accCreationWindow.OK_CANCEL_OPTION);
+                        JOptionPane.OK_CANCEL_OPTION);
             }
         });
         //now align everything
         GridBagConstraints acc = new GridBagConstraints();
         acc.gridx = 0;
         acc.gridy = 2;
-        acc.anchor = acc.WEST;
+        acc.anchor = GridBagConstraints.WEST;
         window.getContentPane().add(createAccount, acc);
     }
 

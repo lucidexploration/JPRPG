@@ -26,6 +26,7 @@ public class Server extends Thread {
                 new Echo(clientsocket).start();
             }
         } catch (IOException ie) {
+            System.exit(-1);
         }
     }
 
@@ -43,6 +44,7 @@ public class Server extends Thread {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
             } catch (IOException ex) {
+                System.exit(-1);
             }
         }
 
@@ -64,7 +66,9 @@ public class Server extends Thread {
                     out.close();
                     socket.close();
                 } catch (EOFException e) {
+                    System.exit(-3);
                 } catch (IOException e) {
+                    System.exit(-1);
                 }
         }
     }
