@@ -48,7 +48,6 @@ public class Server extends Thread {
 
         @Override
         public void run() {
-            while (true) {
                 try {
                     //get the message from the client
                     String input = in.readLine();
@@ -67,7 +66,6 @@ public class Server extends Thread {
                 } catch (EOFException e) {
                 } catch (IOException e) {
                 }
-            }
         }
     }
 }

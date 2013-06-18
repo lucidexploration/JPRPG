@@ -1,10 +1,7 @@
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-/**
- *
- * @author Anarmat
- */
+
 class GameClient {
     
     private TileGenerator tg;
