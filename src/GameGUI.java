@@ -253,6 +253,13 @@ class GameGUI {
         //add to frame
         window.getContentPane().add(passwordBox, pbc);
         //-------------login button----------------
+        //when pressed, sends info to server for server to verify
+        loginButton.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gc.returnGameController().logIn(Integer.parseInt(loginBox.getText()),passwordBox.getText());
+            }
+        });
         GridBagConstraints lbc = new GridBagConstraints();
         //position
         lbc.gridx = 2;
