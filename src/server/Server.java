@@ -86,8 +86,11 @@ public class Server {
                         == SelectionKey.OP_READ) {
                     // Read the data
                     SocketChannel sc = (SocketChannel) key.channel();
-                    //echoBuffer.clear();
-                    sc.write(echoBuffer);
+                    try{sc.write(echoBuffer);}
+                    catch(java.io.IOException e){
+                        echoBuffer.clear();
+                        key.cancel();
+                    }
 
                     // interpret
                     int bytesEchoed = 0;
@@ -99,9 +102,15 @@ public class Server {
                         //most often be used in situations in which that might as well be the case. 
                         echoBuffer.clear();
 
-                        System.out.println("buffer before read: "+echoBuffer.toString());
-                        int number_of_bytes = sc.read(echoBuffer);
-                        System.out.println("buffer after read: "+echoBuffer.toString());
+                        //System.out.println("buffer before read: "+echoBuffer.toString());
+                        int number_of_bytes;
+                        try{
+                            number_of_bytes= sc.read(echoBuffer);
+                        }
+                        catch(java.io.IOException e){
+                            number_of_bytes=-1;
+                        }
+                        //System.out.println("buffer after read: "+echoBuffer.toString());
 
                         if (number_of_bytes <= 0) {
                             // the key is automatically invalidated once the
@@ -115,12 +124,12 @@ public class Server {
                         //After a sequence of channel-read or put operations, 
                         //invoke this method to prepare for a sequence of 
                         //channel-write or relative get operations. 
-                        System.out.println("buffer before flip: "+echoBuffer.toString());
+                        //System.out.println("buffer before flip: "+echoBuffer.toString());
                         echoBuffer.flip();
-                        System.out.println("buffer after flip: "+echoBuffer.toString());
+                        //System.out.println("buffer after flip: "+echoBuffer.toString());
 
                         sc.write(echoBuffer);
-                        System.out.println("buffer after write: "+echoBuffer.toString());
+                        //System.out.println("buffer after write: "+echoBuffer.toString());
                         bytesEchoed += number_of_bytes;
                     }
 
