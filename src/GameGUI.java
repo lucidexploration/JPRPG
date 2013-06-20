@@ -160,7 +160,7 @@ class GameGUI {
                 int height = 900;
                 while (90*x<900){
                     while(90*y<900){
-                        gc.returnTileGenerator().admin(g,90*x,90*y);
+                        gc.returnTileGenerator().returnNPC(9, g, x*90, y*90);
                         g.setColor(Color.red);
                         g.drawRect(90*x, 90*y, 90, 90);
                         y++;
@@ -257,7 +257,11 @@ class GameGUI {
         loginButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                try{
                 gc.returnGameController().logIn(Integer.parseInt(loginBox.getText()),passwordBox.getText());
+                }catch(NumberFormatException x){
+                    JOptionPane.showMessageDialog(window, "The acc number must be numbers!!!");
+                }
             }
         });
         GridBagConstraints lbc = new GridBagConstraints();

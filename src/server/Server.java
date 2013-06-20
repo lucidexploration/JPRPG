@@ -10,6 +10,7 @@ public class Server {
 
     private int ports[];
     private ByteBuffer echoBuffer = ByteBuffer.allocate(1024);
+    private Map<Integer,Account> accounts = new HashMap<>(200);
 
     public Server(int ports[]) throws IOException {
         this.ports = ports;
@@ -88,14 +89,19 @@ public class Server {
                     //echoBuffer.clear();
                     sc.write(echoBuffer);
 
-                    // Echo data
+                    // interpret
                     int bytesEchoed = 0;
                     while (true) {
-                        // data is available for read
-                        // buffer for reading
+                        //Clears this buffer. The position is set to zero, the 
+                        //limit is set to the capacity, and the mark is discarded. 
+                        //This method does not actually erase the data in the 
+                        //buffer, but it is named as if it did because it will 
+                        //most often be used in situations in which that might as well be the case. 
                         echoBuffer.clear();
 
+                        System.out.println("buffer before read: "+echoBuffer.toString());
                         int number_of_bytes = sc.read(echoBuffer);
+                        System.out.println("buffer after read: "+echoBuffer.toString());
 
                         if (number_of_bytes <= 0) {
                             // the key is automatically invalidated once the
@@ -103,11 +109,18 @@ public class Server {
                             break;
                         }
 
-                        // the channel is non blocking so keep it open till the
-                        // count is >=0
+                        //Flips this buffer. The limit is set to the current 
+                        //position and then the position is set to zero. If the 
+                        //mark is defined then it is discarded. 
+                        //After a sequence of channel-read or put operations, 
+                        //invoke this method to prepare for a sequence of 
+                        //channel-write or relative get operations. 
+                        System.out.println("buffer before flip: "+echoBuffer.toString());
                         echoBuffer.flip();
+                        System.out.println("buffer after flip: "+echoBuffer.toString());
 
                         sc.write(echoBuffer);
+                        System.out.println("buffer after write: "+echoBuffer.toString());
                         bytesEchoed += number_of_bytes;
                     }
 
