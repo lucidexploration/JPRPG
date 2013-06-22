@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import javax.swing.JTextArea;
 
 class GameController {
 
@@ -23,20 +24,29 @@ class GameController {
     /*
      * Recieves input from the server and parses it to know what to update.
      */
-    public void recieveInput() throws IOException {
-        String in = input.readLine();
+    public void recieveInput(JTextArea j) throws IOException {
+        if (input.ready()) {
+            byte[] b = new byte[input.readLine().length()];
+            sock.getInputStream().read(b);
+            String message = new String(b);
+            String[] splits = message.split(",");
+            System.out.println(splits);
+            if(splits[0].equals("chat")){
+                recieveChat(j,splits[1]);
+            }
+        }
     }
 
-    public void createAccount(int accNumber, String password, String username){
-        output.println("create"+","+accNumber+","+password+","+username);
+    public void createAccount(int accNumber, String password, String username) {
+        output.println("create" + "," + accNumber + "," + password + "," + username + ",");
     }
-    
+
     /*
      * Sends packet to server that says that attackerID is physically
      * attacking targetID.
      */
     public void attack(int attackerID, int targetID) {
-        output.println("attack" + "," + attackerID + "," + targetID);
+        output.println("attack" + "," + attackerID + "," + targetID + ",");
     }
 
     /*
@@ -50,13 +60,14 @@ class GameController {
      * chat box when the return key was pressed.
      */
     public void chat(String text) {
-        output.println("chat" + "," + text);
+        output.println("chat" + "," + text + ",");
     }
 
     /*
      * Updates chat window.
      */
-    public void recieveChat(String text) {
+    public void recieveChat(JTextArea j,String text) {
+        j.append("\n"+text);
     }
 
     /*
@@ -64,7 +75,7 @@ class GameController {
      * for the server to verify the movement.
      */
     public void movement(int moverID, int xPos, int yPos) {
-        output.println("move" + "," + moverID + "," + xPos + "," + yPos);
+        output.println("move" + "," + moverID + "," + xPos + "," + yPos + ",");
     }
 
     public void recieveMovement(int moverID, int xPos, int yPos) {
@@ -74,6 +85,6 @@ class GameController {
      * Sends acc# and pw to server for the server to verify.
      */
     public void logIn(int accNumber, String password) {
-        output.println("login" +","+ accNumber + "," + password);
+        output.println("login" + "," + accNumber + "," + password + ",");
     }
 }

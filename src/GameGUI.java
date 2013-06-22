@@ -54,6 +54,10 @@ class GameGUI {
     public static TimerTask task = new TimerTask() {
         @Override
         public void run() {
+            try {
+                gc.returnGameController().recieveInput(chatBox);
+            } catch (IOException ex) {
+            }
             checkForInput();
             worldDisplay.repaint();
         }
@@ -202,6 +206,12 @@ class GameGUI {
     public static void addChatBox(Container pane) {
         chatBox = new JTextArea("This is the chatbox");
         chatboxInput = new JTextField("Type shit here");
+        chatboxInput.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gc.returnGameController().chat(chatboxInput.getText());
+            }
+        });
         chatBox.setEditable(false);
         //add chatbox with constraints
         GridBagConstraints cc = new GridBagConstraints();

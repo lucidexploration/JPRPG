@@ -1,6 +1,7 @@
 package server;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.*;
 import java.nio.*;
 import java.nio.channels.*;
@@ -42,7 +43,7 @@ public class Server {
             String password = scanner.next();
             String name = scanner.next();
             accounts.put(accNumber, new Account(accNumber, password, name));
-            System.out.println("This is whats loaded in accounts at start : "+accounts.keySet());
+            System.out.println("This is whats loaded in accounts at start : " + accounts.keySet());
         }
     }
 
@@ -153,26 +154,37 @@ public class Server {
                         String message = new String(echoBuffer.array());
                         String[] splits = message.split(",");
                         System.out.println(message);
-                        
-                        //see what kind of packet was sent
-                        if(splits[0].contentEquals("create")){
-                            accounts.put(Integer.valueOf(splits[1]), new Account(Integer.valueOf(splits[1]),splits[2],splits[3]));
+
+                        //-----------Interpret Packets--------------------
+                        //create account
+                        if (splits[0].contentEquals("create")) {
+                            accounts.put(Integer.valueOf(splits[1]), new Account(Integer.valueOf(splits[1]), splits[2], splits[3]));
                             System.out.println(accounts.keySet());
                         }
-                        if(splits[0].contentEquals("login")){
-                            System.out.println(accounts.get(1).returnPassword());
-                            System.out.println(splits[2]);
-                            if(accounts.containsKey(Integer.valueOf(splits[1]))&&accounts.get(1).returnPassword().compareTo(splits[2])==0)
+
+                        //login
+                        if (splits[0].contentEquals("login")) {
+                            String serverPassword = accounts.get(1).returnPassword();
+                            String clientPassword = new String(splits[2].getBytes(), "UTF-8");
+                            if (serverPassword.equals(clientPassword)) {
                                 System.out.println("we have this account");
-                            else
+                            } else {
                                 System.out.println("no account or wrong info");
+                            }
                         }
-                        if(splits[0]=="attack"){
+
+                        //attack
+                        if (splits[0].contentEquals("attack")) {
                             //do attack shit
                         }
-                        if(splits[0]=="chat"){
+
+                        //chat
+                        if (splits[0].contentEquals("chat")) {
                             //do chat shit
                         }
+                        //
+                        //
+                        //
                         try {
                             number_of_bytes = sc.read(echoBuffer);
                         } catch (java.io.IOException e) {
