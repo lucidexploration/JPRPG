@@ -10,12 +10,43 @@ public class Server {
 
     private int ports[];
     private ByteBuffer echoBuffer = ByteBuffer.allocate(1024);
-    private Map<Integer,Account> accounts = new HashMap<>(200);
+    private Map<Integer,Account> accounts;
+    private Map<Integer,Monsters> monsters;
 
     public Server(int ports[]) throws IOException {
-        this.ports = ports;
+        //create new objects
+        this.monsters = new HashMap<>(200);
+        this.accounts = new HashMap<>(200);
+        this.ports = ports;        
 
+        //do shit
+        loadAccounts();
+        loadMap();
+        loadMonsters();
         configure_selector();
+    }
+    
+    private void loadAccounts() {
+        //load accounts from file
+        //if file doesnt exist, create new blank file
+        //on exit and client disconnect, must write server info to file
+    }
+
+    private void loadMap() {
+        //load map from file
+        //if file doesnt exist, create new blank file
+        //map squares can have properties such as :
+        //----blocked
+        //----water
+        //----spawnpoint
+        //----
+        //on exit, must write server info to file
+    }
+
+    private void loadMonsters() {
+        //load monsters from file
+        //check map for spawnpoints and spawn a monster there if
+        //-one hasnt been spawned in 1 minute and last one is dead
     }
 
     private void configure_selector() throws IOException {
@@ -141,6 +172,16 @@ public class Server {
 
             }
         }
+    }
+    
+    
+    private void spawnPlayer(){
+        //load player data and send to client all relevant info
+        //such as:
+        //--surrounding tiles
+        //--surrounding npcs/pcs
+        //--stats
+        //--chat
     }
 
     static public void main(String args[]) throws Exception {

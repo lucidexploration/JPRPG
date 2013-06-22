@@ -85,7 +85,7 @@ class GameGUI {
         window = new JFrame("JPRPG");
         window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //
+        //create the layout
         gbl = new GridBagLayout();
         window.setLayout(gbl);
         //methods to add parts to frame/window
@@ -107,7 +107,6 @@ class GameGUI {
                 keysPressed.remove(e.getKeyChar());
             }
         });
-        //
         window.pack();
         window.setVisible(true);
         worldDisplay.setVisible(true);
@@ -118,55 +117,51 @@ class GameGUI {
         worldDisplay = new JLabel() {
             @Override
             public void paint(Graphics g) {
-                //draw the boundary of the worldDisplay
-                g.setColor(Color.red);
-                g.drawRect(worldDisplay.getBounds().x,
-                        worldDisplay.getBounds().y,
-                        worldDisplay.getBounds().height,
-                        worldDisplay.getBounds().width);
-                //draw the boundary of the chatBox
-                g.setColor(Color.BLUE);
-                g.drawRect(chatBox.getBounds().x,
-                        chatBox.getBounds().y,
-                        chatBox.getBounds().height,
-                        chatBox.getBounds().width);
+                //draw things in proper order
+                //world on bottom, items ontop of world, players standing
+                //ontop of everything
                 drawWorld(g);
 //                drawItems();
                 drawPlayersNPCS(g);
             }
-            
 
             private void drawWorld(Graphics g) {
                 int x = 0;
                 int y = 0;
-                int width = 900;
-                int height = 900;
-                while (90*x<900){
-                    while(90*y<900){
-                        gc.returnTileGenerator().emptySquare(g,90*x,90*y);
+                int windowWidth = 900;
+                int windowHeight = 900;
+                int tileWidth = 90;
+                int tileHeight = 90;
+
+                while (x * tileWidth < windowWidth) {
+                    while (y * tileHeight < windowHeight) {
+                        gc.returnTileGenerator().emptySquare(g, x * tileWidth, y * tileHeight);
                         g.setColor(Color.red);
-                        g.drawRect(90*x, 90*y, 90, 90);
+                        g.drawRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
                         y++;
                     }
                     x++;
-                    y=0;
+                    y = 0;
                 }
             }
 
             private void drawPlayersNPCS(Graphics g) {
                 int x = 0;
                 int y = 0;
-                int width = 900;
-                int height = 900;
-                while (90*x<900){
-                    while(90*y<900){
-                        gc.returnTileGenerator().returnNPC(9, g, x*90, y*90);
+                int windowWidth = 900;
+                int windowHeight = 900;
+                int tileWidth = 90;
+                int tileHeight = 90;
+
+                while (x * tileWidth < windowWidth) {
+                    while (y * tileHeight < windowHeight) {
+                        gc.returnTileGenerator().returnNPC(9, g, x * tileWidth, y * tileHeight);
                         g.setColor(Color.red);
-                        g.drawRect(90*x, 90*y, 90, 90);
+                        g.drawRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
                         y++;
                     }
                     x++;
-                    y=0;
+                    y = 0;
                 }
             }
         };
@@ -257,9 +252,9 @@ class GameGUI {
         loginButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try{
-                gc.returnGameController().logIn(Integer.parseInt(loginBox.getText()),passwordBox.getText());
-                }catch(NumberFormatException x){
+                try {
+                    gc.returnGameController().logIn(Integer.parseInt(loginBox.getText()), passwordBox.getText());
+                } catch (NumberFormatException x) {
                     JOptionPane.showMessageDialog(window, "The acc number must be numbers!!!");
                 }
             }
