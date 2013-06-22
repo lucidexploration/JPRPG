@@ -282,6 +282,7 @@ class GameGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //add code here to send info to the server
+                gc.returnGameController().createAccount(Integer.valueOf(accCreationBox.getText()), passCreationBox.getText(), "Bob");
             }
         });
         //make window popup on button press

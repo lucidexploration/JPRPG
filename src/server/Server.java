@@ -10,14 +10,15 @@ public class Server {
 
     private int ports[];
     private ByteBuffer echoBuffer = ByteBuffer.allocate(1024);
-    private Map<Integer,Account> accounts;
-    private Map<Integer,Monsters> monsters;
+    private Map<Integer, Account> accounts;
+    private Map<Integer, Monsters> monsters;
+    private int nextAccNumber = 1;
 
     public Server(int ports[]) throws IOException {
         //create new objects
         this.monsters = new HashMap<>(200);
         this.accounts = new HashMap<>(200);
-        this.ports = ports;        
+        this.ports = ports;
 
         //do shit
         loadAccounts();
@@ -25,11 +26,24 @@ public class Server {
         loadMonsters();
         configure_selector();
     }
-    
-    private void loadAccounts() {
-        //load accounts from file
-        //if file doesnt exist, create new blank file
-        //on exit and client disconnect, must write server info to file
+
+    private void loadAccounts() throws IOException {
+        Scanner scanner;
+        File file = new File("C://temp//accounts.txt");
+        try {
+            scanner = new Scanner(file);
+        } catch (FileNotFoundException ex) {
+            file.createNewFile();
+            scanner = new Scanner(file);
+        }
+        while (scanner.hasNext()) {
+            int accNumber = scanner.nextInt();
+            nextAccNumber = accNumber + 1;
+            String password = scanner.next();
+            String name = scanner.next();
+            accounts.put(accNumber, new Account(accNumber, password, name));
+            System.out.println("This is whats loaded in accounts at start : "+accounts.keySet());
+        }
     }
 
     private void loadMap() {
@@ -117,8 +131,9 @@ public class Server {
                         == SelectionKey.OP_READ) {
                     // Read the data
                     SocketChannel sc = (SocketChannel) key.channel();
-                    try{sc.write(echoBuffer);}
-                    catch(java.io.IOException e){
+                    try {
+                        sc.write(echoBuffer);
+                    } catch (java.io.IOException e) {
                         echoBuffer.clear();
                         key.cancel();
                     }
@@ -133,15 +148,37 @@ public class Server {
                         //most often be used in situations in which that might as well be the case. 
                         echoBuffer.clear();
 
-                        //System.out.println("buffer before read: "+echoBuffer.toString());
+                        //
                         int number_of_bytes;
-                        try{
-                            number_of_bytes= sc.read(echoBuffer);
+                        String message = new String(echoBuffer.array());
+                        String[] splits = message.split(",");
+                        System.out.println(message);
+                        
+                        //see what kind of packet was sent
+                        if(splits[0].contentEquals("create")){
+                            accounts.put(Integer.valueOf(splits[1]), new Account(Integer.valueOf(splits[1]),splits[2],splits[3]));
+                            System.out.println(accounts.keySet());
                         }
-                        catch(java.io.IOException e){
-                            number_of_bytes=-1;
+                        if(splits[0].contentEquals("login")){
+                            System.out.println(accounts.get(1).returnPassword());
+                            System.out.println(splits[2]);
+                            if(accounts.containsKey(Integer.valueOf(splits[1]))&&accounts.get(1).returnPassword().compareTo(splits[2])==0)
+                                System.out.println("we have this account");
+                            else
+                                System.out.println("no account or wrong info");
                         }
-                        //System.out.println("buffer after read: "+echoBuffer.toString());
+                        if(splits[0]=="attack"){
+                            //do attack shit
+                        }
+                        if(splits[0]=="chat"){
+                            //do chat shit
+                        }
+                        try {
+                            number_of_bytes = sc.read(echoBuffer);
+                        } catch (java.io.IOException e) {
+                            number_of_bytes = -1;
+                        }
+                        //
 
                         if (number_of_bytes <= 0) {
                             // the key is automatically invalidated once the
@@ -155,12 +192,12 @@ public class Server {
                         //After a sequence of channel-read or put operations, 
                         //invoke this method to prepare for a sequence of 
                         //channel-write or relative get operations. 
-                        //System.out.println("buffer before flip: "+echoBuffer.toString());
+                        //
                         echoBuffer.flip();
-                        //System.out.println("buffer after flip: "+echoBuffer.toString());
+                        //
 
                         sc.write(echoBuffer);
-                        //System.out.println("buffer after write: "+echoBuffer.toString());
+                        //
                         bytesEchoed += number_of_bytes;
                     }
 
@@ -173,9 +210,8 @@ public class Server {
             }
         }
     }
-    
-    
-    private void spawnPlayer(){
+
+    private void spawnPlayer() {
         //load player data and send to client all relevant info
         //such as:
         //--surrounding tiles

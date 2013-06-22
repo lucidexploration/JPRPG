@@ -27,12 +27,16 @@ class GameController {
         String in = input.readLine();
     }
 
+    public void createAccount(int accNumber, String password, String username){
+        output.println("create"+","+accNumber+","+password+","+username);
+    }
+    
     /*
      * Sends packet to server that says that attackerID is physically
      * attacking targetID.
      */
     public void attack(int attackerID, int targetID) {
-        output.println("++ATTACK++" + " " + attackerID + " " + targetID);
+        output.println("attack" + "," + attackerID + "," + targetID);
     }
 
     /*
@@ -46,7 +50,7 @@ class GameController {
      * chat box when the return key was pressed.
      */
     public void chat(String text) {
-        output.println("++CHAT++" + " " + text);
+        output.println("chat" + "," + text);
     }
 
     /*
@@ -60,7 +64,7 @@ class GameController {
      * for the server to verify the movement.
      */
     public void movement(int moverID, int xPos, int yPos) {
-        output.println("++MOVE++" + " " + moverID + " " + xPos + " " + yPos);
+        output.println("move" + "," + moverID + "," + xPos + "," + yPos);
     }
 
     public void recieveMovement(int moverID, int xPos, int yPos) {
@@ -70,6 +74,6 @@ class GameController {
      * Sends acc# and pw to server for the server to verify.
      */
     public void logIn(int accNumber, String password) {
-        output.println("++LOGIN++" + accNumber + " " + password);
+        output.println("login" +","+ accNumber + "," + password);
     }
 }
