@@ -28,10 +28,9 @@ class GameController {
         if (input.ready()) {
             String message = input.readLine();
             String[] splits = message.split(",");
-            System.out.println(splits);
-            if(splits[0].equals("chat")){
-                recieveChat(j,splits[1],splits[2]);
-                System.out.println(splits[0]+":"+splits[1]+":"+splits[2]);
+            System.out.println("recieved : " + message);
+            if (splits[0].equals("chat")) {
+                recieveChat(j, splits[1], splits[2]);
             }
         }
     }
@@ -59,14 +58,15 @@ class GameController {
      * chat box when the return key was pressed.
      */
     public void chat(String name, String text) {
-        output.println("chat,"+name +","+ text + ",");
+        output.println("chat," + name + "," + text + ",");
+        System.out.println("sent : " + "chat," + name + "," + text + ",\n");
     }
 
     /*
      * Updates chat window.
      */
-    public void recieveChat(JTextArea j,String charName, String text) {
-        j.append("\n"+text);
+    public void recieveChat(JTextArea j, String charName, String text) {
+        j.append("\n" + charName + ":" + text);
     }
 
     /*

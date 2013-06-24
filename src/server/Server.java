@@ -134,12 +134,6 @@ public class Server {
                         == SelectionKey.OP_READ) {
                     // Read the data
                     SocketChannel sc = (SocketChannel) key.channel();
-                    try {
-                        sc.write(echoBuffer);
-                    } catch (java.io.IOException e) {
-                        echoBuffer.clear();
-                        key.cancel();
-                    }
 
                     // interpret
                     int bytesEchoed = 0;
@@ -158,6 +152,7 @@ public class Server {
                         try {
                             number_of_bytes = sc.read(echoBuffer);
                         } catch (java.io.IOException e) {
+                            key.cancel();
                             number_of_bytes = -1;
                         }
                         //-----------Interpret Packets--------------------
@@ -183,18 +178,26 @@ public class Server {
                             //do attack shit
                         }
 
-                        //chat
+                        //-------------Chat-----------------
                         if (splits[0].contentEquals("chat")) {
                             //do chat shit
                             String name = splits[1];
                             String text = splits[2];
-                            String sendBack = "chat,"+name+","+text+",";
-                            ByteBuffer response = encoder.encode(CharBuffer.wrap(sendBack));
-                            try{sc.write(response);
-                            System.out.println("response : "+response);}
-                            catch(IOException e){}
+                            String sendBack = "chat," + name + "," + text + "," + "\n";
+
+                            if (splits[0].equals("chat")) {
+                                ByteBuffer response = encoder.encode(CharBuffer.wrap(sendBack));
+                                response.limit(response.position());
+                                response.clear();
+                                try {
+                                    sc.write(response);
+                                    response.clear();
+                                    System.out.println("response : " + sendBack);
+                                } catch (IOException e) {
+                                }
+                            }
                         }
-                        
+
                         //
 
                         if (number_of_bytes <= 0) {
@@ -212,8 +215,6 @@ public class Server {
                         //
                         echoBuffer.flip();
                         //
-
-                        sc.write(echoBuffer);
                         //
                         bytesEchoed += number_of_bytes;
                     }
