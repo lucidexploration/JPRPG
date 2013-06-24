@@ -59,6 +59,7 @@ class GameController {
      */
     public void chat(String name, String text) {
         output.println("chat," + name + "," + text + ",");
+        output.flush();
         System.out.println("sent : " + "chat," + name + "," + text + ",\n");
     }
 

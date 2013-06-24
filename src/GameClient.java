@@ -4,21 +4,21 @@ import java.net.UnknownHostException;
 
 class GameClient {
     
-    private TileGenerator tg;
-    private CreatureController cc;
-    private GameController gc;
+    private TileGenerator tileGen;
+    private CreatureController creatureCon;
+    private GameController gameCon;
     
     public GameClient() throws UnknownHostException, IOException{
-        tg = new TileGenerator();
-        cc = new CreatureController();
-        gc = new GameController();
+        tileGen = new TileGenerator();
+        creatureCon = new CreatureController();
+        gameCon = new GameController();
     }
     
     public GameController returnGameController(){
-        return gc;
+        return gameCon;
     }
     
     public TileGenerator returnTileGenerator(){
-        return tg;
+        return tileGen;
     }
 }

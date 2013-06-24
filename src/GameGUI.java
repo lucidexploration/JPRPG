@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -35,7 +33,6 @@ class GameGUI {
     private static JLabel worldDisplay;
     private static JTextArea chatBox;
     private static JTextArea statusDisplay;
-    //login boxes/buttons
     //chat
     private static JTextField chatboxInput;
     //login
@@ -57,7 +54,7 @@ class GameGUI {
         @Override
         public void run() {
             try {
-                gc.returnGameController().recieveInput(chatBox);
+                gameClient.returnGameController().recieveInput(chatBox);
                 checkForInput();
             } catch (IOException ex) {
             }
@@ -66,7 +63,7 @@ class GameGUI {
         }
     };
     //-----------the game classses----------------
-    private static GameClient gc;
+    private static GameClient gameClient;
 
     public void actionPerformed(ActionEvent e) {
     }
@@ -89,20 +86,22 @@ class GameGUI {
     }
 
     public static void makeGUI() {
+        //------------------Create the Window---------------------------------\\
         window = new JFrame("JPRPG");
+        //----set the windows options
         window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //create the layout
+        window.setVisible(true);
+        //--------add the window's layout
         gbl = new GridBagLayout();
         window.setLayout(gbl);
-        //methods to add parts to frame/window
-        addWorldDisplay(window.getContentPane());
-        addStatusDisplay(window.getContentPane());
-        addChatBox(window.getContentPane());
-        addLoginBoxes(window.getContentPane());
-        //listener for keypresses
-        //eventually this will have to check for focus to decide what to do
-        //and where to do it at
+        Container cp = window.getContentPane();
+        //------------------Add game parts to Window--------------------------\\
+        addWorldDisplay(cp);
+        addStatusDisplay(cp);
+        addChatBox(cp);
+        addLoginBoxes(cp);
+        //--------------------Listen for Keypresses---------------------------\\
         window.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -114,106 +113,123 @@ class GameGUI {
                 keysPressed.remove(e.getKeyChar());
             }
         });
+        //--------------------Finalize the window-----------------------------\\
         window.pack();
-        window.setVisible(true);
-        worldDisplay.setVisible(true);
-        chatBox.setVisible(true);
     }
 
-    public static void addWorldDisplay(Container pane) {
+    public static void addWorldDisplay(Container cp) {
         worldDisplay = new JLabel() {
+            //-----Draw the world in order 1)World 2)Items 3)Creatures--------\\
             @Override
             public void paint(Graphics g) {
-                //draw things in proper order
-                //world on bottom, items ontop of world, players standing
-                //ontop of everything
                 drawWorld(g);
-//                drawItems();
+                drawItems();
                 drawPlayersNPCS(g);
             }
+            //--draw the gameworld using information recieved from server-----\\
 
             private void drawWorld(Graphics g) {
-                int x = 0;
-                int y = 0;
+                int xTile = 0;
+                int yTile = 0;
                 int windowWidth = 900;
                 int windowHeight = 900;
                 int tileWidth = 90;
                 int tileHeight = 90;
 
-                while (x * tileWidth < windowWidth) {
-                    while (y * tileHeight < windowHeight) {
-                        gc.returnTileGenerator().emptySquare(g, x * tileWidth, y * tileHeight);
+                while (xTile * tileWidth < windowWidth) {
+                    while (yTile * tileHeight < windowHeight) {
+                        gameClient.returnTileGenerator().emptySquare(g, xTile * tileWidth, yTile * tileHeight);
                         g.setColor(Color.red);
-                        g.drawRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
-                        y++;
+                        g.drawRect(xTile * tileWidth, yTile * tileHeight, tileWidth, tileHeight);
+                        yTile++;
                     }
-                    x++;
-                    y = 0;
+                    xTile++;
+                    yTile = 0;
                 }
             }
+            //-----draw the npc\pcs using information recieved from server----\\
 
             private void drawPlayersNPCS(Graphics g) {
-                int x = 0;
-                int y = 0;
+                int xTile = 0;
+                int yTile = 0;
                 int windowWidth = 900;
                 int windowHeight = 900;
                 int tileWidth = 90;
                 int tileHeight = 90;
 
-                while (x * tileWidth < windowWidth) {
-                    while (y * tileHeight < windowHeight) {
-                        gc.returnTileGenerator().returnNPC(9, g, x * tileWidth, y * tileHeight);
+                while (xTile * tileWidth < windowWidth) {
+                    while (yTile * tileHeight < windowHeight) {
+                        gameClient.returnTileGenerator().returnNPC(9, g, xTile * tileWidth, yTile * tileHeight);
                         g.setColor(Color.red);
-                        g.drawRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
-                        y++;
+                        g.drawRect(xTile * tileWidth, yTile * tileHeight, tileWidth, tileHeight);
+                        yTile++;
                     }
-                    x++;
-                    y = 0;
+                    xTile++;
+                    yTile = 0;
                 }
+            }
+            //-----draw the items using information recieved from server------\\
+
+            private void drawItems() {
             }
         };
 
-        //set size
+        //-----------------Set world display area Options---------------------\\
         worldDisplay.setPreferredSize(new Dimension(900, 900));
-        //add worldDisplay with proper constraints
+        //position the world within the window and add it
         GridBagConstraints wc = new GridBagConstraints();
-        //position
         wc.gridx = 0;
         wc.gridy = 0;
         wc.gridwidth = 2;
         wc.fill = GridBagConstraints.BOTH;
-        //add to frame
-        window.getContentPane().add(worldDisplay, wc);
+        cp.add(worldDisplay, wc);
 
-        //start the time to check for input
+        //---------------Start the time to check for Input--------------------\\
         timer.schedule(task, 0, 1);
     }
 
-    private static void addStatusDisplay(Container contentPane) {
-        int health = 0;
-        int mana = 0;
+    private static void addStatusDisplay(Container cp) {
+        //-------------------------Setup Variables----------------------------\\
+        int health = 10;
+        int mana = 10;
         statusDisplay = new JTextArea("Current Health : " + health + "\n"
-                + "Current Mana : " + mana);
+                + "Current Mana : " + mana) {
+            @Override
+            public void paint(Graphics g) {
+                //draw HealthBar
+                g.setColor(Color.black);
+                g.drawString("Health : 10/100", 10, 20);
+                g.setColor(Color.red);
+                g.fillRect(110, 10, 100, 10);
+                g.setColor(Color.green);
+                g.fillRect(110, 10, 10, 10);
+                //draw ManaBar
+                g.setColor(Color.black);
+                g.drawString("Mana : 10/100", 10, 40);
+                g.setColor(Color.red);
+                g.fillRect(110, 30, 100, 10);
+                g.setColor(Color.green);
+                g.fillRect(110, 30, 10, 10);
+            }
+        };
+        statusDisplay.setPreferredSize(new Dimension(400, 200));
+        statusDisplay.setEditable(false);
+        //--------------position the statusdiplay and add it
         GridBagConstraints sdc = new GridBagConstraints();
-        //position
         sdc.gridx = 2;
         sdc.gridy = 0;
         sdc.anchor = GridBagConstraints.NORTH;
-        //add it to frame
-        window.getContentPane().add(statusDisplay, sdc);
-        //set size
-        statusDisplay.setPreferredSize(new Dimension(400, 200));
-        statusDisplay.setEditable(false);
+        cp.add(statusDisplay, sdc);
     }
 
-    public static void addChatBox(Container pane) {
+    public static void addChatBox(Container cp) {
         chatBox = new JTextArea("This is the chatbox");
         chatboxInput = new JTextField("Type shit here");
         chatboxInput.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (chatboxInput.getText().length() > 0) {
-                    gc.returnGameController().chat("Bob Barker", chatboxInput.getText());
+                    gameClient.returnGameController().chat("Bob Barker", chatboxInput.getText());
                     chatboxInput.setText("");
                 }
             }
@@ -233,56 +249,53 @@ class GameGUI {
         cbic.anchor = GridBagConstraints.SOUTH;
         cbic.fill = 2;
         //add them to frame
-        window.getContentPane().add(chatboxInput, cbic);
-        window.getContentPane().add(chatBox, cc);
+        cp.add(chatboxInput, cbic);
+        cp.add(chatBox, cc);
         //set sizes
         chatBox.setPreferredSize(new Dimension(400, 500));
     }
 
-    private static void addLoginBoxes(Container contentPane) {
-        GridBagConstraints lc = new GridBagConstraints();
+    private static void addLoginBoxes(Container cp) {
+        //-------------------Create login buttons and boxes-------------------\\
         loginBox = new JTextField("Insert Acc. number here");
         loginBox.setAutoscrolls(false);
         passwordBox = new JTextField("Insert password here");
         passwordBox.setAutoscrolls(false);
         loginButton = new JButton("Login");
         //add buttons and boxes with constraints
-        //----------------login box-----------------
+        //---------------------------login box-----------------------------
         GridBagConstraints ltc = new GridBagConstraints();
         ltc.anchor = GridBagConstraints.WEST;
         //position
         ltc.gridx = 2;
         ltc.gridy = 2;
         //add to frame
-        window.getContentPane().add(loginBox, ltc);
-        //------------password box-----------------
+        cp.add(loginBox, ltc);
+        //--------------------------password box-----------------------------
         GridBagConstraints pbc = new GridBagConstraints();
-        //position
+        //position and add to contentPane
         pbc.gridx = 2;
         pbc.gridy = 2;
         pbc.anchor = GridBagConstraints.CENTER;
-        //add to frame
-        window.getContentPane().add(passwordBox, pbc);
-        //-------------login button----------------
-        //when pressed, sends info to server for server to verify
+        cp.add(passwordBox, pbc);
+        //---------------------------LOGIN-IN to Server-----------------------\\
         loginButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    gc.returnGameController().logIn(Integer.parseInt(loginBox.getText()), passwordBox.getText());
+                    gameClient.returnGameController().logIn(Integer.parseInt(loginBox.getText()), passwordBox.getText());
                 } catch (NumberFormatException x) {
                     JOptionPane.showMessageDialog(window, "The acc number must be numbers!!!");
                 }
             }
         });
         GridBagConstraints lbc = new GridBagConstraints();
-        //position
+        //----position the login buttons and add to contentPane
         lbc.gridx = 2;
         lbc.gridy = 2;
-        //add to frame
         lbc.anchor = GridBagConstraints.EAST;
-        window.getContentPane().add(loginButton, lbc);
-        //-------------account creation button and window-----------
+        cp.add(loginButton, lbc);
+        //-------------account creation buttons and windows-----------
         createAccount = new JButton("Create Account");
         createAccount.setText("Create Account");
         accCreationPanel = new JPanel();
@@ -293,21 +306,25 @@ class GameGUI {
         accCreationPanel.add(accCreationBox);
         accCreationPanel.add(passCreationBox);
         accCreationPanel.add(accCreationButton);
-        //when the accCreationButton is pressed, send the info to the server
+        //---------------Send Account Creation Info To Server-----------------\\
         accCreationButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //add code here to send info to the server
-                gc.returnGameController().createAccount(Integer.valueOf(accCreationBox.getText()), passCreationBox.getText(), "Bob");
+                gameClient.returnGameController().createAccount(
+                        Integer.valueOf(accCreationBox.getText()),
+                        passCreationBox.getText(),
+                        "Bob");
             }
         });
-        //make window popup on button press
+        //--------------------Pop-Up Account Creation Window------------------\\
         createAccount.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showConfirmDialog(null, accCreationPanel,
+                JOptionPane.showConfirmDialog(null,
+                        accCreationPanel,
                         "Insert acc number and password",
-                        JOptionPane.OK_CANCEL_OPTION);
+                        JOptionPane.DEFAULT_OPTION);
             }
         });
         //now align everything
@@ -315,16 +332,16 @@ class GameGUI {
         acc.gridx = 0;
         acc.gridy = 2;
         acc.anchor = GridBagConstraints.WEST;
-        window.getContentPane().add(createAccount, acc);
+        cp.add(createAccount, acc);
     }
 
     private static void checkForInput() {
         if (keysPressed.contains('w')) {
-            //add action here
+            //add actions here
         }
     }
 
     private static void loadData() throws UnknownHostException, IOException {
-        gc = new GameClient();
+        gameClient = new GameClient();
     }
 }
