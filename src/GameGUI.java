@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -56,6 +58,7 @@ class GameGUI {
         public void run() {
             try {
                 gc.returnGameController().recieveInput(chatBox);
+                checkForInput();
             } catch (IOException ex) {
             }
             checkForInput();
@@ -183,7 +186,7 @@ class GameGUI {
         window.getContentPane().add(worldDisplay, wc);
 
         //start the time to check for input
-        timer.schedule(task, 0, 50);
+        timer.schedule(task, 0, 1);
     }
 
     private static void addStatusDisplay(Container contentPane) {
@@ -209,7 +212,10 @@ class GameGUI {
         chatboxInput.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gc.returnGameController().chat(chatboxInput.getText());
+                if (chatboxInput.getText().length() > 0) {
+                    gc.returnGameController().chat("Bob Barker", chatboxInput.getText());
+                    chatboxInput.setText("");
+                }
             }
         });
         chatBox.setEditable(false);

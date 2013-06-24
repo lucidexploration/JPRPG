@@ -1,10 +1,11 @@
 package server;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.net.*;
 import java.nio.*;
 import java.nio.channels.*;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.*;
 
 public class Server {
@@ -14,6 +15,7 @@ public class Server {
     private Map<Integer, Account> accounts;
     private Map<Integer, Monsters> monsters;
     private int nextAccNumber = 1;
+    CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
 
     public Server(int ports[]) throws IOException {
         //create new objects
@@ -153,8 +155,11 @@ public class Server {
                         int number_of_bytes;
                         String message = new String(echoBuffer.array());
                         String[] splits = message.split(",");
-                        System.out.println(message);
-
+                        try {
+                            number_of_bytes = sc.read(echoBuffer);
+                        } catch (java.io.IOException e) {
+                            number_of_bytes = -1;
+                        }
                         //-----------Interpret Packets--------------------
                         //create account
                         if (splits[0].contentEquals("create")) {
@@ -181,15 +186,15 @@ public class Server {
                         //chat
                         if (splits[0].contentEquals("chat")) {
                             //do chat shit
+                            String name = splits[1];
+                            String text = splits[2];
+                            String sendBack = "chat,"+name+","+text+",";
+                            ByteBuffer response = encoder.encode(CharBuffer.wrap(sendBack));
+                            try{sc.write(response);
+                            System.out.println("response : "+response);}
+                            catch(IOException e){}
                         }
-                        //
-                        //
-                        //
-                        try {
-                            number_of_bytes = sc.read(echoBuffer);
-                        } catch (java.io.IOException e) {
-                            number_of_bytes = -1;
-                        }
+                        
                         //
 
                         if (number_of_bytes <= 0) {

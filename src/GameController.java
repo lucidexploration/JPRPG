@@ -16,9 +16,9 @@ class GameController {
     public GameController() throws UnknownHostException, IOException {
         //connects to the server
         //this will need to be updated
-        this.sock = new Socket("localhost", 7171);
-        this.output = new PrintWriter(this.sock.getOutputStream(), true);
-        this.input = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+        sock = new Socket("localhost", 7171);
+        output = new PrintWriter(sock.getOutputStream(), true);
+        input = new BufferedReader(new InputStreamReader(sock.getInputStream()));
     }
 
     /*
@@ -26,13 +26,12 @@ class GameController {
      */
     public void recieveInput(JTextArea j) throws IOException {
         if (input.ready()) {
-            byte[] b = new byte[input.readLine().length()];
-            sock.getInputStream().read(b);
-            String message = new String(b);
+            String message = input.readLine();
             String[] splits = message.split(",");
             System.out.println(splits);
             if(splits[0].equals("chat")){
-                recieveChat(j,splits[1]);
+                recieveChat(j,splits[1],splits[2]);
+                System.out.println(splits[0]+":"+splits[1]+":"+splits[2]);
             }
         }
     }
@@ -59,14 +58,14 @@ class GameController {
      * Sends packet to the server containing whatever was typed in to the
      * chat box when the return key was pressed.
      */
-    public void chat(String text) {
-        output.println("chat" + "," + text + ",");
+    public void chat(String name, String text) {
+        output.println("chat,"+name +","+ text + ",");
     }
 
     /*
      * Updates chat window.
      */
-    public void recieveChat(JTextArea j,String text) {
+    public void recieveChat(JTextArea j,String charName, String text) {
         j.append("\n"+text);
     }
 
