@@ -15,7 +15,6 @@ public class Server {
     private Map<Integer, Account> accounts;
     private Map<Integer, Monsters> monsters;
     private int nextAccNumber = 1;
-    CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
 
     public Server(int ports[]) throws IOException {
         //create new objects
@@ -86,10 +85,8 @@ public class Server {
             ss.bind(address);
 
             // register the serversocketchannel with the selector. The OP_ACCEPT
-            // option marks
-            // a selection key as ready when the channel accepts a new connection.
-            // When the
-            // socket server accepts a connection this key is added to the list of
+            // option marks a selection key as ready when the channel accepts a new connection.
+            // When the socket server accepts a connection this key is added to the list of
             // selected keys of the selector.
             // when asked for the selected keys, this key is returned and hence we
             // know that a new connection has been accepted.
@@ -114,8 +111,7 @@ public class Server {
                 // we use the properties object attached to the channel to find
                 // out the type of channel.
 
-                if ((key.readyOps() & SelectionKey.OP_ACCEPT)
-                        == SelectionKey.OP_ACCEPT) {
+                if ((key.readyOps() & SelectionKey.OP_ACCEPT)== SelectionKey.OP_ACCEPT) {
                     // a new connection has been obtained. This channel is
                     // therefore a socket server.
                     ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
@@ -130,22 +126,17 @@ public class Server {
                     it.remove();
 
                     System.out.println("Got connection from " + sc);
-                } else if ((key.readyOps() & SelectionKey.OP_READ)
-                        == SelectionKey.OP_READ) {
+                } 
+                else if ((key.readyOps() & SelectionKey.OP_READ)== SelectionKey.OP_READ) {
                     // Read the data
                     SocketChannel sc = (SocketChannel) key.channel();
 
                     // interpret
                     int bytesEchoed = 0;
                     while (true) {
-                        //Clears this buffer. The position is set to zero, the 
-                        //limit is set to the capacity, and the mark is discarded. 
-                        //This method does not actually erase the data in the 
-                        //buffer, but it is named as if it did because it will 
-                        //most often be used in situations in which that might as well be the case. 
+                        //Clears this buffer.
                         echoBuffer.clear();
-
-                        //
+                        
                         int number_of_bytes;
                         String message = new String(echoBuffer.array());
                         String[] splits = message.split(",");
@@ -183,39 +174,26 @@ public class Server {
                             //do chat shit
                             String name = splits[1];
                             String text = splits[2];
-                            String sendBack = "chat," + name + "," + text + "," + "\n";
-
+                            String sendBack = "chat," + name + "," + text + ",";
+                            System.out.println(sendBack);
                             if (splits[0].equals("chat")) {
-                                ByteBuffer response = encoder.encode(CharBuffer.wrap(sendBack));
-                                response.limit(response.position());
-                                response.clear();
-                                try {
-                                    sc.write(response);
-                                    response.clear();
-                                    System.out.println("response : " + sendBack);
-                                } catch (IOException e) {
-                                }
+                                echoBuffer.put(sendBack.getBytes());
+                                System.out.println("put : "+echoBuffer.asCharBuffer().toString());
                             }
                         }
 
                         //
 
                         if (number_of_bytes <= 0) {
-                            // the key is automatically invalidated once the
-                            // channel is closed
                             break;
                         }
 
-                        //Flips this buffer. The limit is set to the current 
-                        //position and then the position is set to zero. If the 
-                        //mark is defined then it is discarded. 
-                        //After a sequence of channel-read or put operations, 
-                        //invoke this method to prepare for a sequence of 
-                        //channel-write or relative get operations. 
                         //
+                        //
+                        
                         echoBuffer.flip();
-                        //
-                        //
+                        sc.write(echoBuffer);
+                        System.out.println("sent : "+echoBuffer.asCharBuffer().toString());
                         bytesEchoed += number_of_bytes;
                     }
 
