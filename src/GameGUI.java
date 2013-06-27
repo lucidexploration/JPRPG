@@ -229,7 +229,9 @@ class GameGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (chatboxInput.getText().length() > 0) {
-                    gameClient.returnGameController().chat("Bob Barker", chatboxInput.getText());
+                    String text = chatboxInput.getText();
+                    text = text.replaceAll("¬", ",");
+                    gameClient.returnGameController().chat("Bob Barker", text);
                     chatboxInput.setText("");
                 }
             }

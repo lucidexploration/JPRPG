@@ -27,7 +27,7 @@ class GameController {
     public void recieveInput(JTextArea j) throws IOException {
         if (input.ready()) {
             String message = input.readLine();
-            String[] splits = message.split(",");
+            String[] splits = message.split("¬");
             System.out.println("recieved : " + message);
             if (splits[0].equals("chat")) {
                 recieveChat(j, splits[1], splits[2]);
@@ -36,7 +36,7 @@ class GameController {
     }
 
     public void createAccount(int accNumber, String password, String username) {
-        output.println("create" + "," + accNumber + "," + password + "," + username + ",");
+        output.println("create¬"+ accNumber + "¬" + password + "¬" + username + "¬");
     }
 
     /*
@@ -44,7 +44,7 @@ class GameController {
      * attacking targetID.
      */
     public void attack(int attackerID, int targetID) {
-        output.println("attack" + "," + attackerID + "," + targetID + ",");
+        output.println("attack¬"+ attackerID + "¬" + targetID + "¬");
     }
 
     /*
@@ -58,7 +58,7 @@ class GameController {
      * chat box when the return key was pressed.
      */
     public void chat(String name, String text) {
-        output.println("chat," + name + "," + text + ",");
+        output.println("chat¬" + name + "¬" + text + "¬");
         //output.checkError();
         System.out.println("sent : " + "chat," + name + "," + text + ",");
     }
@@ -75,7 +75,7 @@ class GameController {
      * for the server to verify the movement.
      */
     public void movement(int moverID, int xPos, int yPos) {
-        output.println("move" + "," + moverID + "," + xPos + "," + yPos + ",");
+        output.println("move" + "¬" + moverID + "¬" + xPos + "¬" + yPos + "¬");
     }
 
     public void recieveMovement(int moverID, int xPos, int yPos) {
@@ -85,6 +85,6 @@ class GameController {
      * Sends acc# and pw to server for the server to verify.
      */
     public void logIn(int accNumber, String password) {
-        output.println("login" + "," + accNumber + "," + password + ",");
+        output.println("login" + "¬" + accNumber + "¬" + password + "¬");
     }
 }

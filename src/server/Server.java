@@ -143,7 +143,7 @@ public class Server {
                             number_of_bytes = -1;
                         }
                         String message = new String(echoBuffer.array());
-                        String[] splits = message.split(",");
+                        String[] splits = message.split("¬");
                         //-----------Interpret Packets--------------------
                         //create account
                         if (splits[0].equals("create")) {
@@ -172,7 +172,7 @@ public class Server {
                             //do chat shit
                             String name = splits[1];
                             String text = splits[2];
-                            String sendBack = "chat," + name + "," + text + ","+"\r";
+                            String sendBack = "chat¬" + name + "¬" + text + "¬"+"\r";
                             echoBuffer.clear();
                             echoBuffer.put(sendBack.getBytes());
                         }
