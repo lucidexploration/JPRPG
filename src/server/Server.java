@@ -27,14 +27,18 @@ public class Server {
         configure_selector();
     }
 
-    private void loadAccounts() throws IOException {
-        Scanner scanner;
-        File file = new File("C://temp//accounts.txt");
+    private void loadAccounts(){
+        Scanner scanner = null;
+        File file = new File((System.getProperty("user.home")+"//JPRPG//accounts.acc"));
         try {
             scanner = new Scanner(file);
         } catch (FileNotFoundException ex) {
-            file.createNewFile();
-            scanner = new Scanner(file);
+            try {
+                file.createNewFile();
+                scanner = new Scanner(file);
+            } catch (IOException ex1) {
+                file.mkdirs();
+            }
         }
         while (scanner.hasNext()) {
             int accNumber = scanner.nextInt();
