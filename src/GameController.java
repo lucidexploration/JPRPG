@@ -17,7 +17,7 @@ class GameController {
         //connects to the server
         //this will need to be updated
         sock = new Socket("localhost", 7171);
-        output = new PrintWriter(sock.getOutputStream(), true);
+        output = new PrintWriter(sock.getOutputStream(),true);
         input = new BufferedReader(new InputStreamReader(sock.getInputStream()));
     }
 
@@ -59,8 +59,8 @@ class GameController {
      */
     public void chat(String name, String text) {
         output.println("chat," + name + "," + text + ",");
-        output.flush();
-        System.out.println("sent : " + "chat," + name + "," + text + ",\n");
+        //output.checkError();
+        System.out.println("sent : " + "chat," + name + "," + text + ",");
     }
 
     /*

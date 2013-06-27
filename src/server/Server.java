@@ -136,25 +136,25 @@ public class Server {
                         echoBuffer.clear();
                         
                         int number_of_bytes;
-                        String message = new String(echoBuffer.array());
-                        String[] splits = message.split(",");
                         try {
                             number_of_bytes = sc.read(echoBuffer);
                         } catch (java.io.IOException e) {
-                            key.cancel();
+                            sc.close();
                             number_of_bytes = -1;
                         }
+                        String message = new String(echoBuffer.array());
+                        String[] splits = message.split(",");
                         //-----------Interpret Packets--------------------
                         //create account
-                        if (splits[0].contentEquals("create")) {
+                        if (splits[0].equals("create")) {
                             accounts.put(Integer.valueOf(splits[1]), new Account(Integer.valueOf(splits[1]), splits[2], splits[3]));
                             System.out.println(accounts.keySet());
                         }
 
                         //login
-                        if (splits[0].contentEquals("login")) {
+                        if (splits[0].equals("login")) {
                             String serverPassword = accounts.get(1).returnPassword();
-                            String clientPassword = new String(splits[2].getBytes(), "UTF-8");
+                            String clientPassword = new String(splits[2].getBytes());
                             if (serverPassword.equals(clientPassword)) {
                                 System.out.println("we have this account");
                             } else {
@@ -163,21 +163,18 @@ public class Server {
                         }
 
                         //attack
-                        if (splits[0].contentEquals("attack")) {
+                        if (splits[0].equals("attack")) {
                             //do attack shit
                         }
 
                         //-------------Chat-----------------
-                        if (splits[0].contentEquals("chat")) {
+                        if (splits[0].equals("chat")) {
                             //do chat shit
                             String name = splits[1];
                             String text = splits[2];
-                            String sendBack = "chat," + name + "," + text + ",";
-                            System.out.println(sendBack);
-                            if (splits[0].equals("chat")) {
-                                echoBuffer.put(sendBack.getBytes());
-                                System.out.println("put : "+echoBuffer.asCharBuffer().toString());
-                            }
+                            String sendBack = "chat," + name + "," + text + ","+"\r";
+                            echoBuffer.clear();
+                            echoBuffer.put(sendBack.getBytes());
                         }
 
                         //
@@ -188,10 +185,9 @@ public class Server {
 
                         //
                         //
-                        
                         echoBuffer.flip();
                         sc.write(echoBuffer);
-                        System.out.println("sent : "+echoBuffer.asCharBuffer().toString());
+                        System.out.println("sent : "+new String(echoBuffer.array()));
                         bytesEchoed += number_of_bytes;
                     }
 
