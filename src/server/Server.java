@@ -30,7 +30,7 @@ public class Server {
 
         //------------------------LOAD THINGS---------------------------------\\
         loadAccounts();
-        //loadMap();//----------------------------------------------------------Disabled to more quickly debug other things.
+        //loadMap();//------------------------------------------------------------Disabled to more quickly debug other things.
         loadMonsters();
         //------------------------DO CLIENT INPUT-----------------------------\\
         configure_selector();
@@ -58,6 +58,7 @@ public class Server {
             accounts.put(accNumber, new Account(accNumber, password, name));
             System.out.println("This is whats loaded in accounts at start : " + accounts.keySet());
         }
+        scanner.close();
     }
 
 //==================================================================================================================================================================================
@@ -81,6 +82,7 @@ public class Server {
             map.put(x, new Tile(id, type, extra));
             x++;
         }
+        scanner.close();
     }
 
 //==================================================================================================================================================================================

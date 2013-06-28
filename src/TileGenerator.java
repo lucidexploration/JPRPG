@@ -24,7 +24,7 @@ class TileGenerator {
     }
     
     public void returnTile(int tileNumber, Graphics g, int xPos, int yPos){
-        if(tileNumber==0)
+        if(tileNumber==000)
             emptySquare(g,xPos,yPos);
         else
             emptySquare(g,xPos,yPos);
