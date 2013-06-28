@@ -32,7 +32,10 @@ public class Server {
 
         //do shit
         loadAccounts();
-        loadMap();
+        //loadMap is disabled because of how long it takes to work
+        //it slows down the server loading, making other things take longer
+        //to debug. just uncomment to re-enable
+        //loadMap();        
         loadMonsters();
         configure_selector();
     }
