@@ -33,6 +33,10 @@ class GameGUI {
     private static JLabel worldDisplay;
     //--------------------------------------------------------------------------Status display objects.
     private static JTextArea statusDisplay;
+    private static double totalHealth = 300;
+    private static double currentHealth = 100;
+    private static double totalMana = 300;
+    private static double currentMana = 100;
     //--------------------------------------------------------------------------Chat objects.
     private static JTextArea chatBox;
     private static JTextField chatboxInput;
@@ -64,6 +68,7 @@ class GameGUI {
     };
     //--------------------------------------------------------------------------Add the game client.
     private static GameClient gameClient;
+    private static PlayerController playerCon;
 
     public void actionPerformed(ActionEvent e) {
     }
@@ -107,7 +112,7 @@ class GameGUI {
         window.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                switch (e.getKeyCode()){
+                switch (e.getKeyCode()) {
                     case KeyEvent.VK_LEFT:
                         System.out.println("left pressed");
                         break;
@@ -208,25 +213,28 @@ class GameGUI {
     //=================================================================================================================================================================================
     private static void addStatusDisplay(Container cp) {
         //----------------------------------------------------------------------Setup the status display variables
-        int health = 10;
-        int mana = 10;
         statusDisplay = new JTextArea() {
             @Override
             public void paint(Graphics g) {//-----------------------------------Draw the display area.
-                //draw HealthBar
+                int barWidth = 100;
+                int barHeight = 10;
+                int hpPercent = (int) ((currentHealth / totalHealth) * 100);//--The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
+                int mpPercent = (int) ((currentMana / totalMana) * 100);//------This fraction is decided by the fraction of health remaining.
+
+                //--------------------------------------------------------------Draw HealthBar
                 g.setColor(Color.black);
-                g.drawString("Health : 10/100", 10, 20);
+                g.drawString("Health : " + (int) currentHealth + "/" + (int) totalHealth, 10, 20);
                 g.setColor(Color.red);
-                g.fillRect(110, 10, 100, 10);
+                g.fillRect(110, 10, barWidth, barHeight);
                 g.setColor(Color.green);
-                g.fillRect(110, 10, 10, 10);
-                //draw ManaBar
+                g.fillRect(110, 10, hpPercent, barHeight);
+                //--------------------------------------------------------------Draw ManaBar
                 g.setColor(Color.black);
-                g.drawString("Mana : 10/100", 10, 40);
+                g.drawString("Mana : " + (int) currentMana + "/" + (int) totalMana, 10, 40);
                 g.setColor(Color.red);
-                g.fillRect(110, 30, 100, 10);
+                g.fillRect(110, 30, barWidth, barHeight);
                 g.setColor(Color.green);
-                g.fillRect(110, 30, 10, 10);
+                g.fillRect(110, 30, mpPercent, barHeight);
             }
         };
         statusDisplay.setPreferredSize(new Dimension(400, 200));
@@ -355,5 +363,9 @@ class GameGUI {
     //=================================================================================================================================================================================
     private static void loadData() throws UnknownHostException, IOException {
         gameClient = new GameClient();
+    }
+
+    private static void loadPlayer() {
+        playerCon = new PlayerController("Player", 100, 100, 0, 0, 0);
     }
 }
