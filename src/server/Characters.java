@@ -1,5 +1,7 @@
 package server;
 
+import java.net.InetAddress;
+
 
 class Characters {
     private String name;
@@ -7,6 +9,7 @@ class Characters {
     private int xPos;
     private int yPos;
     private int zPos;
+    private InetAddress address;
     
     public Characters(String name,int charType){
         this.name=name;
@@ -34,5 +37,13 @@ class Characters {
     
     public int returnZ(){
         return this.zPos;
+    }
+    
+    public void setAddress(InetAddress address){
+        this.address=address;
+    }
+    
+    public InetAddress returnAddress(){
+        return this.address;
     }
 }

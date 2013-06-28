@@ -5,19 +5,17 @@ import java.net.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Server {
 
     //-----------------------CONFIGURE SERVER---------------------------------\\
     private int ports[];
     private ByteBuffer echoBuffer = ByteBuffer.allocate(1024);
-    //-----------------------LOAD ACCOUNTS------------------------------------\\
+    //----------------------------ACCOUNTS------------------------------------\\
     private Map<Integer, Account> accounts;
-    //-----------------------LOAD CREATURES-----------------------------------\\
+    //----------------------------CREATURES-----------------------------------\\
     private Map<Integer, Monsters> monsters;
-    //-----------------------LOAD MAP-----------------------------------------\\
+    //----------------------------MAP-----------------------------------------\\
     private Map<Integer, Tile> map;
     final int mapRows = 1000;
     final int mapCols = 1000;
@@ -30,31 +28,30 @@ public class Server {
         this.map = new HashMap<>(mapRows * mapCols * mapLevels);
         this.ports = ports;
 
-        //do shit
+        //------------------------LOAD THINGS---------------------------------\\
         loadAccounts();
-        //loadMap is disabled because of how long it takes to work
-        //it slows down the server loading, making other things take longer
-        //to debug. just uncomment to re-enable
-        //loadMap();        
+        //loadMap();//----------------------------------------------------------Disabled to more quickly debug other things.
         loadMonsters();
+        //------------------------DO CLIENT INPUT-----------------------------\\
         configure_selector();
     }
 
+//==================================================================================================================================================================================
     //-----------Load Accounts-if folder or files dont exist-Create them------\\
     private void loadAccounts() {
         Scanner scanner = null;
         File file = new File((System.getProperty("user.home") + "//JPRPG//accounts.acc"));
         try {
             scanner = new Scanner(file);
-        } catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {//----------------------------------If file doesnt exist, create it.
             try {
                 file.createNewFile();
                 scanner = new Scanner(file);
-            } catch (IOException ex1) {
+            } catch (IOException ex1) {//---------------------------------------If folders dont exist, create them.
                 file.mkdirs();
             }
         }
-        while (scanner.hasNext()) {
+        while (scanner.hasNext()) {//-------------------------------------------As long as there is more in the file, keep reading.
             int accNumber = scanner.nextInt();
             String password = scanner.next();
             String name = scanner.next();
@@ -63,21 +60,19 @@ public class Server {
         }
     }
 
+//==================================================================================================================================================================================
     //-------------Load Map-if folder or files dont exist-Create them---------\\
     private void loadMap() {
-        //load map from file
-        //on exit, must write server info to file
         Scanner scanner = null;
         File file = new File((System.getProperty("user.home") + "//JPRPG//map.___"));
         try {
             scanner = new Scanner(file);
         } catch (FileNotFoundException ex) {
-            System.out.println("File not Found");
+            System.out.println("File not Found");//-----------------------------If file doesnt exist, you must make with EmptyMapMaker.java.
         }
 
         int x = 0;
-        while (scanner.hasNext()) {
-            //public Tile(int id, int type, int extra, int x, int y, int z)
+        while (scanner.hasNext()) {//-------------------------------------------As long as there is more in the file, keep reading.
             String info = scanner.nextLine();
             String[] infoSplit = info.split("¬");
             int id = Integer.parseInt(infoSplit[0]);
@@ -88,11 +83,13 @@ public class Server {
         }
     }
 
-    //will return the map<id> for the specified x,y,z
+//==================================================================================================================================================================================
+    //----------------Returns the map index of specified X,Y,Z----------------\\
     public int getIndex(int row, int col, int level) {
         return row * (mapRows + mapCols) + col * mapCols + level;
     }
 
+//==================================================================================================================================================================================
     //----------Load creatures-if folder or files dont exist-Create them------\\
     private void loadMonsters() {
         //load monsters from file
@@ -100,86 +97,80 @@ public class Server {
         //-one hasnt been spawned in 1 minute and last one is dead
     }
 
+//==================================================================================================================================================================================
     private void configure_selector() throws IOException {
-        // create a selector that will by used for multiplexing. The selector
-        // registers the socketserverchannel as
-        // well as all socketchannels that are created
-        Selector selector = Selector.open();
 
-        // Open a listener on each port, and register each one
-        // with the selector
-        for (int i = 0; i < ports.length; ++i) {
-            // create a new serversocketchannel. The channel is unbound.
-            ServerSocketChannel ssc = ServerSocketChannel.open();
-            // mark the serversocketchannel as non blocking
-            ssc.configureBlocking(false);
+        Selector selector = Selector.open();//----------------------------------Create a selector that will by used for multiplexing. The selector registers the socketserverchannel
+        //----------------------------------------------------------------------as well as all socketchannels that are created.
+
+
+
+        for (int i = 0; i < ports.length; ++i) {//------------------------------Open a listener on each port specified, and register each one with the selector
+
+            ServerSocketChannel ssc = ServerSocketChannel.open();//-------------Create a new serversocketchannel. The channel is unbound.
+
+            ssc.configureBlocking(false);//-------------------------------------Mark the serversocketchannel as non blocking.
             ServerSocket ss = ssc.socket();
-            // bind the channel to an address. The channel starts listening to
-            // incoming connections.
             InetSocketAddress address = new InetSocketAddress(ports[i]);
-            ss.bind(address);
+            ss.bind(address);//-------------------------------------------------Bind the channel to an address. The channel starts listening to incoming connections.
 
-            // register the serversocketchannel with the selector. The OP_ACCEPT
-            // option marks a selection key as ready when the channel accepts a new connection.
-            // When the socket server accepts a connection this key is added to the list of
-            // selected keys of the selector.
-            // when asked for the selected keys, this key is returned and hence we
-            // know that a new connection has been accepted.
+            //------------------------------------------------------------------Register the serversocketchannel with the selector. The OP_ACCEPT
+            //------------------------------------------------------------------option marks a selection key as ready when the channel accepts a new connection.
+            //------------------------------------------------------------------When the socket server accepts a connection this key is added to the list of
+            //------------------------------------------------------------------selected keys of the selector.
+            //------------------------------------------------------------------when asked for the selected keys, this key is returned and hence we
+            //------------------------------------------------------------------know that a new connection has been accepted.
             SelectionKey key = ssc.register(selector, SelectionKey.OP_ACCEPT);
 
             System.out.println("Going to listen on " + ports[i]);
         }
 
         while (true) {
-            // wait for the selected keys
-            int num = selector.select();
 
-            // the select method returns with a list of selected keys
-            Set selectedKeys = selector.selectedKeys();
+            int num = selector.select();//--------------------------------------Wait for the selected keys.
+
+
+            Set selectedKeys = selector.selectedKeys();//-----------------------The select method returns with a list of selected keys.
             Iterator it = selectedKeys.iterator();
 
             while (it.hasNext()) {
                 SelectionKey key = (SelectionKey) it.next();
-                // the selection key could either by the socketserver informing
-                // that a new connection has been made, or
-                // a socket client that is ready for read/write
-                // we use the properties object attached to the channel to find
-                // out the type of channel.
+                //--------------------------------------------------------------The selection key could either by the socketserver informing
+                //--------------------------------------------------------------that a new connection has been made, or a socket client that is ready for read/write
+                //--------------------------------------------------------------we use the properties object attached to the channel to find out the type of channel.
 
                 if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT) {
-                    // a new connection has been obtained. This channel is
-                    // therefore a socket server.
-                    ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
-                    // accept the new connection on the server socket. Since the
-                    // server socket channel is marked as non blocking
-                    // this channel will return null if no client is connected.
+
+                    ServerSocketChannel ssc = (ServerSocketChannel) key.channel();//A new connection has been obtained. This channel is therefore a socket server.
+
+                    //----------------------------------------------------------Accept the new connection on the server socket. Since the server socket channel is marked as non blocking
+                    //----------------------------------------------------------this channel will return null if no client is connected.
                     SocketChannel sc = ssc.accept();
-                    // set the client connection to be non blocking
-                    sc.configureBlocking(false);
-                    // Add the new connection to the selector
-                    SelectionKey newKey = sc.register(selector, SelectionKey.OP_READ);
+
+                    sc.configureBlocking(false);//------------------------------Set the client connection to be non blocking
+
+                    SelectionKey newKey = sc.register(selector, SelectionKey.OP_READ);//Add the new connection to the selector
                     it.remove();
 
                     System.out.println("Got connection from " + sc);
-                } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {
-                    // Read the data
-                    SocketChannel sc = (SocketChannel) key.channel();
 
-                    // interpret
+                } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {//We now have data, so read the data
+
+                    SocketChannel sc = (SocketChannel) key.channel();
                     int bytesEchoed = 0;
-                    while (true) {
-                        //Clears this buffer.
-                        echoBuffer.clear();
+                    while (true) {//--------------------------------------------As long as there is stuff in the ByteBuffer (echoBuffer), keep going.
+
+                        echoBuffer.clear();//-----------------------------------Make sure we are writing to the front of the buffer when we read the socket for input.
 
                         int number_of_bytes;
                         try {
                             number_of_bytes = sc.read(echoBuffer);
-                        } catch (java.io.IOException e) {
-                            sc.close();
+                        } catch (java.io.IOException e) {//---------------------This occurs if someone disconnects abruply.
+                            sc.close();//---------------------------------------Because they disconnected, we should close the socket and prepare to exit the loop.
                             number_of_bytes = -1;
                         }
                         String message = new String(echoBuffer.array());
-                        String[] splits = message.split("¬");
+                        String[] splits = message.split("¬");//-----------------I chose "¬" because it's a very unlikely character to be used by the players.
 
 
                         //-----------------------INTERPRET INCOMING PACKETS-----------------------\\
@@ -207,22 +198,21 @@ public class Server {
 
                         //chat
                         if (splits[0].equals("chat")) {
-                            //do chat shit
                             String name = splits[1];
                             String text = splits[2];
                             String sendBack = "chat¬" + name + "¬" + text + "¬" + "\r";
-                            echoBuffer.clear();
+                            echoBuffer.clear();//-------------------------------Make sure we are writing to the front of the buffer, and not some random place.
                             echoBuffer.put(sendBack.getBytes());
                         }
 
 
                         //-----------------------If the bytebuffer is empty, exit----------------\\
                         if (number_of_bytes <= 0) {
-                            break;
+                            break;//--------------------------------------------Break out of the loop if there is nothing in echoBuffer.
                         }
 
                         //-----------------------SEND PACKETS TO CLIENT---------------------------\\
-                        echoBuffer.flip();
+                        echoBuffer.flip();//------------------------------------Reverse the buffer so that the data is at the front of it.
                         sc.write(echoBuffer);
                         System.out.println("sent : " + new String(echoBuffer.array()));
                         bytesEchoed += number_of_bytes;
@@ -238,6 +228,7 @@ public class Server {
         }
     }
 
+//==================================================================================================================================================================================
     private void spawnPlayer() {
         //load player data and send to client all relevant info
         //such as:
@@ -247,6 +238,7 @@ public class Server {
         //--chat
     }
 
+//==================================================================================================================================================================================
     static public void main(String args[]) throws Exception {
         if (args.length <= 0) {
             System.err.println("Usage: java MultiPortEcho port [port port ...]");

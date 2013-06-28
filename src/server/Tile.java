@@ -10,4 +10,16 @@ class Tile {
         this.tileType=type;
         this.extraID=extra;
     }
+    
+    public int returnID(){
+        return this.tileID;
+    }
+    
+    public int returnType(){
+        return this.tileType;
+    }
+    
+    public int returnExtra(){
+        return this.extraID;
+    }
 }
