@@ -5,19 +5,29 @@ import java.net.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Server {
 
+    //-----------------------CONFIGURE SERVER---------------------------------\\
     private int ports[];
     private ByteBuffer echoBuffer = ByteBuffer.allocate(1024);
+    //-----------------------LOAD ACCOUNTS------------------------------------\\
     private Map<Integer, Account> accounts;
+    //-----------------------LOAD CREATURES-----------------------------------\\
     private Map<Integer, Monsters> monsters;
-    private int nextAccNumber = 1;
+    //-----------------------LOAD MAP-----------------------------------------\\
+    private Map<Integer, Tile> map;
+    final int mapRows = 1000;
+    final int mapCols = 1000;
+    final int mapLevels = 10;
 
     public Server(int ports[]) throws IOException {
         //create new objects
         this.monsters = new HashMap<>(200);
         this.accounts = new HashMap<>(200);
+        this.map = new HashMap<>(mapRows * mapCols * mapLevels);
         this.ports = ports;
 
         //do shit
@@ -27,9 +37,10 @@ public class Server {
         configure_selector();
     }
 
-    private void loadAccounts(){
+    //-----------Load Accounts-if folder or files dont exist-Create them------\\
+    private void loadAccounts() {
         Scanner scanner = null;
-        File file = new File((System.getProperty("user.home")+"//JPRPG//accounts.acc"));
+        File file = new File((System.getProperty("user.home") + "//JPRPG//accounts.acc"));
         try {
             scanner = new Scanner(file);
         } catch (FileNotFoundException ex) {
@@ -42,7 +53,6 @@ public class Server {
         }
         while (scanner.hasNext()) {
             int accNumber = scanner.nextInt();
-            nextAccNumber = accNumber + 1;
             String password = scanner.next();
             String name = scanner.next();
             accounts.put(accNumber, new Account(accNumber, password, name));
@@ -50,17 +60,37 @@ public class Server {
         }
     }
 
+    //-------------Load Map-if folder or files dont exist-Create them---------\\
     private void loadMap() {
         //load map from file
-        //if file doesnt exist, create new blank file
-        //map squares can have properties such as :
-        //----blocked
-        //----water
-        //----spawnpoint
-        //----
         //on exit, must write server info to file
+        Scanner scanner = null;
+        File file = new File((System.getProperty("user.home") + "//JPRPG//map.___"));
+        try {
+            scanner = new Scanner(file);
+        } catch (FileNotFoundException ex) {
+            System.out.println("File not Found");
+        }
+
+        int x = 0;
+        while (scanner.hasNext()) {
+            //public Tile(int id, int type, int extra, int x, int y, int z)
+            String info = scanner.nextLine();
+            String[] infoSplit = info.split("¬");
+            int id = Integer.parseInt(infoSplit[0]);
+            int type = Integer.parseInt(infoSplit[1]);
+            int extra = Integer.parseInt(infoSplit[2]);
+            map.put(x, new Tile(id, type, extra));
+            x++;
+        }
     }
 
+    //will return the map<id> for the specified x,y,z
+    public int getIndex(int row, int col, int level) {
+        return row * (mapRows + mapCols) + col * mapCols + level;
+    }
+
+    //----------Load creatures-if folder or files dont exist-Create them------\\
     private void loadMonsters() {
         //load monsters from file
         //check map for spawnpoints and spawn a monster there if
@@ -113,7 +143,7 @@ public class Server {
                 // we use the properties object attached to the channel to find
                 // out the type of channel.
 
-                if ((key.readyOps() & SelectionKey.OP_ACCEPT)== SelectionKey.OP_ACCEPT) {
+                if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT) {
                     // a new connection has been obtained. This channel is
                     // therefore a socket server.
                     ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
@@ -128,8 +158,7 @@ public class Server {
                     it.remove();
 
                     System.out.println("Got connection from " + sc);
-                } 
-                else if ((key.readyOps() & SelectionKey.OP_READ)== SelectionKey.OP_READ) {
+                } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {
                     // Read the data
                     SocketChannel sc = (SocketChannel) key.channel();
 
@@ -138,7 +167,7 @@ public class Server {
                     while (true) {
                         //Clears this buffer.
                         echoBuffer.clear();
-                        
+
                         int number_of_bytes;
                         try {
                             number_of_bytes = sc.read(echoBuffer);
@@ -148,7 +177,9 @@ public class Server {
                         }
                         String message = new String(echoBuffer.array());
                         String[] splits = message.split("¬");
-                        //-----------Interpret Packets--------------------
+
+
+                        //-----------------------INTERPRET INCOMING PACKETS-----------------------\\
                         //create account
                         if (splits[0].equals("create")) {
                             accounts.put(Integer.valueOf(splits[1]), new Account(Integer.valueOf(splits[1]), splits[2], splits[3]));
@@ -171,27 +202,26 @@ public class Server {
                             //do attack shit
                         }
 
-                        //-------------Chat-----------------
+                        //chat
                         if (splits[0].equals("chat")) {
                             //do chat shit
                             String name = splits[1];
                             String text = splits[2];
-                            String sendBack = "chat¬" + name + "¬" + text + "¬"+"\r";
+                            String sendBack = "chat¬" + name + "¬" + text + "¬" + "\r";
                             echoBuffer.clear();
                             echoBuffer.put(sendBack.getBytes());
                         }
 
-                        //
 
+                        //-----------------------If the bytebuffer is empty, exit----------------\\
                         if (number_of_bytes <= 0) {
                             break;
                         }
 
-                        //
-                        //
+                        //-----------------------SEND PACKETS TO CLIENT---------------------------\\
                         echoBuffer.flip();
                         sc.write(echoBuffer);
-                        System.out.println("sent : "+new String(echoBuffer.array()));
+                        System.out.println("sent : " + new String(echoBuffer.array()));
                         bytesEchoed += number_of_bytes;
                     }
 
