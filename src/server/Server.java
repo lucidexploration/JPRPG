@@ -141,9 +141,9 @@ public class Server {
                 //--------------------------------------------------------------that a new connection has been made, or a socket client that is ready for read/write
                 //--------------------------------------------------------------we use the properties object attached to the channel to find out the type of channel.
 
-                if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT) {
+                if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT) {//A new connection has been obtained.
 
-                    ServerSocketChannel ssc = (ServerSocketChannel) key.channel();//A new connection has been obtained. This channel is therefore a socket server.
+                    ServerSocketChannel ssc = (ServerSocketChannel) key.channel();//This channel is therefore a socket server.
 
                     //----------------------------------------------------------Accept the new connection on the server socket. Since the server socket channel is marked as non blocking
                     //----------------------------------------------------------this channel will return null if no client is connected.
@@ -159,17 +159,13 @@ public class Server {
                 } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {//We now have data, so read the data
 
                     SocketChannel sc = (SocketChannel) key.channel();
-                    int bytesEchoed = 0;
-                    while (true) {//--------------------------------------------As long as there is stuff in the ByteBuffer (echoBuffer), keep going.
 
-                        echoBuffer.clear();//-----------------------------------Make sure we are writing to the front of the buffer when we read the socket for input.
-
-                        int number_of_bytes;
+                    while (true) {
+                        int number_of_bytes = 0;
                         try {
                             number_of_bytes = sc.read(echoBuffer);
-                        } catch (java.io.IOException e) {//---------------------This occurs if someone disconnects abruply.
-                            sc.close();//---------------------------------------Because they disconnected, we should close the socket and prepare to exit the loop.
-                            number_of_bytes = -1;
+                        } catch (java.io.IOException e) {
+                            sc.close();
                         }
                         String message = new String(echoBuffer.array());
                         String[] splits = message.split("¬");//-----------------I chose "¬" because it's a very unlikely character to be used by the players.
@@ -180,6 +176,7 @@ public class Server {
                         if (splits[0].equals("create")) {
                             accounts.put(Integer.valueOf(splits[1]), new Account(Integer.valueOf(splits[1]), splits[2], splits[3]));
                             System.out.println(accounts.keySet());
+                            SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
                         }
 
                         //login
@@ -191,11 +188,13 @@ public class Server {
                             } else {
                                 System.out.println("no account or wrong info");
                             }
+                            SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
                         }
 
                         //attack
                         if (splits[0].equals("attack")) {
                             //do attack shit
+                            SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
                         }
 
                         //chat
@@ -205,32 +204,32 @@ public class Server {
                             String sendBack = "chat¬" + name + "¬" + text + "¬" + "\r";
                             echoBuffer.clear();//-------------------------------Make sure we are writing to the front of the buffer, and not some random place.
                             echoBuffer.put(sendBack.getBytes());
+                            SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
                         }
-
-
-                        //-----------------------If the bytebuffer is empty, exit----------------\\
                         if (number_of_bytes <= 0) {
-                            break;//--------------------------------------------Break out of the loop if there is nothing in echoBuffer.
+                            break;
                         }
-
-                        //-----------------------SEND PACKETS TO CLIENT---------------------------\\
-                        echoBuffer.flip();//------------------------------------Reverse the buffer so that the data is at the front of it.
-                        sc.write(echoBuffer);
-                        System.out.println("sent : " + new String(echoBuffer.array()));
-                        bytesEchoed += number_of_bytes;
                     }
-
-                    System.out.println("Echoed " + bytesEchoed + " from " + sc);
 
                     // once a key is handled, it needs to be removed
                     it.remove();
-                }
 
+                } else if ((key.readyOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {
+                    SocketChannel sc = (SocketChannel) key.channel();
+                    echoBuffer.flip();//----------------------------------------Reverse the buffer so that the data is at the front of it.
+                    //-----------------------SEND PACKETS TO CLIENT---------------------------\\
+
+                    System.out.println("sent: " +new String(echoBuffer.array()).split("¬", 3)[0]+" : "+new String(echoBuffer.array()).split("¬", 3)[1]+" - "+new String(echoBuffer.array()).split("¬", 4)[2]);
+                    sc.write(echoBuffer);
+                    echoBuffer = ByteBuffer.allocate(1024);
+                    SelectionKey newKey = sc.register(selector, SelectionKey.OP_READ);
+                    it.remove();
+                }
             }
         }
     }
-
 //==================================================================================================================================================================================
+
     private void spawnPlayer() {
         //load player data and send to client all relevant info
         //such as:

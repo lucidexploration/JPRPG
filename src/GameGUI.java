@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -40,6 +42,8 @@ class GameGUI {
     //--------------------------------------------------------------------------Chat objects.
     private static JTextArea chatBox;
     private static JTextField chatboxInput;
+    //--------------------------------------------------------------------------Inventory objects.
+    private static JTextArea inventory;
     //--------------------------------------------------------------------------Login objects.
     private static JTextField loginBox;
     private static JTextField passwordBox;
@@ -95,9 +99,8 @@ class GameGUI {
         //----------------------------------------------------------------------Create the Window.
         window = new JFrame("JPRPG");
         //----set the windows options
-        window.setResizable(false);
+        window.setResizable(true);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setVisible(true);
         //----------------------------------------------------------------------Add the window's layout.
         gbl = new GridBagLayout();
         window.setLayout(gbl);
@@ -107,6 +110,7 @@ class GameGUI {
         addWorldDisplay(cp);
         addStatusDisplay(cp);
         addChatBox(cp);
+        addInventory(cp);
         addLoginBoxes(cp);
         //----------------------------------------------------------------------Listen for Keypresses.
         window.addKeyListener(new KeyAdapter() {
@@ -136,6 +140,7 @@ class GameGUI {
         });
         //----------------------------------------------------------------------Finalize the window.
         window.pack();
+        window.setVisible(true);
     }
 
     //=================================================================================================================================================================================
@@ -202,9 +207,9 @@ class GameGUI {
         GridBagConstraints wc = new GridBagConstraints();
         wc.gridx = 0;
         wc.gridy = 0;
-        wc.gridwidth = 2;
         wc.fill = GridBagConstraints.BOTH;
         cp.add(worldDisplay, wc);
+        window.validate();
 
         //----------------------------------------------------------------------Start the time to check for Input
         timer.schedule(task, 0, 1);
@@ -218,8 +223,8 @@ class GameGUI {
             public void paint(Graphics g) {//-----------------------------------Draw the display area.
                 int barWidth = 100;
                 int barHeight = 10;
-                int hpPercent = (int) ((currentHealth / totalHealth) * 100);//--The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
-                int mpPercent = (int) ((currentMana / totalMana) * 100);//------This fraction is decided by the fraction of health remaining.
+                int hpPercent = (int) ((currentHealth / totalHealth) * barWidth);//--The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
+                int mpPercent = (int) ((currentMana / totalMana) * barWidth);//------This fraction is decided by the fraction of health remaining.
 
                 //--------------------------------------------------------------Draw HealthBar
                 g.setColor(Color.black);
@@ -227,14 +232,14 @@ class GameGUI {
                 g.setColor(Color.red);
                 g.fillRect(110, 10, barWidth, barHeight);
                 g.setColor(Color.green);
-                g.fillRect(110, 10, hpPercent, barHeight);
+                g.fillRect(110, 10, (int) hpPercent, barHeight);
                 //--------------------------------------------------------------Draw ManaBar
                 g.setColor(Color.black);
                 g.drawString("Mana : " + (int) currentMana + "/" + (int) totalMana, 10, 40);
                 g.setColor(Color.red);
                 g.fillRect(110, 30, barWidth, barHeight);
                 g.setColor(Color.green);
-                g.fillRect(110, 30, mpPercent, barHeight);
+                g.fillRect(110, 30, (int) mpPercent, barHeight);
             }
         };
         statusDisplay.setPreferredSize(new Dimension(400, 200));
@@ -246,13 +251,14 @@ class GameGUI {
         sdc.gridy = 0;
         sdc.anchor = GridBagConstraints.NORTH;
         cp.add(statusDisplay, sdc);
+        window.validate();
     }
 
     //=================================================================================================================================================================================
     public static void addChatBox(Container cp) {
         chatBox = new JTextArea("Welcome to JPRPG.");
         chatBox.setFocusable(false);
-        chatBox.setPreferredSize(new Dimension(400, 500));//--------------------Specifiy the size of the chat box.
+        chatBox.setPreferredSize(new Dimension(400, 200));//--------------------Specifiy the size of the chat box.
         chatboxInput = new JTextField("Chat here.");
         chatboxInput.addActionListener(new ActionListener() {
             @Override
@@ -271,15 +277,38 @@ class GameGUI {
         cc.gridx = 2;
         cc.gridy = 0;
         cc.anchor = GridBagConstraints.CENTER;
+        cc.insets = new Insets(0, 0, 100, 0);
         cp.add(chatBox, cc);
+        window.validate();
         //----------------------------------------------------------------------Position and add the chatbox text input
         GridBagConstraints cbic = new GridBagConstraints();
         cbic.gridx = 2;
-        cbic.gridy = 0;
+        cbic.gridy = 1;
         cbic.anchor = GridBagConstraints.SOUTH;
-        cbic.fill = 2;
+        cbic.fill = cc.HORIZONTAL;
         cp.add(chatboxInput, cbic);
+        window.validate();
 
+    }
+
+    //=================================================================================================================================================================================
+    private static void addInventory(Container cp) {
+        inventory = new JTextArea() {//-----------------------------------------Gotta fix this. Still not drawing.
+            @Override
+            public void paint(Graphics g) {
+                g.setColor(Color.red);
+                g.fillRect(inventory.getBounds().x, inventory.getBounds().y, inventory.getBounds().width, inventory.getBounds().height);
+            }
+        };
+        inventory.setEditable(false);
+        inventory.setPreferredSize(new Dimension(400, 400));
+        GridBagConstraints inventoryCon = new GridBagConstraints();
+        inventoryCon.gridx = 2;
+        inventoryCon.gridy = 0;
+        inventoryCon.insets = new Insets(500, 0, 0, 0);
+        inventoryCon.anchor = GridBagConstraints.PAGE_END;
+        cp.add(inventory, inventoryCon);
+        window.validate();
     }
 
     //=================================================================================================================================================================================
@@ -297,12 +326,14 @@ class GameGUI {
         ltc.gridx = 2;
         ltc.gridy = 2;
         cp.add(loginBox, ltc);
+        window.validate();
         //----------------------------------------------------------------------Password box.
         GridBagConstraints pbc = new GridBagConstraints();
         pbc.gridx = 2;
         pbc.gridy = 2;
         pbc.anchor = GridBagConstraints.CENTER;
         cp.add(passwordBox, pbc);
+        window.validate();
         //----------------------------------------------------------------------When login button is pressed, send the login information to the server.
         loginButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
@@ -320,6 +351,7 @@ class GameGUI {
         lbc.gridy = 2;
         lbc.anchor = GridBagConstraints.EAST;
         cp.add(loginButton, lbc);
+        window.validate();
         //----------------------------------------------------------------------Account creation buttons and windows.
         createAccount = new JButton("Create Account");
         createAccount.setText("Create Account");
@@ -358,6 +390,7 @@ class GameGUI {
         acc.gridy = 2;
         acc.anchor = GridBagConstraints.WEST;
         cp.add(createAccount, acc);
+        window.validate();
     }
 
     //=================================================================================================================================================================================
