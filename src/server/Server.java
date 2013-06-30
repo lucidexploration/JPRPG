@@ -5,6 +5,8 @@ import java.net.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Server {
 
@@ -39,26 +41,46 @@ public class Server {
 //==================================================================================================================================================================================
     //-----------Load Accounts-if folder or files dont exist-Create them------\\
     private void loadAccounts() {
-        Scanner scanner = null;
-        File file = new File((System.getProperty("user.home") + "//JPRPG//accounts.acc"));
+        File dir = new File(System.getProperty("user.home") + "//JPRPG//");
+        File file = new File(dir, "accounts.txt");
+        BufferedReader scanner = null;
+        String parse = "";
         try {
-            scanner = new Scanner(file);
+            scanner = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException ex) {//----------------------------------If file doesnt exist, create it.
             try {
                 file.createNewFile();
-                scanner = new Scanner(file);
+                scanner = new BufferedReader(new FileReader(file));
             } catch (IOException ex1) {//---------------------------------------If folders dont exist, create them.
                 file.mkdirs();
             }
         }
-        while (scanner.hasNext()) {//-------------------------------------------As long as there is more in the file, keep reading.
-            int accNumber = scanner.nextInt();
-            String password = scanner.next();
-            String name = scanner.next();
-            accounts.put(accNumber, new Account(accNumber, password, name));
-            System.out.println("This is whats loaded in accounts at start : " + accounts.keySet());
+        try {
+            while ((parse = scanner.readLine()) != null) {//--------------------As long as there is more in the file, keep reading.
+                //System.out.println(parse);
+                String[] info = parse.split(",");
+                int accNumber = Integer.parseInt(info[0]);
+                String password = info[1];
+                String name = info[2];
+                int x = Integer.parseInt(info[3]);
+                int y = Integer.parseInt(info[4]);
+                int z = Integer.parseInt(info[5]);
+                int accountType = Integer.parseInt(info[6]);
+                int hp = Integer.parseInt(info[7]);
+                int hpTotal = Integer.parseInt(info[8]);
+                int mana = Integer.parseInt(info[9]);
+                int manaTotal = Integer.parseInt(info[10]);
+                accounts.put(accNumber, new Account( accNumber,password, name,x,y,z,accountType,hp,hpTotal,mana,manaTotal));
+            }
+        } catch (IOException ex) {
+            System.out.println("Scanner couldnt read the fucking line");
         }
-        scanner.close();
+        try {
+            scanner.close();
+        } catch (IOException ex) {
+            System.out.println("scanner never even opened");
+        }
+        System.out.println("This is whats loaded in accounts at start : " + accounts.keySet());
     }
 
 //==================================================================================================================================================================================
@@ -161,6 +183,8 @@ public class Server {
                     SocketChannel sc = (SocketChannel) key.channel();
 
                     while (true) {
+                        System.out.println("beginning of loop: "+new String(echoBuffer.array()));
+                        echoBuffer.clear();
                         int number_of_bytes = 0;
                         try {
                             number_of_bytes = sc.read(echoBuffer);
@@ -174,21 +198,38 @@ public class Server {
                         //-----------------------INTERPRET INCOMING PACKETS-----------------------\\
                         //create account
                         if (splits[0].equals("create")) {
-                            accounts.put(Integer.valueOf(splits[1]), new Account(Integer.valueOf(splits[1]), splits[2], splits[3]));
+                            //accounts.put(Integer.valueOf(splits[1]), new Account(Integer.valueOf(splits[1]), splits[2], splits[3]));
                             System.out.println(accounts.keySet());
-                            SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
+                            //SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
                         }
 
                         //login
-                        if (splits[0].equals("login")) {
-                            String serverPassword = accounts.get(1).returnPassword();
-                            String clientPassword = new String(splits[2].getBytes());
-                            if (serverPassword.equals(clientPassword)) {
-                                System.out.println("we have this account");
-                            } else {
-                                System.out.println("no account or wrong info");
+                        if (splits[0].equals("login")) {//----------------------If this is a login packet
+                            System.out.println("yes");
+                            System.out.println(accounts.keySet());
+                            if(accounts.containsKey(Integer.parseInt(splits[1]))){//And if we have this account
+                                System.out.println("yep");
+                                if(accounts.get(Integer.parseInt(splits[1])).returnPassword().equals(splits[2])){//And if the password matches
+                                    System.out.println("yeppers");
+                                    //------------------------------------------Prepare to send the login information
+                                    int x = accounts.get(Integer.parseInt(splits[1])).returnChar().returnX();
+                                    int y = accounts.get(Integer.parseInt(splits[1])).returnChar().returnY();
+                                    int z = accounts.get(Integer.parseInt(splits[1])).returnChar().returnZ();
+                                    String name = accounts.get(Integer.parseInt(splits[1])).returnChar().returnName();
+                                    int hp;
+                                    int totalhp;
+                                    int mana;
+                                    int totalmana;
+                                    accounts.get(Integer.parseInt(splits[1])).returnChar().setAddress(sc.socket().getInetAddress());
+                                    String sendBack = "login¬"+name+"¬"+x+"¬"+y+"¬"+z+"¬"+"\r";
+                                    //------------------------------------------Now write it all the the buffer.
+                                    echoBuffer.clear();
+                                    echoBuffer.put(sendBack.getBytes());
+                                    SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
+                                    System.out.println("login added: "+new String(echoBuffer.array()));                                    
+                                }
                             }
-                            SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
+                            break;
                         }
 
                         //attack
@@ -209,6 +250,7 @@ public class Server {
                         if (number_of_bytes <= 0) {
                             break;
                         }
+                        System.out.println("end of loop: "+new String(echoBuffer.array()));
                     }
 
                     // once a key is handled, it needs to be removed
@@ -219,7 +261,7 @@ public class Server {
                     echoBuffer.flip();//----------------------------------------Reverse the buffer so that the data is at the front of it.
                     //-----------------------SEND PACKETS TO CLIENT---------------------------\\
 
-                    System.out.println("sent: " +new String(echoBuffer.array()).split("¬", 3)[0]+" : "+new String(echoBuffer.array()).split("¬", 3)[1]+" - "+new String(echoBuffer.array()).split("¬", 4)[2]);
+                    System.out.println("sent: "+new String(echoBuffer.array()));
                     sc.write(echoBuffer);
                     echoBuffer = ByteBuffer.allocate(1024);
                     SelectionKey newKey = sc.register(selector, SelectionKey.OP_READ);

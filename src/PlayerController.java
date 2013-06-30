@@ -1,23 +1,67 @@
-
-import java.util.HashMap;
-
-
 class PlayerController {
-    private HashMap creatureMap;
-    private HashMap playerMap;
     private String name = "";
+    private int totalHitPoints = 0;
     private int hitpoints = 0;
+    private int totalMana = 0;
     private int mana = 0;
     private int xPos = 0;
     private int yPos = 0;
     private int zPos = 0;
     
-    public PlayerController(String name,int hp, int mp, int x, int y, int z){
-        this.name=name;
-        this.hitpoints=hp;
-        this.mana=mp;
+    //--------------------------------------------------------------------------Positioning
+    //--------------------------------------------------------------------------Set Pos
+    public void setPos(int x, int y, int z){
         this.xPos=x;
         this.yPos=y;
         this.zPos=z;
     }
+    //--------------------------------------------------------------------------Return xPos
+    public int returnX(){
+        return this.xPos;
+    }
+    //--------------------------------------------------------------------------Return yPos
+    public int returnY(){
+        return this.yPos;
+    }
+    //--------------------------------------------------------------------------Return zPos
+    public int returnZ(){
+        return this.zPos;
+    }
+    
+    //--------------------------------------------------------------------------Name
+    //--------------------------------------------------------------------------Set Name
+    public void setName(String name){
+        this.name=name;
+    }
+    //--------------------------------------------------------------------------Return Name
+    public String returnName(){
+        return this.name;
+    }
+    //--------------------------------------------------------------------------HP
+    //--------------------------------------------------------------------------Set HP
+    public void setHP(int hp){
+        this.hitpoints=hp;
+    }
+    //--------------------------------------------------------------------------Return HP
+    public int returnHP(){
+        return this.hitpoints;
+    }
+    //--------------------------------------------------------------------------Return Total HP
+    public int returnTotalHP(){
+        return this.totalHitPoints;
+    }
+    //--------------------------------------------------------------------------Mana
+    //--------------------------------------------------------------------------Set Mana
+    public void setMana(int mana){
+        this.mana=mana;
+    }
+    //--------------------------------------------------------------------------Return Mana
+    public int returnMana(){
+        return this.mana;
+    }
+    //--------------------------------------------------------------------------Return Total Mana
+    public int returnTotalMana(){
+        return this.totalMana;
+    }
+    
 }

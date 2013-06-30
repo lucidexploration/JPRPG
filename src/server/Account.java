@@ -5,10 +5,10 @@ public class Account {
     private String password;
     private Characters myChar;
     
-    public Account(int accNumber, String password, String charName){
+    public Account(int accNumber, String password, String charName,int x,int y,int z,int accountType,int hp,int hpTotal,int mana,int manaTotal){
         this.accNumber=accNumber;
         this.password=password;
-        this.myChar = new Characters(charName, 1);
+        this.myChar = new Characters(charName,x,y,z,accountType,hp,hpTotal,mana,manaTotal);
     }
     
     public int returnAccNumber(){

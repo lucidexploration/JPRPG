@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import javax.swing.JTextArea;
 
-class GameController {
+class GameController extends GameGUI {
 
     private Socket sock;//this is the socket connecting us to the server
     private PrintWriter output;//this is the output stream
@@ -24,13 +24,22 @@ class GameController {
     /*
      * Recieves input from the server and parses it to know what to update.
      */
-    public void recieveInput(JTextArea j) throws IOException {
+    public void recieveInput() throws IOException {
         if (input.ready()) {
             String message = input.readLine();
             String[] splits = message.split("¬");
             System.out.println("recieved : " + message);
             if (splits[0].equals("chat")) {
-                recieveChat(j, splits[1], splits[2]);
+                String name = splits[1];
+                String words = splits[2];
+                recieveChat(name, words);
+            }
+            if (splits[0].equals("login")) {
+                String name = splits[1];
+                int x = Integer.parseInt(splits[2]);
+                int y = Integer.parseInt(splits[3]);
+                int z = Integer.parseInt(splits[4]);
+                recieveLogIn(name,x,y,z);
             }
         }
     }
@@ -59,15 +68,14 @@ class GameController {
      */
     public void chat(String name, String text) {
         output.println("chat¬" + name + "¬" + text + "¬");
-        //output.checkError();
         System.out.println("sent : " + "chat¬" + name + "¬" + text + "¬");
     }
 
     /*
      * Updates chat window.
      */
-    public void recieveChat(JTextArea j, String charName, String text) {
-        j.append("\n" + charName + ":" + text);
+    public void recieveChat(String charName, String text) {
+        GameGUI.chatBox.append("\n" + charName + ":" + text);
     }
 
     /*
@@ -85,6 +93,11 @@ class GameController {
      * Sends acc# and pw to server for the server to verify.
      */
     public void logIn(int accNumber, String password) {
-        output.println("login" + "¬" + accNumber + "¬" + password + "¬");
+        System.out.println("sent : "+accNumber+" "+password);
+        output.println("login¬"+ accNumber + "¬" + password + "¬"+"\n");
+    }
+    public void recieveLogIn(String charName, int x, int y, int z){
+        GameGUI.playerCon.setName(charName);
+        GameGUI.playerCon.setPos(x, y, z);
     }
 }

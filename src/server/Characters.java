@@ -2,48 +2,105 @@ package server;
 
 import java.net.InetAddress;
 
-
 class Characters {
-    private String name;
-    private int charType;
-    private int xPos;
-    private int yPos;
-    private int zPos;
+
+    private String name = "";
+    private int totalHitPoints = 0;
+    private int hitpoints = 0;
+    private int totalMana = 0;
+    private int mana = 0;
+    private int xPos = 0;
+    private int yPos = 0;
+    private int zPos = 0;
     private InetAddress address;
-    
-    public Characters(String name,int charType){
-        this.name=name;
-        this.charType=charType;
-        this.xPos=0;
-        this.yPos=0;
-        this.zPos=0;
+    private int charType;
+
+    public Characters(String charName,int x,int y,int z,int accountType,int hp,int hpTotal,int mana,int manaTotal) {
+        this.name = charName;
+        this.charType = accountType;
+        this.xPos = x;
+        this.yPos = y;
+        this.zPos = z;
+        this.hitpoints=hp;
+        this.totalHitPoints=hpTotal;
+        this.mana=mana;
+        this.totalMana=manaTotal;
     }
-    
-    public String returnName(){
-        return this.name;
+
+    //--------------------------------------------------------------------------Address info
+    //--------------------------------------------------------------------------Set Address
+    public void setAddress(InetAddress a) {
+        this.address = a;
     }
-    
-    public int returnCharType(){
-        return this.charType;
+    //--------------------------------------------------------------------------Return Address
+
+    public InetAddress returnAddress() {
+        return this.address;
     }
-    
-    public int returnX(){
+    //--------------------------------------------------------------------------Positioning
+    //--------------------------------------------------------------------------Set Pos
+
+    public void setPos(int x, int y, int z) {
+        this.xPos = x;
+        this.yPos = y;
+        this.zPos = z;
+    }
+    //--------------------------------------------------------------------------Return xPos
+
+    public int returnX() {
         return this.xPos;
     }
-    
-    public int returnY(){
+    //--------------------------------------------------------------------------Return yPos
+
+    public int returnY() {
         return this.yPos;
     }
-    
-    public int returnZ(){
+    //--------------------------------------------------------------------------Return zPos
+
+    public int returnZ() {
         return this.zPos;
     }
-    
-    public void setAddress(InetAddress address){
-        this.address=address;
+
+    //--------------------------------------------------------------------------Name
+    //--------------------------------------------------------------------------Set Name
+    public void setName(String name) {
+        this.name = name;
     }
-    
-    public InetAddress returnAddress(){
-        return this.address;
+    //--------------------------------------------------------------------------Return Name
+
+    public String returnName() {
+        return this.name;
+    }
+    //--------------------------------------------------------------------------HP
+    //--------------------------------------------------------------------------Set HP
+
+    public void setHP(int hp) {
+        this.hitpoints = hp;
+    }
+    //--------------------------------------------------------------------------Return HP
+
+    public int returnHP() {
+        return this.hitpoints;
+    }
+    //--------------------------------------------------------------------------Return Total HP
+
+    public int returnTotalHP() {
+        return this.totalHitPoints;
+    }
+    //--------------------------------------------------------------------------Mana
+    //--------------------------------------------------------------------------Set Mana
+
+    public void setMana(int mana) {
+        this.mana = mana;
+    }
+    //--------------------------------------------------------------------------Return Mana
+
+    public int returnMana() {
+        return this.mana;
+    }
+    //--------------------------------------------------------------------------Return Total Mana
+
+    public int returnTotalMana() {
+        return this.totalMana;
     }
 }

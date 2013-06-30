@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -30,39 +29,39 @@ import javax.swing.JTextField;
 class GameGUI {
 
     //--------------------------------------------------------------------------The game window.
-    private static JFrame window;
+    public static JFrame window;
     //--------------------------------------------------------------------------World display objects.
-    private static JLabel worldDisplay;
+    public static JLabel worldDisplay;
     //--------------------------------------------------------------------------Status display objects.
-    private static JTextArea statusDisplay;
-    private static double totalHealth = 300;
-    private static double currentHealth = 100;
-    private static double totalMana = 300;
-    private static double currentMana = 100;
+    public static JTextArea statusDisplay;
+    public static double totalHealth;
+    public static double currentHealth;
+    public static double totalMana;
+    public static double currentMana;
     //--------------------------------------------------------------------------Chat objects.
-    private static JTextArea chatBox;
-    private static JTextField chatboxInput;
+    public static JTextArea chatBox;
+    public static JTextField chatboxInput;
     //--------------------------------------------------------------------------Inventory objects.
-    private static JTextArea inventory;
+    public static JTextArea inventory;
     //--------------------------------------------------------------------------Login objects.
-    private static JTextField loginBox;
-    private static JTextField passwordBox;
-    private static JButton loginButton;
-    private static JButton createAccount;
+    public static JTextField loginBox;
+    public static JTextField passwordBox;
+    public static JButton loginButton;
+    public static JButton createAccount;
     //--------------------------------------------------------------------------Account creation objects.
-    private static JPanel accCreationPanel;
-    private static JTextField accCreationBox;
-    private static JTextField passCreationBox;
-    private static JButton accCreationButton;
+    public static JPanel accCreationPanel;
+    public static JTextField accCreationBox;
+    public static JTextField passCreationBox;
+    public static JButton accCreationButton;
     //--------------------------------------------------------------------------The Layout manager.
-    private static GridBagLayout gbl;
+    public static GridBagLayout gbl;
     //--------------------------------------------------------------------------Input.
     public static Timer timer = new Timer();//----------------------------------The time checks for input from server, or player.
     public static TimerTask task = new TimerTask() {
         @Override
         public void run() {
             try {
-                gameClient.returnGameController().recieveInput(chatBox);
+                gameClient.returnGameController().recieveInput();
             } catch (IOException ex) {
                 //--------------------------------------------------------------This will occur if the socket closes. In that case, exit client.
                 System.exit(-1);
@@ -71,8 +70,8 @@ class GameGUI {
         }
     };
     //--------------------------------------------------------------------------Add the game client.
-    private static GameClient gameClient;
-    private static PlayerController playerCon;
+    public static GameClient gameClient;
+    public static PlayerController playerCon;
 
     public void actionPerformed(ActionEvent e) {
     }
@@ -82,24 +81,36 @@ class GameGUI {
             @Override
             public void run() {
                 try {
+                    //----------------------------------------------------------Load the data
+                    loadPlayer();
                     loadData();
                 } catch (UnknownHostException ex) {
                     System.exit(-1);
                 } catch (IOException ex) {
                     System.exit(-2);
                 }
+
                 //--------------------------------------------------------------Create the gui.
                 makeGUI();
             }
         });
     }
+    //=================================================================================================================================================================================
+
+    private static void loadData() throws UnknownHostException, IOException {
+        gameClient = new GameClient();
+    }
+
+    private static void loadPlayer() {
+        playerCon = new PlayerController();
+    }
 
     //=================================================================================================================================================================================
-    public static void makeGUI() {
+    private static void makeGUI() {
         //----------------------------------------------------------------------Create the Window.
         window = new JFrame("JPRPG");
-        //----set the windows options
-        window.setResizable(true);
+        //----------------------------------------------------------------------set the windows options
+        window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //----------------------------------------------------------------------Add the window's layout.
         gbl = new GridBagLayout();
@@ -144,7 +155,7 @@ class GameGUI {
     }
 
     //=================================================================================================================================================================================
-    public static void addWorldDisplay(Container cp) {
+    private static void addWorldDisplay(Container cp) {
         worldDisplay = new JLabel() {
             //------------------------------------------------------------------Draw the world in order 1)World 2)Items 3)Creatures--------\\
             @Override
@@ -228,18 +239,20 @@ class GameGUI {
 
                 //--------------------------------------------------------------Draw HealthBar
                 g.setColor(Color.black);
-                g.drawString("Health : " + (int) currentHealth + "/" + (int) totalHealth, 10, 20);
-                g.setColor(Color.red);
-                g.fillRect(110, 10, barWidth, barHeight);
-                g.setColor(Color.green);
-                g.fillRect(110, 10, (int) hpPercent, barHeight);
-                //--------------------------------------------------------------Draw ManaBar
+                g.drawString(playerCon.returnName(), 10, 20);
                 g.setColor(Color.black);
-                g.drawString("Mana : " + (int) currentMana + "/" + (int) totalMana, 10, 40);
+                g.drawString("Health : " + (int) currentHealth + "/" + (int) totalHealth, 10, 40);
                 g.setColor(Color.red);
                 g.fillRect(110, 30, barWidth, barHeight);
                 g.setColor(Color.green);
-                g.fillRect(110, 30, (int) mpPercent, barHeight);
+                g.fillRect(110, 30, (int) hpPercent, barHeight);
+                //--------------------------------------------------------------Draw ManaBar
+                g.setColor(Color.black);
+                g.drawString("Mana : " + (int) currentMana + "/" + (int) totalMana, 10, 60);
+                g.setColor(Color.red);
+                g.fillRect(110, 50, barWidth, barHeight);
+                g.setColor(Color.green);
+                g.fillRect(110, 50, (int) mpPercent, barHeight);
             }
         };
         statusDisplay.setPreferredSize(new Dimension(400, 200));
@@ -255,7 +268,7 @@ class GameGUI {
     }
 
     //=================================================================================================================================================================================
-    public static void addChatBox(Container cp) {
+    private static void addChatBox(Container cp) {
         chatBox = new JTextArea("Welcome to JPRPG.");
         chatBox.setFocusable(false);
         chatBox.setPreferredSize(new Dimension(400, 200));//--------------------Specifiy the size of the chat box.
@@ -285,7 +298,7 @@ class GameGUI {
         cbic.gridx = 2;
         cbic.gridy = 1;
         cbic.anchor = GridBagConstraints.SOUTH;
-        cbic.fill = cc.HORIZONTAL;
+        cbic.fill = GridBagConstraints.HORIZONTAL;
         cp.add(chatboxInput, cbic);
         window.validate();
 
@@ -391,14 +404,5 @@ class GameGUI {
         acc.anchor = GridBagConstraints.WEST;
         cp.add(createAccount, acc);
         window.validate();
-    }
-
-    //=================================================================================================================================================================================
-    private static void loadData() throws UnknownHostException, IOException {
-        gameClient = new GameClient();
-    }
-
-    private static void loadPlayer() {
-        playerCon = new PlayerController("Player", 100, 100, 0, 0, 0);
     }
 }
