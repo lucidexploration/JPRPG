@@ -99,5 +99,10 @@ class GameController extends GameGUI {
     public void recieveLogIn(String charName, int x, int y, int z){
         GameGUI.playerCon.setName(charName);
         GameGUI.playerCon.setPos(x, y, z);
+        GameGUI.loginBox.setVisible(false);
+        GameGUI.passwordBox.setVisible(false);
+        GameGUI.createAccount.setVisible(false);
+        GameGUI.loginButton.setVisible(false);
+        GameGUI.chatboxInput.setVisible(true);
     }
 }
