@@ -59,7 +59,8 @@ class GameGUI {
     public static JTextField nameCreationBox;
     public static JTextField extraCreationBox;
     //--------------------------------------------------------------------------The Layout manager.
-    public static GridBagLayout gbl;
+    public static GridBagLayout layoutManager;
+    public static GridBagConstraints objectPosition;
     //--------------------------------------------------------------------------Input.
     private static long lastSent = System.currentTimeMillis();
     private static boolean canSend = false;
@@ -124,8 +125,9 @@ class GameGUI {
         window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //----------------------------------------------------------------------Add the window's layout.
-        gbl = new GridBagLayout();
-        window.setLayout(gbl);
+        layoutManager = new GridBagLayout();
+        objectPosition = new GridBagConstraints();
+        window.setLayout(layoutManager);
         //----------------------------------------------------------------------Set the frames contentPane to a variable for easier access.
         Container cp = window.getContentPane();
         //----------------------------------------------------------------------Add game parts to the Window.
@@ -246,11 +248,10 @@ class GameGUI {
         //----------------------------------------------------------------------Set world display area Options
         worldDisplay.setPreferredSize(new Dimension(900, 900));
         //position the world within the window and add it
-        GridBagConstraints wc = new GridBagConstraints();
-        wc.gridx = 0;
-        wc.gridy = 0;
-        wc.fill = GridBagConstraints.BOTH;
-        cp.add(worldDisplay, wc);
+        objectPosition.gridx = 0;
+        objectPosition.gridy = 0;
+        objectPosition.fill = GridBagConstraints.BOTH;
+        cp.add(worldDisplay, objectPosition);
         window.validate();
 
         //----------------------------------------------------------------------Start the time to check for Input
@@ -292,12 +293,11 @@ class GameGUI {
         statusDisplay.setEditable(false);
         statusDisplay.setFocusable(false);
         //----------------------------------------------------------------------Position the statusdiplay and add it.
-        GridBagConstraints sdc = new GridBagConstraints();
-        sdc.gridx = 2;
-        sdc.gridy = 0;
-        sdc.fill = GridBagConstraints.BOTH;
-        sdc.anchor = GridBagConstraints.NORTH;
-        cp.add(statusDisplay, sdc);
+        objectPosition.gridx = 2;
+        objectPosition.gridy = 0;
+        objectPosition.fill = GridBagConstraints.BOTH;
+        objectPosition.anchor = GridBagConstraints.NORTH;
+        cp.add(statusDisplay, objectPosition);
         window.validate();
     }
 
@@ -344,19 +344,18 @@ class GameGUI {
             }
         });
         //----------------------------------------------------------------------Position and add the chatbox
-        GridBagConstraints cc = new GridBagConstraints();
-        cc.gridx = 2;
-        cc.gridy = 0;
-        cc.anchor = GridBagConstraints.SOUTH;
-        cp.add(chatBox, cc);
+        objectPosition.gridx = 2;
+        objectPosition.gridy = 0;
+        objectPosition.anchor = GridBagConstraints.SOUTH;
+        objectPosition.fill = GridBagConstraints.NONE;
+        cp.add(chatBox, objectPosition);
         window.validate();
         //----------------------------------------------------------------------Position and add the chatbox text input
-        GridBagConstraints cbic = new GridBagConstraints();
-        cbic.gridx = 2;
-        cbic.gridy = 2;
-        cbic.anchor = GridBagConstraints.SOUTH;
-        cbic.fill = GridBagConstraints.BOTH;
-        cp.add(chatboxInput, cbic);
+        objectPosition.gridx = 2;
+        objectPosition.gridy = 2;
+        objectPosition.anchor = GridBagConstraints.SOUTH;
+        objectPosition.fill = GridBagConstraints.BOTH;
+        cp.add(chatboxInput, objectPosition);
         window.validate();
 
     }
@@ -371,12 +370,11 @@ class GameGUI {
         tabbedPane.setPreferredSize(new Dimension(300, 900));
 
         //----------------------------------------------------------------------Position and add pane
-        GridBagConstraints paneCon = new GridBagConstraints();
-        paneCon.gridx = 3;
-        paneCon.gridy = 0;
-        paneCon.fill = GridBagConstraints.BOTH;
-        paneCon.anchor = GridBagConstraints.CENTER;
-        cp.add(tabbedPane, paneCon);
+        objectPosition.gridx = 3;
+        objectPosition.gridy = 0;
+        objectPosition.fill = GridBagConstraints.BOTH;
+        objectPosition.anchor = GridBagConstraints.CENTER;
+        cp.add(tabbedPane, objectPosition);
         //----------------------------------------------------------------------Add inventory to pane
         inventory = new JPanel() {
             @Override
@@ -410,22 +408,19 @@ class GameGUI {
         loginButton = new JButton("Login");
         //----------------------------------------------------------------------Position and Add Login buttons and boxes.
         //----------------------------------------------------------------------Login box.
-        GridBagConstraints ltc = new GridBagConstraints();
-        ltc.anchor = GridBagConstraints.WEST;
-        ltc.gridx = 2;
-        ltc.gridy = 2;
-        ltc.fill = GridBagConstraints.VERTICAL;
+        objectPosition.anchor = GridBagConstraints.WEST;
+        objectPosition.gridx = 2;
+        objectPosition.gridy = 2;
+        objectPosition.fill = GridBagConstraints.VERTICAL;
         loginBox.setPreferredSize(new Dimension(190, 20));
-        cp.add(loginBox, ltc);
+        cp.add(loginBox, objectPosition);
         window.validate();
         //----------------------------------------------------------------------Password box.
-        GridBagConstraints pbc = new GridBagConstraints();
-        pbc.gridx = 2;
-        pbc.gridy = 2;
-        pbc.fill = GridBagConstraints.VERTICAL;
-        pbc.anchor = GridBagConstraints.LINE_END;
+        objectPosition.gridx = 2;
+        objectPosition.gridy = 2;
+        objectPosition.anchor = GridBagConstraints.EAST;
         loginBox.setPreferredSize(new Dimension(190, 20));
-        cp.add(passwordBox, pbc);
+        cp.add(passwordBox, objectPosition);
         window.validate();
         //----------------------------------------------------------------------When login button is pressed, send the login information to the server.
         loginButton.addActionListener(new java.awt.event.ActionListener() {
@@ -439,11 +434,11 @@ class GameGUI {
             }
         });
         //----------------------------------------------------------------------Login button.
-        GridBagConstraints lbc = new GridBagConstraints();
-        lbc.gridx = 3;
-        lbc.gridy = 2;
-        lbc.anchor = GridBagConstraints.WEST;
-        cp.add(loginButton, lbc);
+        objectPosition.gridx = 3;
+        objectPosition.gridy = 2;
+        objectPosition.anchor = GridBagConstraints.WEST;
+        objectPosition.fill = GridBagConstraints.NONE;
+        cp.add(loginButton, objectPosition);
         window.validate();
         //----------------------------------------------------------------------Account creation buttons and windows.
         createAccount = new JButton("Create Account");
@@ -456,20 +451,21 @@ class GameGUI {
         extraCreationBox = new JTextField("extra");
         //----------------------------------------------------------------------Add account creation input to the panel that displays when popped up and position it all.
         accCreationPanel.setLayout(new GridBagLayout());
-        GridBagConstraints creationLayout = new GridBagConstraints();
-        creationLayout.gridx = 0;
-        creationLayout.gridy = 0;
-        creationLayout.fill = GridBagConstraints.BOTH;
-        accCreationPanel.add(accCreationBox, creationLayout);
-        creationLayout.gridx = 1;
-        creationLayout.gridy = 0;
-        accCreationPanel.add(passCreationBox, creationLayout);
-        creationLayout.gridx = 2;
-        creationLayout.gridy = 2;
-        accCreationPanel.add(accCreationButton, creationLayout);
-        creationLayout.gridx = 0;
-        creationLayout.gridy = 1;
-        accCreationPanel.add(nameCreationBox, creationLayout);
+        objectPosition.gridx = 0;
+        objectPosition.gridy = 0;
+        objectPosition.fill = GridBagConstraints.BOTH;
+        objectPosition.anchor = GridBagConstraints.CENTER;
+        accCreationPanel.add(accCreationBox, objectPosition);
+        objectPosition.gridx = 1;
+        objectPosition.gridy = 0;
+        accCreationPanel.add(passCreationBox, objectPosition);
+        objectPosition.gridx = 2;
+        objectPosition.gridy = 2;
+        objectPosition.anchor = GridBagConstraints.CENTER;
+        accCreationPanel.add(accCreationButton, objectPosition);
+        objectPosition.gridx = 0;
+        objectPosition.gridy = 1;
+        accCreationPanel.add(nameCreationBox, objectPosition);
 //        creationLayout.gridx=0;
 //        creationLayout.gridy=2;
 //        accCreationPanel.add(extraCreationBox,creationLayout);
@@ -481,7 +477,7 @@ class GameGUI {
                 gameClient.returnGameController().createAccount(
                         Integer.valueOf(accCreationBox.getText()),
                         passCreationBox.getText(),
-                        "Bob");
+                        nameCreationBox.getText());
             }
         });
         //----------------------------------------------------------------------Pop-Up Account Creation Window when create account button is pressed.
@@ -495,11 +491,11 @@ class GameGUI {
             }
         });
         //----------------------------------------------------------------------Add and align the account creation button.
-        GridBagConstraints acc = new GridBagConstraints();
-        acc.gridx = 0;
-        acc.gridy = 2;
-        acc.anchor = GridBagConstraints.WEST;
-        cp.add(createAccount, acc);
+        objectPosition.gridx = 0;
+        objectPosition.gridy = 2;
+        objectPosition.anchor = GridBagConstraints.WEST;
+        objectPosition.fill = objectPosition.NONE;
+        cp.add(createAccount, objectPosition);
         window.validate();
     }
 }
