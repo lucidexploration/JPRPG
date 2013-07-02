@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -42,9 +41,10 @@ class GameGUI {
     //--------------------------------------------------------------------------Chat objects.
     public static JTextArea chatBox;
     public static JTextField chatboxInput;
-    //--------------------------------------------------------------------------Inventory objects.
+    //--------------------------------------------------------------------------Tabbed objects.
     public static JTabbedPane tabbedPane;
-    public static JTextArea inventory;
+    public static JPanel inventory;
+    public static JPanel optionsPane;
     //--------------------------------------------------------------------------Login objects.
     public static JTextField loginBox;
     public static JTextField passwordBox;
@@ -235,7 +235,7 @@ class GameGUI {
             @Override
             public void paint(Graphics g) {//-----------------------------------Draw the display area.
                 g.setColor(Color.red);
-                g.fillOval(100, 600, 200, 200);
+                g.fillOval(100, 150, 200, 200);
                 int barWidth = 100;
                 int barHeight = 10;
                 int hpPercent = (int) ((currentHealth / totalHealth) * barWidth);//--The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
@@ -276,7 +276,7 @@ class GameGUI {
     private static void addChatBox(Container cp) {
         chatBox = new JTextArea("Welcome to JPRPG.");
         chatBox.setFocusable(false);
-        chatBox.setPreferredSize(new Dimension(400, 200));//--------------------Specifiy the size of the chat box.
+        chatBox.setPreferredSize(new Dimension(400, 500));//--------------------Specifiy the size of the chat box.
         chatboxInput = new JTextField("Chat here.");
         chatboxInput.setVisible(false);
         chatboxInput.addActionListener(new ActionListener() {
@@ -295,8 +295,7 @@ class GameGUI {
         GridBagConstraints cc = new GridBagConstraints();
         cc.gridx = 2;
         cc.gridy = 0;
-        cc.anchor = GridBagConstraints.CENTER;
-        cc.insets = new Insets(0, 0, 100, 0);
+        cc.anchor = GridBagConstraints.SOUTH;
         cp.add(chatBox, cc);
         window.validate();
         //----------------------------------------------------------------------Position and add the chatbox text input
@@ -323,18 +322,25 @@ class GameGUI {
         paneCon.anchor = GridBagConstraints.CENTER;
         cp.add(tabbedPane, paneCon);
         //----------------------------------------------------------------------Add inventory to pane
-        inventory = new JTextArea() {
+        inventory = new JPanel() {
             @Override
             public void paint(Graphics g) {
                 g.setColor(Color.getHSBColor((float)0.53,(float)0.5,(float)0.70));
                 g.fillOval(0, 0, 280, 870);
             }
         };
-        inventory.setEditable(false);
         inventory.setPreferredSize(new Dimension(300,900));
         tabbedPane.addTab("Inventory", inventory);
         //----------------------------------------------------------------------Add options to pane
-        tabbedPane.add("Options",null);
+        optionsPane = new JPanel(){
+            @Override
+            public void paint(Graphics g) {
+                g.setColor(Color.getHSBColor((float)0.73,(float)0.5,(float)0.70));
+                g.fillOval(0, 0, 280, 870);
+            }
+        };
+        optionsPane.setPreferredSize(new Dimension(300,900));
+        tabbedPane.add("Options",optionsPane);
         window.validate();
     }
 
