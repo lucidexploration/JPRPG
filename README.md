@@ -5,4 +5,4 @@ Jon's PvP Role Play Game
 
 
 
-![alt tag](http://www.anonmgur.com/up/5a173ea3463c8229db2b956d3874e7e8.png)
+![alt tag](http://anonmgur.com/up/b3e469c95251b274ea0d6332d0c25e28.png)
