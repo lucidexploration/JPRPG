@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Timer;
@@ -55,9 +56,13 @@ class GameGUI {
     public static JTextField accCreationBox;
     public static JTextField passCreationBox;
     public static JButton accCreationButton;
+    public static JTextField nameCreationBox;
+    public static JTextField extraCreationBox;
     //--------------------------------------------------------------------------The Layout manager.
     public static GridBagLayout gbl;
     //--------------------------------------------------------------------------Input.
+    private static long lastSent = System.currentTimeMillis();
+    private static boolean canSend = false;
     public static Timer timer = new Timer();//----------------------------------The time checks for input from server, or player.
     public static TimerTask task = new TimerTask() {
         @Override
@@ -69,6 +74,10 @@ class GameGUI {
                 System.exit(-1);
             }
             worldDisplay.repaint();
+            if ((System.currentTimeMillis() - lastSent) >= 50) {
+                canSend = true;
+            }
+
         }
     };
     //--------------------------------------------------------------------------Add the game client.
@@ -132,15 +141,35 @@ class GameGUI {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_LEFT:
                         System.out.println("left pressed");
+                        if (canSend) {
+                            gameClient.returnGameController().sendMoveLeft();
+                            lastSent = System.currentTimeMillis();
+                            canSend = false;
+                        }
                         break;
                     case KeyEvent.VK_RIGHT:
                         System.out.println("right pressed");
+                        if (canSend) {
+                            gameClient.returnGameController().sendMoveRight();
+                            lastSent = System.currentTimeMillis();
+                            canSend = false;
+                        }
                         break;
                     case KeyEvent.VK_UP:
                         System.out.println("up pressed");
+                        if (canSend) {
+                            gameClient.returnGameController().sendMoveUp();
+                            lastSent = System.currentTimeMillis();
+                            canSend = false;
+                        }
                         break;
                     case KeyEvent.VK_DOWN:
                         System.out.println("down pressed");
+                        if (canSend) {
+                            gameClient.returnGameController().sendMoveDown();
+                            lastSent = System.currentTimeMillis();
+                            canSend = false;
+                        }
                         break;
                     default:
                         break;
@@ -266,7 +295,7 @@ class GameGUI {
         GridBagConstraints sdc = new GridBagConstraints();
         sdc.gridx = 2;
         sdc.gridy = 0;
-        sdc.fill=GridBagConstraints.BOTH;
+        sdc.fill = GridBagConstraints.BOTH;
         sdc.anchor = GridBagConstraints.NORTH;
         cp.add(statusDisplay, sdc);
         window.validate();
@@ -279,16 +308,39 @@ class GameGUI {
         chatBox.setPreferredSize(new Dimension(400, 500));//--------------------Specifiy the size of the chat box.
         chatboxInput = new JTextField("Chat here.");
         chatboxInput.setVisible(false);
+        //----------------------------------------------------------------------Send Chat when enter pressed.
         chatboxInput.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (chatboxInput.getText().length() > 0) {
                     String text = chatboxInput.getText();
                     text = text.replaceAll("¬", ",");
-                    gameClient.returnGameController().chat("Bob Barker", text);
+                    gameClient.returnGameController().sendChat(playerCon.returnName(), text);
                     chatboxInput.setText("");
                 }
-                window.requestFocus();
+            }
+        });
+        //----------------------------------------------------------------------If the escape key is pressed, shift focus back to the game world.
+        chatboxInput.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    window.requestFocus();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    window.requestFocus();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    window.requestFocus();
+                }
             }
         });
         //----------------------------------------------------------------------Position and add the chatbox
@@ -312,35 +364,39 @@ class GameGUI {
     //=================================================================================================================================================================================
     private static void addTabbedPane(Container cp) {
         tabbedPane = new JTabbedPane();//---------------------------------------Create the tabbed pane
-        tabbedPane.setVisible(true);//------------------------------------------Set tabbed pane options
-        tabbedPane.setPreferredSize(new Dimension(300,900));
+
+        //----------------------------------------------------------------------Set tabbed pane options
+        tabbedPane.setVisible(true);
+        tabbedPane.setFocusable(false);
+        tabbedPane.setPreferredSize(new Dimension(300, 900));
+
         //----------------------------------------------------------------------Position and add pane
         GridBagConstraints paneCon = new GridBagConstraints();
         paneCon.gridx = 3;
         paneCon.gridy = 0;
-        paneCon.fill=GridBagConstraints.BOTH;
+        paneCon.fill = GridBagConstraints.BOTH;
         paneCon.anchor = GridBagConstraints.CENTER;
         cp.add(tabbedPane, paneCon);
         //----------------------------------------------------------------------Add inventory to pane
         inventory = new JPanel() {
             @Override
             public void paint(Graphics g) {
-                g.setColor(Color.getHSBColor((float)0.53,(float)0.5,(float)0.70));
+                g.setColor(Color.getHSBColor((float) 0.53, (float) 0.5, (float) 0.70));
                 g.fillOval(0, 0, 280, 870);
             }
         };
-        inventory.setPreferredSize(new Dimension(300,900));
+        inventory.setPreferredSize(new Dimension(300, 900));
         tabbedPane.addTab("Inventory", inventory);
         //----------------------------------------------------------------------Add options to pane
-        optionsPane = new JPanel(){
+        optionsPane = new JPanel() {
             @Override
             public void paint(Graphics g) {
-                g.setColor(Color.getHSBColor((float)0.73,(float)0.5,(float)0.70));
+                g.setColor(Color.getHSBColor((float) 0.73, (float) 0.5, (float) 0.70));
                 g.fillOval(0, 0, 280, 870);
             }
         };
-        optionsPane.setPreferredSize(new Dimension(300,900));
-        tabbedPane.add("Options",optionsPane);
+        optionsPane.setPreferredSize(new Dimension(300, 900));
+        tabbedPane.add("Options", optionsPane);
         window.validate();
     }
 
@@ -358,17 +414,17 @@ class GameGUI {
         ltc.anchor = GridBagConstraints.WEST;
         ltc.gridx = 2;
         ltc.gridy = 2;
-        ltc.fill=GridBagConstraints.VERTICAL;
-        loginBox.setPreferredSize(new Dimension(190,20));
+        ltc.fill = GridBagConstraints.VERTICAL;
+        loginBox.setPreferredSize(new Dimension(190, 20));
         cp.add(loginBox, ltc);
         window.validate();
         //----------------------------------------------------------------------Password box.
         GridBagConstraints pbc = new GridBagConstraints();
         pbc.gridx = 2;
         pbc.gridy = 2;
-        pbc.fill=GridBagConstraints.VERTICAL;
+        pbc.fill = GridBagConstraints.VERTICAL;
         pbc.anchor = GridBagConstraints.LINE_END;
-        loginBox.setPreferredSize(new Dimension(190,20));
+        loginBox.setPreferredSize(new Dimension(190, 20));
         cp.add(passwordBox, pbc);
         window.validate();
         //----------------------------------------------------------------------When login button is pressed, send the login information to the server.
@@ -396,10 +452,27 @@ class GameGUI {
         accCreationBox = new JTextField("Insert Acc Number here");
         passCreationBox = new JTextField("Insert password here");
         accCreationButton = new JButton("Send to Server");
-        //----------------------------------------------------------------------Add account creation input to the panel that displays when popped up
-        accCreationPanel.add(accCreationBox);
-        accCreationPanel.add(passCreationBox);
-        accCreationPanel.add(accCreationButton);
+        nameCreationBox = new JTextField("Insert name here");
+        extraCreationBox = new JTextField("extra");
+        //----------------------------------------------------------------------Add account creation input to the panel that displays when popped up and position it all.
+        accCreationPanel.setLayout(new GridBagLayout());
+        GridBagConstraints creationLayout = new GridBagConstraints();
+        creationLayout.gridx = 0;
+        creationLayout.gridy = 0;
+        creationLayout.fill = GridBagConstraints.BOTH;
+        accCreationPanel.add(accCreationBox, creationLayout);
+        creationLayout.gridx = 1;
+        creationLayout.gridy = 0;
+        accCreationPanel.add(passCreationBox, creationLayout);
+        creationLayout.gridx = 2;
+        creationLayout.gridy = 2;
+        accCreationPanel.add(accCreationButton, creationLayout);
+        creationLayout.gridx = 0;
+        creationLayout.gridy = 1;
+        accCreationPanel.add(nameCreationBox, creationLayout);
+//        creationLayout.gridx=0;
+//        creationLayout.gridy=2;
+//        accCreationPanel.add(extraCreationBox,creationLayout);
         //----------------------------------------------------------------------Send new account information when the button is pressed.
         accCreationButton.addActionListener(new java.awt.event.ActionListener() {
             @Override

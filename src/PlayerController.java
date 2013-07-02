@@ -6,14 +6,12 @@ class PlayerController {
     private int mana = 0;
     private int xPos = 0;
     private int yPos = 0;
-    private int zPos = 0;
     
     //--------------------------------------------------------------------------Positioning
     //--------------------------------------------------------------------------Set Pos
-    public void setPos(int x, int y, int z){
+    public void setPos(int x, int y){
         this.xPos=x;
         this.yPos=y;
-        this.zPos=z;
     }
     //--------------------------------------------------------------------------Return xPos
     public int returnX(){
@@ -22,10 +20,6 @@ class PlayerController {
     //--------------------------------------------------------------------------Return yPos
     public int returnY(){
         return this.yPos;
-    }
-    //--------------------------------------------------------------------------Return zPos
-    public int returnZ(){
-        return this.zPos;
     }
     
     //--------------------------------------------------------------------------Name

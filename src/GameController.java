@@ -38,8 +38,7 @@ class GameController extends GameGUI {
                 String name = splits[1];
                 int x = Integer.parseInt(splits[2]);
                 int y = Integer.parseInt(splits[3]);
-                int z = Integer.parseInt(splits[4]);
-                recieveLogIn(name,x,y,z);
+                recieveLogIn(name,x,y);
             }
         }
     }
@@ -52,7 +51,7 @@ class GameController extends GameGUI {
      * Sends packet to server that says that attackerID is physically
      * attacking targetID.
      */
-    public void attack(int attackerID, int targetID) {
+    public void sendAttack(int attackerID, int targetID) {
         output.println("attack¬"+ attackerID + "¬" + targetID + "¬");
     }
 
@@ -66,7 +65,7 @@ class GameController extends GameGUI {
      * Sends packet to the server containing whatever was typed in to the
      * chat box when the return key was pressed.
      */
-    public void chat(String name, String text) {
+    public void sendChat(String name, String text) {
         output.println("chat¬" + name + "¬" + text + "¬");
         System.out.println("sent : " + "chat¬" + name + "¬" + text + "¬");
     }
@@ -82,8 +81,20 @@ class GameController extends GameGUI {
      * Moves moverID to target location, then sends packet to the server
      * for the server to verify the movement.
      */
-    public void movement(int moverID, int xPos, int yPos) {
-        output.println("move" + "¬" + moverID + "¬" + xPos + "¬" + yPos + "¬");
+    public void sendMoveLeft() {
+        output.println("move¬left¬");
+    }
+    
+    public void sendMoveRight() {
+        output.println("move¬right¬");
+    }
+    
+    public void sendMoveUp() {
+        output.println("move¬up¬");
+    }
+    
+    public void sendMoveDown() {
+        output.println("move¬down¬");
     }
 
     public void recieveMovement(int moverID, int xPos, int yPos) {
@@ -96,9 +107,9 @@ class GameController extends GameGUI {
         System.out.println("sent : "+accNumber+" "+password);
         output.println("login¬"+ accNumber + "¬" + password + "¬"+"\n");
     }
-    public void recieveLogIn(String charName, int x, int y, int z){
+    public void recieveLogIn(String charName, int x, int y){
         GameGUI.playerCon.setName(charName);
-        GameGUI.playerCon.setPos(x, y, z);
+        GameGUI.playerCon.setPos(x, y);
         GameGUI.loginBox.setVisible(false);
         GameGUI.passwordBox.setVisible(false);
         GameGUI.createAccount.setVisible(false);

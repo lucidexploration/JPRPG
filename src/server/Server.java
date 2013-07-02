@@ -5,8 +5,6 @@ import java.net.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Server {
 
@@ -30,11 +28,11 @@ public class Server {
         this.map = new HashMap<>(mapRows * mapCols * mapLevels);
         this.ports = ports;
 
-        //------------------------LOAD THINGS---------------------------------\\
+        //----------------------------------------------------------------------LOAD THINGS.
         loadAccounts();
-        //loadMap();//------------------------------------------------------------Disabled to more quickly debug other things.
+        //loadMap();//----------------------------------------------------------Disabled to more quickly debug other things.
         loadMonsters();
-        //------------------------DO CLIENT INPUT-----------------------------\\
+        //----------------------------------------------------------------------CLIENT INPUT.
         configure_selector();
     }
 
@@ -57,8 +55,9 @@ public class Server {
         }
         try {
             while ((parse = scanner.readLine()) != null) {//--------------------As long as there is more in the file, keep reading.
-                //System.out.println(parse);
-                String[] info = parse.split(",");
+                String[] info = parse.split(",");//-----------------------------Parse the line just read from the file.
+
+                //--------------------------------------------------------------Setup the variables.
                 int accNumber = Integer.parseInt(info[0]);
                 String password = info[1];
                 String name = info[2];
@@ -70,7 +69,9 @@ public class Server {
                 int hpTotal = Integer.parseInt(info[8]);
                 int mana = Integer.parseInt(info[9]);
                 int manaTotal = Integer.parseInt(info[10]);
-                accounts.put(accNumber, new Account( accNumber,password, name,x,y,z,accountType,hp,hpTotal,mana,manaTotal));
+
+                //--------------------------------------------------------------Add the variables to server memory on the accounts map.
+                accounts.put(accNumber, new Account(accNumber, password, name, x, y, z, accountType, hp, hpTotal, mana, manaTotal));
             }
         } catch (IOException ex) {
             System.out.println("Scanner couldnt read the fucking line");
@@ -84,7 +85,7 @@ public class Server {
     }
 
 //==================================================================================================================================================================================
-    //-------------Load Map-if folder or files dont exist-Create them---------\\
+    //--------------------------------------------------------------------------LOAD THE MAP. If it doesn't exist, you need to run the empty map maker.
     private void loadMap() {
         Scanner scanner = null;
         File file = new File((System.getProperty("user.home") + "//JPRPG//map.___"));
@@ -108,13 +109,13 @@ public class Server {
     }
 
 //==================================================================================================================================================================================
-    //----------------Returns the map index of specified X,Y,Z----------------\\
+    //--------------------------------------------------------------------------Returns the map index of specified X,Y,Z.
     public int getIndex(int row, int col, int level) {
         return row * (mapRows + mapCols) + col * mapCols + level;
     }
 
 //==================================================================================================================================================================================
-    //----------Load creatures-if folder or files dont exist-Create them------\\
+    //--------------------------------------------------------------------------LOAD MONSTERS. If monster file doesnt exist. Create it.
     private void loadMonsters() {
         //load monsters from file
         //check map for spawnpoints and spawn a monster there if
@@ -144,7 +145,7 @@ public class Server {
             //------------------------------------------------------------------selected keys of the selector.
             //------------------------------------------------------------------when asked for the selected keys, this key is returned and hence we
             //------------------------------------------------------------------know that a new connection has been accepted.
-            SelectionKey key = ssc.register(selector, SelectionKey.OP_ACCEPT);
+            ssc.register(selector, SelectionKey.OP_ACCEPT);
 
             System.out.println("Going to listen on " + ports[i]);
         }
@@ -173,7 +174,7 @@ public class Server {
 
                     sc.configureBlocking(false);//------------------------------Set the client connection to be non blocking
 
-                    SelectionKey newKey = sc.register(selector, SelectionKey.OP_READ);//Add the new connection to the selector
+                    sc.register(selector, SelectionKey.OP_READ);//Add the new connection to the selector
                     it.remove();
 
                     System.out.println("Got connection from " + sc);
@@ -183,7 +184,7 @@ public class Server {
                     SocketChannel sc = (SocketChannel) key.channel();
 
                     while (true) {
-                        System.out.println("beginning of loop: "+new String(echoBuffer.array()));
+                        System.out.println("received: " + new String(echoBuffer.array()));
                         echoBuffer.clear();
                         int number_of_bytes = 0;
                         try {
@@ -203,68 +204,97 @@ public class Server {
                             //SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
                         }
 
-                        //login
+                        //------------------------------------------------------LOGIN
                         if (splits[0].equals("login")) {//----------------------If this is a login packet
                             System.out.println("yes");
                             System.out.println(accounts.keySet());
-                            if(accounts.containsKey(Integer.parseInt(splits[1]))){//And if we have this account
+                            if (accounts.containsKey(Integer.parseInt(splits[1]))) {//And if we have this account
                                 System.out.println("yep");
-                                if(accounts.get(Integer.parseInt(splits[1])).returnPassword().equals(splits[2])){//And if the password matches
+                                if (accounts.get(Integer.parseInt(splits[1])).returnPassword().equals(splits[2])) {//And if the password matches
                                     System.out.println("yeppers");
+
                                     //------------------------------------------Prepare to send the login information
                                     int x = accounts.get(Integer.parseInt(splits[1])).returnChar().returnX();
                                     int y = accounts.get(Integer.parseInt(splits[1])).returnChar().returnY();
-                                    int z = accounts.get(Integer.parseInt(splits[1])).returnChar().returnZ();
                                     String name = accounts.get(Integer.parseInt(splits[1])).returnChar().returnName();
                                     int hp;
                                     int totalhp;
                                     int mana;
                                     int totalmana;
                                     accounts.get(Integer.parseInt(splits[1])).returnChar().setAddress(sc.socket().getInetAddress());
-                                    String sendBack = "login¬"+name+"¬"+x+"¬"+y+"¬"+z+"¬"+"\r";
+
+                                    //------------------------------------------Now add it all to the sendBack string.
+                                    String sendBack = "login¬" + name + "¬" + x + "¬" + y + "¬\r";
+                                    
                                     //------------------------------------------Now write it all the the buffer.
                                     echoBuffer.clear();
                                     echoBuffer.put(sendBack.getBytes());
-                                    SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
-                                    System.out.println("login added: "+new String(echoBuffer.array()));                                    
+                                    sc.register(selector, SelectionKey.OP_WRITE);
+                                    System.out.println("login added: " + new String(echoBuffer.array()));
                                 }
                             }
                             break;
                         }
 
-                        //attack
+                        //------------------------------------------------------ATTACK
                         if (splits[0].equals("attack")) {
                             //do attack shit
-                            SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
+                            sc.register(selector, SelectionKey.OP_WRITE);
                         }
 
-                        //chat
+                        //------------------------------------------------------CHAT
                         if (splits[0].equals("chat")) {
                             String name = splits[1];
                             String text = splits[2];
+                            
+                            //--------------------------------------------------Add everything to sendBack string.
                             String sendBack = "chat¬" + name + "¬" + text + "¬" + "\r";
+                            
                             echoBuffer.clear();//-------------------------------Make sure we are writing to the front of the buffer, and not some random place.
                             echoBuffer.put(sendBack.getBytes());
-                            SelectionKey newKey = sc.register(selector, SelectionKey.OP_WRITE);
+                            sc.register(selector, SelectionKey.OP_WRITE);
                         }
-                        if (number_of_bytes <= 0) {
+
+                        //------------------------------------------------------MOVEMENT
+                        if (splits[0].equals("move")) {
+                            String direction = splits[1];
+                            switch (direction) {
+                                case "left":
+                                    break;
+                                case "right":
+                                    break;
+                                case "up":
+                                    break;
+                                case "down":
+                                    break;
+                                default:
+                                    break;
+                            }
+                            //echoBuffer.clear();//-------------------------------Make sure we are writing to the front of the buffer, and not some random place.
+                            //echoBuffer.put(sendBack.getBytes());
+                            //sc.register(selector, SelectionKey.OP_WRITE);
+                        }
+                        if (number_of_bytes <= 0) {//---------------------------If there was nothing else to read this cycle, exit the loop.
                             break;
                         }
-                        System.out.println("end of loop: "+new String(echoBuffer.array()));
                     }
 
-                    // once a key is handled, it needs to be removed
+                    //----------------------------------------------------------Everything that could be read, was read, so now remove this from the iterator.
                     it.remove();
 
-                } else if ((key.readyOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {
+                } else if ((key.readyOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {//NOW WE WRITE TO THE CLIENT
                     SocketChannel sc = (SocketChannel) key.channel();
                     echoBuffer.flip();//----------------------------------------Reverse the buffer so that the data is at the front of it.
+                   
                     //-----------------------SEND PACKETS TO CLIENT---------------------------\\
-
-                    System.out.println("sent: "+new String(echoBuffer.array()));
+                    System.out.println(System.currentTimeMillis() + "  sent: " + new String(echoBuffer.array()));
                     sc.write(echoBuffer);
+                    
+                    //----------------------------------------------------------Create a new clean buffer for the next go arround.
                     echoBuffer = ByteBuffer.allocate(1024);
-                    SelectionKey newKey = sc.register(selector, SelectionKey.OP_READ);
+                    
+                    //----------------------------------------------------------Everything has been sent to the client, so now we register this socket for reading again.
+                    sc.register(selector, SelectionKey.OP_READ);
                     it.remove();
                 }
             }
