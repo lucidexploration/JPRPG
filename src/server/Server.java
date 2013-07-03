@@ -225,7 +225,7 @@ public class Server {
 
                                     //------------------------------------------Now add it all to the sendBack string.
                                     String sendBack = "login¬" + name + "¬" + x + "¬" + y + "¬\r";
-                                    
+
                                     //------------------------------------------Now write it all the the buffer.
                                     echoBuffer.clear();
                                     echoBuffer.put(sendBack.getBytes());
@@ -246,10 +246,10 @@ public class Server {
                         if (splits[0].equals("chat")) {
                             String name = splits[1];
                             String text = splits[2];
-                            
+
                             //--------------------------------------------------Add everything to sendBack string.
                             String sendBack = "chat¬" + name + "¬" + text + "¬" + "\r";
-                            
+
                             echoBuffer.clear();//-------------------------------Make sure we are writing to the front of the buffer, and not some random place.
                             echoBuffer.put(sendBack.getBytes());
                             sc.register(selector, SelectionKey.OP_WRITE);
@@ -285,14 +285,14 @@ public class Server {
                 } else if ((key.readyOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {//NOW WE WRITE TO THE CLIENT
                     SocketChannel sc = (SocketChannel) key.channel();
                     echoBuffer.flip();//----------------------------------------Reverse the buffer so that the data is at the front of it.
-                   
+
                     //-----------------------SEND PACKETS TO CLIENT---------------------------\\
                     System.out.println(System.currentTimeMillis() + "  sent: " + new String(echoBuffer.array()));
                     sc.write(echoBuffer);
-                    
+
                     //----------------------------------------------------------Create a new clean buffer for the next go arround.
                     echoBuffer = ByteBuffer.allocate(1024);
-                    
+
                     //----------------------------------------------------------Everything has been sent to the client, so now we register this socket for reading again.
                     sc.register(selector, SelectionKey.OP_READ);
                     it.remove();
