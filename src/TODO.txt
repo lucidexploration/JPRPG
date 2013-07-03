@@ -1,0 +1,33 @@
+Things I think the game needs to be functionally complete and abstract development can begin (quests/monster ai).
+
+Client
+    Map
+        *-Local Coordinates
+        *-Draw player moving around
+        *-Draw screen moving with player in center
+        *-Draw the map based on what the server sends it as it moves. an array would work well for this. lots of shifting data around.
+    Options Pane
+        *-Needs actual changeable options
+        *-Needs to be saved on exit.
+    Inventory Pane
+        *-Draw the squares for the inventory
+        *-Make the inventory resize-able based on the backpack capacity
+    Tile-Generator
+        *-Still need to design different tiles... this is lowest priority
+
+Server
+    Server-Client Communication
+        *-On read, check if anything has been written to sendback array at end of loop, even if not by client being read. If so, break, and flag for write.
+        *-On read, for movement and map update, query online list to see if anyone in range and if so, write to their sendback[]
+        *-Add sendBack[] write to server write. Checks account.sendback[] to see if any of their lengths are >0. If so, write. Then clear the array.
+    Accounts
+        *-Finish basic account creation
+        *-Accounts need to save either on creation, or exit.
+        *-Track who is online in a separate map from the accounts map for quicker queuing of sendback[] messages
+    Map
+        *-Server sends proper map tiles based on player movement
+        *-Map updates from client commands
+        *-Changes need to save, either on creation, or exit.
+        *-Map file needs to be created to contain just tile information.
+    Chat
+        *-Needs to write to sendback[] of everyone online
