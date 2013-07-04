@@ -1,7 +1,5 @@
 package server;
 
-import java.net.InetAddress;
-
 class Characters {
 
     private String name = "";
@@ -33,6 +31,30 @@ class Characters {
         this.xPos = x;
         this.yPos = y;
         this.zPos = z;
+    }
+    
+    public void incX(){
+        this.xPos++;
+    }
+    
+    public void decX(){
+        this.xPos--;
+    }
+    
+    public void incY(){
+        this.yPos++;
+    }
+    
+    public void decY(){
+        this.yPos--;
+    }
+    
+    public void decZ(){
+        this.zPos--;
+    }
+    
+    public void incZ(){
+        this.zPos++;
     }
     //--------------------------------------------------------------------------Return xPos
 

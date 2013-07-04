@@ -1,3 +1,4 @@
+package client;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -39,19 +40,19 @@ class TileGenerator {
     
     //-------------------Graphics Below Here-------------------\\
     //-------------Tiles--------------
-    public void emptySquare(Graphics g, int xPos, int yPos){
+    private void emptySquare(Graphics g, int xPos, int yPos){
         g.setColor(Color.BLACK);
         g.fillRect(xPos, yPos, 90, 90);
     }
     
     //------------People----------------
-    public void admin(Graphics g, int xPos, int yPos){
+    private void admin(Graphics g, int xPos, int yPos){
         g.setColor(Color.GREEN);
         g.fillOval(xPos+25, yPos+25, 45, 45);
         g.setColor(Color.BLACK);
         g.drawString("@dmin", xPos+30, yPos+48);
     }
-    public void player(Graphics g, int xPos, int yPos){
+    private void player(Graphics g, int xPos, int yPos){
         g.setColor(Color.ORANGE);
         g.fillOval(xPos+25, yPos+25, 45, 45);
         g.setColor(Color.BLACK);

@@ -1,3 +1,4 @@
+package client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -5,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import javax.swing.JTextArea;
+import java.util.Map;
 
 class GameController extends GameGUI {
 
@@ -38,8 +39,41 @@ class GameController extends GameGUI {
                 String name = splits[1];
                 int x = Integer.parseInt(splits[2]);
                 int y = Integer.parseInt(splits[3]);
-                recieveLogIn(name,x,y);
+                int hp = Integer.parseInt(splits[4]);
+                int totalhp = Integer.parseInt(splits[5]);
+                int mana = Integer.parseInt(splits[6]);
+                int totalmana = Integer.parseInt(splits[7]);
+                recieveLogIn(name,x,y,hp,totalhp,mana,totalmana);
             }
+            
+            //------------------------------------------------------------------We recieved a monster packet.
+            if (splits[0].equals("monsterInRange")){
+                //--------------------------------------------------------------Setup the variables.
+                String monsterName = splits[1];
+                int monsterX = Integer.parseInt(splits[2]);
+                int monsterY = Integer.parseInt(splits[3]);
+                int monsterHP = Integer.parseInt(splits[4]);
+                int monsterTotalHP = Integer.parseInt(splits[5]);
+                int monsterMP = Integer.parseInt(splits[6]);
+                int monsterTotalMP = Integer.parseInt(splits[7]);
+                //--------------------------------------------------------------Now deal with it.
+                updateMonster(monsterName,monsterX,monsterY,monsterHP,monsterTotalHP,monsterMP,monsterTotalMP);
+            }
+        }
+    }
+    
+    private void updateMonster(String monsterName, int monsterX, int monsterY, int hp,int hptotal,int mp, int mptotal) {
+        Map reference = GameGUI.gameClient.monsterMap;
+        if(!reference.containsKey(monsterName)){//------------------------------If we don't have it, add it to the map.
+            reference.put(monsterName, new Monster(monsterName,monsterX,monsterY, hp, hptotal, mp, mptotal));
+        }
+        else{//-----------------------------------------------------------------If we already have it, just update it's variables.
+            GameGUI.gameClient.monsterMap.get(monsterName).setX(monsterX);
+            GameGUI.gameClient.monsterMap.get(monsterName).setY(monsterY);
+            GameGUI.gameClient.monsterMap.get(monsterName).setHP(hp);
+            GameGUI.gameClient.monsterMap.get(monsterName).setTotalHP(hptotal);
+            GameGUI.gameClient.monsterMap.get(monsterName).setMana(mp);
+            GameGUI.gameClient.monsterMap.get(monsterName).setTotalMana(mptotal);
         }
     }
 
@@ -107,13 +141,22 @@ class GameController extends GameGUI {
         System.out.println("sent : "+accNumber+" "+password);
         output.println("login¬"+ accNumber + "¬" + password + "¬"+"\n");
     }
-    public void recieveLogIn(String charName, int x, int y){
+    public void recieveLogIn(String charName, int x, int y,int hp,int totalhp,int mana,int totalmana){
+        //----------------------------------------------------------------------Update Character Information on Client
         GameGUI.playerCon.setName(charName);
         GameGUI.playerCon.setPos(x, y);
+        GameGUI.playerCon.setHP(hp);
+        GameGUI.playerCon.setTotalHP(totalhp);
+        GameGUI.playerCon.setMana(mana);
+        GameGUI.playerCon.setTotalMana(totalmana);
+        //----------------------------------------------------------------------Since we are logged in, we no longer need a few client components, so let's hide them.
         GameGUI.loginBox.setVisible(false);
         GameGUI.passwordBox.setVisible(false);
         GameGUI.createAccount.setVisible(false);
         GameGUI.loginButton.setVisible(false);
         GameGUI.chatboxInput.setVisible(true);
+        //----------------------------------------------------------------------Allow input in gameWindow
+        window.setFocusable(true);
+        window.requestFocus();
     }
 }

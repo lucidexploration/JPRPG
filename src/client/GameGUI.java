@@ -1,3 +1,4 @@
+package client;
 
 import java.awt.Color;
 import java.awt.Container;
@@ -12,6 +13,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JButton;
@@ -124,6 +126,7 @@ class GameGUI {
         //----------------------------------------------------------------------set the windows options
         window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setFocusable(false);
         //----------------------------------------------------------------------Add the window's layout.
         layoutManager = new GridBagLayout();
         objectPosition = new GridBagConstraints();
@@ -145,6 +148,7 @@ class GameGUI {
                         System.out.println("left pressed");
                         if (canSend) {
                             gameClient.returnGameController().sendMoveLeft();
+                            playerCon.decX();
                             lastSent = System.currentTimeMillis();
                             canSend = false;
                         }
@@ -153,6 +157,7 @@ class GameGUI {
                         System.out.println("right pressed");
                         if (canSend) {
                             gameClient.returnGameController().sendMoveRight();
+                            playerCon.incX();
                             lastSent = System.currentTimeMillis();
                             canSend = false;
                         }
@@ -161,6 +166,7 @@ class GameGUI {
                         System.out.println("up pressed");
                         if (canSend) {
                             gameClient.returnGameController().sendMoveUp();
+                            playerCon.decY();
                             lastSent = System.currentTimeMillis();
                             canSend = false;
                         }
@@ -169,6 +175,7 @@ class GameGUI {
                         System.out.println("down pressed");
                         if (canSend) {
                             gameClient.returnGameController().sendMoveDown();
+                            playerCon.incY();
                             lastSent = System.currentTimeMillis();
                             canSend = false;
                         }
@@ -209,7 +216,7 @@ class GameGUI {
 
                 while (xTile * tileWidth < windowWidth) {
                     while (yTile * tileHeight < windowHeight) {
-                        gameClient.returnTileGenerator().emptySquare(g, xTile * tileWidth, yTile * tileHeight);
+                        gameClient.returnTileGenerator().returnTile(0, g, xTile * tileWidth, yTile * tileHeight);
                         g.setColor(Color.red);
                         g.drawRect(xTile * tileWidth, yTile * tileHeight, tileWidth, tileHeight);
                         yTile++;
@@ -223,20 +230,25 @@ class GameGUI {
             private void drawPlayersNPCS(Graphics g) {
                 int xTile = 0;
                 int yTile = 0;
+                int playerX = playerCon.returnX();
+                int playerY = playerCon.returnY();
                 int windowWidth = 900;
                 int windowHeight = 900;
                 int tileWidth = 90;
                 int tileHeight = 90;
 
-                while (xTile * tileWidth < windowWidth) {
-                    while (yTile * tileHeight < windowHeight) {
-                        gameClient.returnTileGenerator().returnNPC(9, g, xTile * tileWidth, yTile * tileHeight);
-                        g.setColor(Color.red);
-                        g.drawRect(xTile * tileWidth, yTile * tileHeight, tileWidth, tileHeight);
-                        yTile++;
+                gameClient.returnTileGenerator().returnNPC(1, g, playerCon.returnX() * 90, playerCon.returnY() * 90);
+                Iterator iter = gameClient.monsterMap.keySet().iterator();
+                while (true) {
+                    while (iter.hasNext()) {
+                        String currentMonster = (String) iter.next();
+                        int diffX = playerCon.returnX() - gameClient.monsterMap.get(currentMonster).returnX();
+                        int diffY = playerCon.returnY() - gameClient.monsterMap.get(currentMonster).returnY();
+                        int monsterX = playerCon.returnX()-diffX;
+                        int monsterY = playerCon.returnY()-diffY;
+                        gameClient.returnTileGenerator().returnNPC(0, g, monsterX*90, monsterY*90);
                     }
-                    xTile++;
-                    yTile = 0;
+                    break;
                 }
             }
 
@@ -268,8 +280,8 @@ class GameGUI {
                 g.fillOval(100, 150, 200, 200);
                 int barWidth = 100;
                 int barHeight = 10;
-                int hpPercent = (int) ((currentHealth / totalHealth) * barWidth);//--The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
-                int mpPercent = (int) ((currentMana / totalMana) * barWidth);//------This fraction is decided by the fraction of health remaining.
+                int hpPercent = (int) ((currentHealth / totalHealth) * barWidth);//The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
+                int mpPercent = (int) ((currentMana / totalMana) * barWidth);//-This fraction is decided by the fraction of health remaining.
 
                 //--------------------------------------------------------------Draw HealthBar
                 g.setColor(Color.black);
@@ -442,6 +454,7 @@ class GameGUI {
         window.validate();
         //----------------------------------------------------------------------Account creation buttons and windows.
         createAccount = new JButton("Create Account");
+        createAccount.setFocusable(false);
         createAccount.setText("Create Account");
         accCreationPanel = new JPanel();
         accCreationBox = new JTextField("Insert Acc Number here");

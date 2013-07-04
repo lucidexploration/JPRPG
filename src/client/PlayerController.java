@@ -1,11 +1,13 @@
+package client;
+
 class PlayerController {
     private String name = "";
     private int totalHitPoints = 0;
     private int hitpoints = 0;
     private int totalMana = 0;
     private int mana = 0;
-    private int xPos = 0;
-    private int yPos = 0;
+    private int xPos;
+    private int yPos;
     
     //--------------------------------------------------------------------------Positioning
     //--------------------------------------------------------------------------Set Pos
@@ -17,9 +19,26 @@ class PlayerController {
     public int returnX(){
         return this.xPos;
     }
+    
+    public void incX(){
+        this.xPos++;
+    }
+    
+    public void decX(){
+        this.xPos--;
+    }
+
     //--------------------------------------------------------------------------Return yPos
     public int returnY(){
         return this.yPos;
+    }
+    
+    public void incY(){
+        this.yPos++;
+    }
+    
+    public void decY(){
+        this.yPos--;
     }
     
     //--------------------------------------------------------------------------Name
@@ -40,6 +59,10 @@ class PlayerController {
     public int returnHP(){
         return this.hitpoints;
     }
+    //--------------------------------------------------------------------------Set Total HP
+    public void setTotalHP(int myhp){
+        this.totalHitPoints=myhp;
+    }
     //--------------------------------------------------------------------------Return Total HP
     public int returnTotalHP(){
         return this.totalHitPoints;
@@ -52,6 +75,10 @@ class PlayerController {
     //--------------------------------------------------------------------------Return Mana
     public int returnMana(){
         return this.mana;
+    }
+    //--------------------------------------------------------------------------Set Total Mana
+    public void setTotalMana(int mymana){
+        this.totalMana = mymana;
     }
     //--------------------------------------------------------------------------Return Total Mana
     public int returnTotalMana(){

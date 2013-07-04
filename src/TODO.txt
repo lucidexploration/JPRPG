@@ -3,7 +3,6 @@ Things I think the game needs to be functionally complete and abstract developme
 Client
     Map
         *-Local Coordinates
-        *-Draw player moving around
         *-Draw screen moving with player in center
         *-Draw the map based on what the server sends it as it moves. an array would work well for this. lots of shifting data around.
     Options Pane
@@ -17,27 +16,12 @@ Client
 
 Server
     Server-Client Communication
-        *-Add sendBack[] write to server write. Checks account.sendback[] to see if any of their lengths are >0. If so, write. Then clear the array.
-                sc.socket().getOutputStream().write(); 
-                        returns an output stream that can be saved to the character account on connection, then used to write to,
-                        to send clients data during another clients reading loop.
-                sc.socket().getChannel().register(selector, SelectionKey.OP_WRITE); 
-                        This will register the given socketchannel for writing.
-
-            How it works. In the login loop, save the sc.socket() to the character's info. Then, if need to send data to another a client during another clients read loop,
-                Add that data to the client's sendback[] and register it for the write loop.
-
-        *-On read, check if anything has been written to sendback array at end of loop, even if not by client being read. If so, break, and flag for write.
         *-On read, for movement and map update, query online list to see if anyone in range and if so, write to their sendback[] and flag for write.
     Accounts
-        *-Need to save the socket into the account creation.
         *-Finish basic account creation
         *-Accounts need to save either on creation, or exit.
-        *-Track who is online in a separate map from the accounts map for quicker queuing of sendback[] messages
     Map
         *-Server sends proper map tiles based on player movement
         *-Map updates from client commands
         *-Changes need to save, either on creation, or exit.
         *-Map file needs to be created to contain just tile information.
-    Chat
-        *-Needs to write to sendback[] of everyone online
