@@ -244,8 +244,8 @@ class GameGUI {
                         String currentMonster = (String) iter.next();
                         int diffX = playerCon.returnX() - gameClient.monsterMap.get(currentMonster).returnX();
                         int diffY = playerCon.returnY() - gameClient.monsterMap.get(currentMonster).returnY();
-                        int monsterX = playerCon.returnX()-diffX;
-                        int monsterY = playerCon.returnY()-diffY;
+                        int monsterX = playerCon.returnX()+diffX;
+                        int monsterY = playerCon.returnY()+diffY;
                         gameClient.returnTileGenerator().returnNPC(0, g, monsterX*90, monsterY*90);
                     }
                     break;
@@ -269,7 +269,7 @@ class GameGUI {
         //----------------------------------------------------------------------Start the time to check for Input
         timer.schedule(task, 0, 1);
     }
-
+    
     //=================================================================================================================================================================================
     private static void addStatusDisplay(Container cp) {
         //----------------------------------------------------------------------Setup the status display variables
@@ -280,21 +280,22 @@ class GameGUI {
                 g.fillOval(100, 150, 200, 200);
                 int barWidth = 100;
                 int barHeight = 10;
-                int hpPercent = (int) ((currentHealth / totalHealth) * barWidth);//The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
-                int mpPercent = (int) ((currentMana / totalMana) * barWidth);//-This fraction is decided by the fraction of health remaining.
-
+                float hpPercent = (((float)playerCon.returnHP() / (float)playerCon.returnTotalHP()) * 100);//The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
+                float mpPercent = (((float)playerCon.returnMana() / (float)playerCon.returnTotalMana()) * 100);//This fraction is decided by the fraction of health remaining.
+                
+                //--------------------------------------------------------------Name
+                g.setColor(Color.black);
+                g.drawString(playerCon.returnName(), 10, 20);               
                 //--------------------------------------------------------------Draw HealthBar
                 g.setColor(Color.black);
-                g.drawString(playerCon.returnName(), 10, 20);
-                g.setColor(Color.black);
-                g.drawString("Health : " + (int) currentHealth + "/" + (int) totalHealth, 10, 40);
+                g.drawString("Health : " + playerCon.returnHP() + "/" + playerCon.returnTotalHP(), 10, 40);
                 g.setColor(Color.red);
                 g.fillRect(110, 30, barWidth, barHeight);
                 g.setColor(Color.green);
                 g.fillRect(110, 30, (int) hpPercent, barHeight);
                 //--------------------------------------------------------------Draw ManaBar
                 g.setColor(Color.black);
-                g.drawString("Mana : " + (int) currentMana + "/" + (int) totalMana, 10, 60);
+                g.drawString("Mana : " + playerCon.returnMana() + "/" + playerCon.returnTotalMana(), 10, 60);
                 g.setColor(Color.red);
                 g.fillRect(110, 50, barWidth, barHeight);
                 g.setColor(Color.green);

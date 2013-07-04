@@ -2,9 +2,9 @@ package client;
 
 class PlayerController {
     private String name = "";
-    private int totalHitPoints = 0;
+    private int totalHitPoints = 1;
     private int hitpoints = 0;
-    private int totalMana = 0;
+    private int totalMana = 1;
     private int mana = 0;
     private int xPos;
     private int yPos;

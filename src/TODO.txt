@@ -16,6 +16,7 @@ Client
 
 Server
     Server-Client Communication
+        *-On login, need to send information of everyone and everything around people logging in, to the person that logged in.
         *-On read, for movement and map update, query online list to see if anyone in range and if so, write to their sendback[] and flag for write.
     Accounts
         *-Finish basic account creation
