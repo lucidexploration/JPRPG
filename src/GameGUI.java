@@ -312,7 +312,7 @@ class GameGUI {
         chatboxInput.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (chatboxInput.getText().length() > 0) {
+                if (!(chatboxInput.getText().length() == 0)) {
                     String text = chatboxInput.getText();
                     text = text.replaceAll("¬", ",");
                     gameClient.returnGameController().sendChat(playerCon.returnName(), text);

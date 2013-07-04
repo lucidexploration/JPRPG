@@ -13,6 +13,7 @@ public class Server {
     private ByteBuffer echoBuffer = ByteBuffer.allocate(1024);
     //----------------------------ACCOUNTS------------------------------------\\
     private Map<Integer, Account> accounts;
+    private Map<Integer, Account> loggedInAccounts;
     //----------------------------CREATURES-----------------------------------\\
     private Map<Integer, Monsters> monsters;
     //----------------------------MAP-----------------------------------------\\
@@ -25,6 +26,7 @@ public class Server {
         //create new objects
         this.monsters = new HashMap<>(200);
         this.accounts = new HashMap<>(200);
+        this.loggedInAccounts = new HashMap<>(100);
         this.map = new HashMap<>(mapRows * mapCols * mapLevels);
         this.ports = ports;
 
@@ -221,16 +223,33 @@ public class Server {
                                     int totalhp;
                                     int mana;
                                     int totalmana;
-                                    accounts.get(Integer.parseInt(splits[1])).returnChar().setAddress(sc.socket().getInetAddress());
 
+                                    //------------------------------------------DO IDENTIFICATION WORK
+                                    //------------------------------------------Assign accounts socket for later writing.
+                                    accounts.get(Integer.parseInt(splits[1])).setSocket(sc.socket());
+                                    //------------------------------------------Assign accounts socketAddress for identifying for writing.
+                                    accounts.get(Integer.parseInt(splits[1])).setAddress(sc.getRemoteAddress());
+                                    //------------------------------------------Add this account to the logged on accounts map.
+                                    loggedInAccounts.put((Integer) Integer.parseInt(splits[1]), accounts.get(Integer.parseInt(splits[1])));
                                     //------------------------------------------Now add it all to the sendBack string.
                                     String sendBack = "login¬" + name + "¬" + x + "¬" + y + "¬\r";
 
-                                    //------------------------------------------Now write it all the the buffer.
-                                    echoBuffer.clear();
-                                    echoBuffer.put(sendBack.getBytes());
+                                    //------------------------------------------Write the string to the accounts sendBack[]
+                                    int b = 0;
+                                    while (true) {
+                                        if (accounts.get(Integer.parseInt(splits[1])).sendBack[b].length() > 1 || accounts.get(Integer.parseInt(splits[1])).sendBack[b].length() < 3) {
+                                            accounts.get(Integer.parseInt(splits[1])).sendBack[b] = sendBack;
+                                            break;
+                                        }
+                                        b++;
+                                        if (b >= 10) {
+                                            break;
+                                        }
+                                    }
+
+                                    //------------------------------------------Register this account for writing to send the login information back.
                                     sc.register(selector, SelectionKey.OP_WRITE);
-                                    System.out.println("login added: " + new String(echoBuffer.array()));
+                                    System.out.println("login added: " + loggedInAccounts.keySet());
                                 }
                             }
                             break;
@@ -242,6 +261,9 @@ public class Server {
                             sc.register(selector, SelectionKey.OP_WRITE);
                         }
 
+                        //DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS DO THIS 
+                        //Chat needs to update all onlineAccounts and set them all for writing.
+
                         //------------------------------------------------------CHAT
                         if (splits[0].equals("chat")) {
                             String name = splits[1];
@@ -250,9 +272,26 @@ public class Server {
                             //--------------------------------------------------Add everything to sendBack string.
                             String sendBack = "chat¬" + name + "¬" + text + "¬" + "\r";
 
-                            echoBuffer.clear();//-------------------------------Make sure we are writing to the front of the buffer, and not some random place.
-                            echoBuffer.put(sendBack.getBytes());
-                            sc.register(selector, SelectionKey.OP_WRITE);
+                            int i = 0;
+                            Iterator next = loggedInAccounts.keySet().iterator();
+                            boolean wroteString = false;
+                            while (true) {//------------------------------------Keep going until done
+                                while (next.hasNext()) {//----------------------While there are more people logged on
+                                    int theKey = (Integer) next.next();
+                                    while (!wroteString) {//--------------------As long as we haven't written the string to this accont
+                                        if (loggedInAccounts.get(theKey).sendBack[i].length() < 1) {//If this slot is open, write to it.
+                                            loggedInAccounts.get(theKey).sendBack[i] = sendBack;
+                                            wroteString = true;//---------------Now that we have written to it. Exit.
+                                        }
+                                        i++;//----------------------------------Increase iterator.
+                                    }
+                                    //------------------------------------------Now that we have written to this account, we need to register it for writing.
+                                    loggedInAccounts.get(theKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
+                                    i = 0;//------------------------------------We exited the above loop, so reset the iterator.
+                                    wroteString = false;//----------------------Reset this too.
+                                }
+                                break;//----------------------------------------We have written to all accounts, so exit the loop.
+                            }
                         }
 
                         //------------------------------------------------------MOVEMENT
@@ -284,11 +323,29 @@ public class Server {
 
                 } else if ((key.readyOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {//NOW WE WRITE TO THE CLIENT
                     SocketChannel sc = (SocketChannel) key.channel();
-                    echoBuffer.flip();//----------------------------------------Reverse the buffer so that the data is at the front of it.
 
-                    //-----------------------SEND PACKETS TO CLIENT---------------------------\\
-                    System.out.println(System.currentTimeMillis() + "  sent: " + new String(echoBuffer.array()));
-                    sc.write(echoBuffer);
+                    //----------------------------------------------------------Check map of logged in accounts to identify this account.
+                    int o = 0;
+                    Iterator next = loggedInAccounts.keySet().iterator();//-----This iterator contains the list of logged in accounts to cycle through. ;D
+                    while (true) {//--------------------------------------------Cycle through the list until done.
+                        while (next.hasNext()) {//------------------------------If there is more in the list, continue.
+                            int theKey = (Integer) next.next();
+                            if (loggedInAccounts.get(theKey).returnAddress() == sc.getRemoteAddress()) {//If this socket's address is equal to an address in the list, keep going.
+                                while (o < loggedInAccounts.get(theKey).sendBack.length) {//Write and send everything on this clients sendBack[].
+                                    if (loggedInAccounts.get(theKey).sendBack[o].length() > 1) {//As long as there is something in this slot of the sendBack[], write it.
+                                        echoBuffer.clear();//-------------------Reset buffer so that we write to the front of it.
+                                        echoBuffer.put(loggedInAccounts.get(theKey).sendBack[0].getBytes());
+                                        System.out.println("Sent : " + loggedInAccounts.get(theKey).sendBack[0] + "  To : " + sc.getRemoteAddress());
+                                        echoBuffer.flip();//--------------------Flip the echoBuffer for writing.
+                                        sc.write(echoBuffer);//-----------------Send to the client.
+                                        loggedInAccounts.get(theKey).sendBack[o] = "";//Since we wrote this string to the client, reset it to "".
+                                    }
+                                    o++;
+                                }
+                            }
+                        }
+                        break;
+                    }
 
                     //----------------------------------------------------------Create a new clean buffer for the next go arround.
                     echoBuffer = ByteBuffer.allocate(1024);

@@ -28,7 +28,7 @@ Server
                 Add that data to the client's sendback[] and register it for the write loop.
 
         *-On read, check if anything has been written to sendback array at end of loop, even if not by client being read. If so, break, and flag for write.
-        *-On read, for movement and map update, query online list to see if anyone in range and if so, write to their sendback[]
+        *-On read, for movement and map update, query online list to see if anyone in range and if so, write to their sendback[] and flag for write.
     Accounts
         *-Need to save the socket into the account creation.
         *-Finish basic account creation

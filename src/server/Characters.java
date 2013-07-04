@@ -12,7 +12,6 @@ class Characters {
     private int xPos = 0;
     private int yPos = 0;
     private int zPos = 0;
-    private InetAddress address;
     private int charType;
 
     public Characters(String charName,int x,int y,int z,int accountType,int hp,int hpTotal,int mana,int manaTotal) {
@@ -27,16 +26,6 @@ class Characters {
         this.totalMana=manaTotal;
     }
 
-    //--------------------------------------------------------------------------Address info
-    //--------------------------------------------------------------------------Set Address
-    public void setAddress(InetAddress a) {
-        this.address = a;
-    }
-    //--------------------------------------------------------------------------Return Address
-
-    public InetAddress returnAddress() {
-        return this.address;
-    }
     //--------------------------------------------------------------------------Positioning
     //--------------------------------------------------------------------------Set Pos
 
