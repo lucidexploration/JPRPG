@@ -306,6 +306,7 @@ public class Server {
                                         break;
                                     case "up":
                                         //--------------------------------------Update this characters position.
+                                        loggedInAccounts.get(myKey).returnChar().decY();
                                         monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
                                         monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
                                         //--------------------------------------Prepare message for write to other players.
@@ -314,6 +315,7 @@ public class Server {
                                         break;
                                     case "down":
                                         //--------------------------------------Update this characters position.
+                                        loggedInAccounts.get(myKey).returnChar().incY();
                                         monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
                                         monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
                                         //--------------------------------------Prepare message for write to other players.
@@ -450,21 +452,37 @@ public class Server {
         Iterator keys = loggedInAccounts.keySet().iterator();//-----------------This iterator contains the list of logged in accounts to cycle through.
         boolean wroteString = false;
 
-        while (keys.hasNext()) {//------------------------------------------While there are more people logged on
-            //--------------------------------------------------------------Prepare variables.
+        while (keys.hasNext()) {//----------------------------------------------While there are more people logged on
+            //------------------------------------------------------------------Prepare variables.
             int currentKey = (Integer) keys.next();
             int xDiff = loggedInAccounts.get(myKey).returnChar().returnX() - loggedInAccounts.get(currentKey).returnChar().returnX();
             int yDiff = loggedInAccounts.get(myKey).returnChar().returnY() - loggedInAccounts.get(currentKey).returnChar().returnY();
             int zDiff = loggedInAccounts.get(myKey).returnChar().returnZ() - loggedInAccounts.get(currentKey).returnChar().returnZ();
 
-            //--------------------------------------------------------------If the account is within range.
-            if ((currentKey != myKey) && (xDiff <= 5 || xDiff >= -5) && (yDiff <= 5 || yDiff >= -5) && (zDiff == 0)) {
-                while (!wroteString) {//------------------------------------As long as we haven't written the string to this account
+            //------------------------------------------------------------------If the account is within range.
+            if ((xDiff <= 5 || xDiff >= -5) && (yDiff <= 5 || yDiff >= -5) && (zDiff == 0)) {
+                String monsterName = loggedInAccounts.get(myKey).returnChar().returnName();
+                int monsterX = loggedInAccounts.get(currentKey).returnChar().returnX();
+                int monsterY = loggedInAccounts.get(currentKey).returnChar().returnY();
+                int monsterHP = loggedInAccounts.get(currentKey).returnChar().returnHP();
+                int monsterTotalHP = loggedInAccounts.get(currentKey).returnChar().returnTotalHP();
+                int monsterMP = loggedInAccounts.get(currentKey).returnChar().returnMana();
+                int monsterTotalMP = loggedInAccounts.get(currentKey).returnChar().returnTotalMana();
+                String theirSendback = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
+                while (!wroteString) {//----------------------------------------As long as we haven't written the string to this account
                     if (loggedInAccounts.get(currentKey).sendBack[o].isEmpty()) {//If this slot is open, write to it.
                         loggedInAccounts.get(currentKey).sendBack[o] = sendBack;
-                        wroteString = true;//-------------------------------Now that we have written to it. Exit.
+                        wroteString = true;//-----------------------------------Now that we have written to it. Exit.
                     }
-                    o++;//--------------------------------------------------Increase iterator.
+                    o++;//------------------------------------------------------Increase iterator.
+                }
+                o = 0;//--------------------------------------------------------We now need to notify the guy that moved, of other players positions.
+                while (!wroteString) {
+                    if (loggedInAccounts.get(myKey).sendBack[o].isEmpty()) {
+                        loggedInAccounts.get(myKey).sendBack[o] = theirSendback;
+                        wroteString = true;
+                    }
+                    o++;
                 }
                 //----------------------------------------------------------Now that we have written to this account, we need to register it for writing.
                 loggedInAccounts.get(currentKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);

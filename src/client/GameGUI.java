@@ -77,7 +77,7 @@ class GameGUI {
                 System.exit(-1);
             }
             worldDisplay.repaint();
-            if ((System.currentTimeMillis() - lastSent) >= 50) {
+            if ((System.currentTimeMillis() - lastSent) >= 1000) {
                 canSend = true;
             }
 
@@ -148,7 +148,6 @@ class GameGUI {
                         System.out.println("left pressed");
                         if (canSend) {
                             gameClient.returnGameController().sendMoveLeft();
-                            playerCon.decX();
                             lastSent = System.currentTimeMillis();
                             canSend = false;
                         }
@@ -157,7 +156,6 @@ class GameGUI {
                         System.out.println("right pressed");
                         if (canSend) {
                             gameClient.returnGameController().sendMoveRight();
-                            playerCon.incX();
                             lastSent = System.currentTimeMillis();
                             canSend = false;
                         }
@@ -166,7 +164,6 @@ class GameGUI {
                         System.out.println("up pressed");
                         if (canSend) {
                             gameClient.returnGameController().sendMoveUp();
-                            playerCon.decY();
                             lastSent = System.currentTimeMillis();
                             canSend = false;
                         }
@@ -175,7 +172,6 @@ class GameGUI {
                         System.out.println("down pressed");
                         if (canSend) {
                             gameClient.returnGameController().sendMoveDown();
-                            playerCon.incY();
                             lastSent = System.currentTimeMillis();
                             canSend = false;
                         }
@@ -228,31 +224,23 @@ class GameGUI {
 
             //------------------------------------------------------------------Draw the npc\pcs using information recieved from server----\\
             private void drawPlayersNPCS(Graphics g) {
-                int xTile = 0;
-                int yTile = 0;
-                int playerX = playerCon.returnX();
-                int playerY = playerCon.returnY();
-                int windowWidth = 900;
-                int windowHeight = 900;
                 int tileWidth = 90;
                 int tileHeight = 90;
+                int baseX = playerCon.returnX() - 5;
+                int baseY = playerCon.returnY() - 5;
 
-                gameClient.returnTileGenerator().returnNPC(1, g, playerCon.returnX() * 90, playerCon.returnY() * 90);
-                Iterator iter = gameClient.monsterMap.keySet().iterator();
+                g.setColor(Color.red);
+                g.drawString(playerCon.returnName(), (5*90)+10, (5*90)+10);
+                gameClient.returnTileGenerator().returnNPC(1, g, 5 * 90, 5 * 90);
+                Iterator iter = gameClient.returnMap().keySet().iterator();
                 while (true) {
                     while (iter.hasNext()) {
                         String currentMonster = (String) iter.next();
-                        int monsterX=playerCon.returnX();
-                        if(gameClient.monsterMap.get(currentMonster).returnX()>playerCon.returnX())
-                            monsterX =  (gameClient.monsterMap.get(currentMonster).returnX()-playerCon.returnX())+playerCon.returnX();
-                        if(gameClient.monsterMap.get(currentMonster).returnX()<playerCon.returnX())
-                            monsterX =  playerCon.returnX()-(playerCon.returnX()-gameClient.monsterMap.get(currentMonster).returnX());
-                        int monsterY=playerCon.returnY();
-                        if(gameClient.monsterMap.get(currentMonster).returnY()>playerCon.returnY())
-                            monsterY =  (gameClient.monsterMap.get(currentMonster).returnY()-playerCon.returnY())+playerCon.returnY();
-                        if(gameClient.monsterMap.get(currentMonster).returnY()<playerCon.returnY())
-                            monsterX =  playerCon.returnY()-(playerCon.returnY()-gameClient.monsterMap.get(currentMonster).returnY());
-                        gameClient.returnTileGenerator().returnNPC(0, g, monsterX*90, monsterY*90);
+                        int monsterX = (gameClient.returnMap().get(currentMonster).returnX() - baseX);
+                        int monsterY = (gameClient.returnMap().get(currentMonster).returnY() - baseY);
+                        g.setColor(Color.red);
+                        g.drawString(gameClient.returnMap().get(currentMonster).returnName(), (monsterX * 90) + 10, (monsterY * 90 + 10));
+                        gameClient.returnTileGenerator().returnNPC(0, g, monsterX * tileWidth, monsterY * tileHeight);
                     }
                     break;
                 }
@@ -275,7 +263,7 @@ class GameGUI {
         //----------------------------------------------------------------------Start the time to check for Input
         timer.schedule(task, 0, 1);
     }
-    
+
     //=================================================================================================================================================================================
     private static void addStatusDisplay(Container cp) {
         //----------------------------------------------------------------------Setup the status display variables
@@ -286,12 +274,12 @@ class GameGUI {
                 g.fillOval(100, 150, 200, 200);
                 int barWidth = 100;
                 int barHeight = 10;
-                float hpPercent = (((float)playerCon.returnHP() / (float)playerCon.returnTotalHP()) * 100);//The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
-                float mpPercent = (((float)playerCon.returnMana() / (float)playerCon.returnTotalMana()) * 100);//This fraction is decided by the fraction of health remaining.
-                
+                float hpPercent = (((float) playerCon.returnHP() / (float) playerCon.returnTotalHP()) * 100);//The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
+                float mpPercent = (((float) playerCon.returnMana() / (float) playerCon.returnTotalMana()) * 100);//This fraction is decided by the fraction of health remaining.
+
                 //--------------------------------------------------------------Name
                 g.setColor(Color.black);
-                g.drawString(playerCon.returnName(), 10, 20);               
+                g.drawString(playerCon.returnName(), 10, 20);
                 //--------------------------------------------------------------Draw HealthBar
                 g.setColor(Color.black);
                 g.drawString("Health : " + playerCon.returnHP() + "/" + playerCon.returnTotalHP(), 10, 40);

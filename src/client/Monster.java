@@ -10,6 +10,7 @@ public class Monster {
     private int totalMP;
     
     public Monster(String monsterName, int monsterX, int monsterY, int monsterHP, int monsterTotalHP, int monsterMP, int monsterTotalMana){
+        this.name=monsterName;
         this.xPos=monsterX;
         this.yPos=monsterY;
         this.hp=monsterHP;

@@ -9,7 +9,7 @@ class GameClient {
     
     private TileGenerator tileGen;
     private GameController gameCon;
-    public Map<String,Monster> monsterMap;
+    private Map<String,Monster> monsterMap;
     
     public GameClient() throws UnknownHostException, IOException{
         tileGen = new TileGenerator();
@@ -18,10 +18,14 @@ class GameClient {
     }
     
     public GameController returnGameController(){
-        return gameCon;
+        return this.gameCon;
     }
     
     public TileGenerator returnTileGenerator(){
-        return tileGen;
+        return this.tileGen;
+    }
+    
+    public Map<String, Monster> returnMap(){
+        return this.monsterMap;
     }
 }

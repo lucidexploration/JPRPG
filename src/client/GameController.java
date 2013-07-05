@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Map;
 
 class GameController extends GameGUI {
@@ -18,7 +19,7 @@ class GameController extends GameGUI {
         //connects to the server
         //this will need to be updated
         sock = new Socket("localhost", 7171);
-        output = new PrintWriter(sock.getOutputStream(),true);
+        output = new PrintWriter(sock.getOutputStream(), true);
         input = new BufferedReader(new InputStreamReader(sock.getInputStream()));
     }
 
@@ -43,11 +44,11 @@ class GameController extends GameGUI {
                 int totalhp = Integer.parseInt(splits[5]);
                 int mana = Integer.parseInt(splits[6]);
                 int totalmana = Integer.parseInt(splits[7]);
-                recieveLogIn(name,x,y,hp,totalhp,mana,totalmana);
+                recieveLogIn(name, x, y, hp, totalhp, mana, totalmana);
             }
-            
+
             //------------------------------------------------------------------We recieved a monster packet.
-            if (splits[0].equals("monsterInRange")){
+            if (splits[0].equals("monsterInRange")) {
                 //--------------------------------------------------------------Setup the variables.
                 String monsterName = splits[1];
                 int monsterX = Integer.parseInt(splits[2]);
@@ -57,28 +58,30 @@ class GameController extends GameGUI {
                 int monsterMP = Integer.parseInt(splits[6]);
                 int monsterTotalMP = Integer.parseInt(splits[7]);
                 //--------------------------------------------------------------Now deal with it.
-                updateMonster(monsterName,monsterX,monsterY,monsterHP,monsterTotalHP,monsterMP,monsterTotalMP);
+                updateMonster(monsterName, monsterX, monsterY, monsterHP, monsterTotalHP, monsterMP, monsterTotalMP);
             }
         }
     }
-    
-    private void updateMonster(String monsterName, int monsterX, int monsterY, int hp,int hptotal,int mp, int mptotal) {
-        Map reference = GameGUI.gameClient.monsterMap;
-        if(!reference.containsKey(monsterName)){//------------------------------If we don't have it, add it to the map.
-            reference.put(monsterName, new Monster(monsterName,monsterX,monsterY, hp, hptotal, mp, mptotal));
+
+    private void updateMonster(String monsterName, int monsterX, int monsterY, int hp, int hptotal, int mp, int mptotal) {
+        if (monsterName.equals(GameGUI.playerCon.returnName())) {
+            GameGUI.playerCon.setPos(monsterX, monsterY);
+            return;
         }
-        else{//-----------------------------------------------------------------If we already have it, just update it's variables.
-            GameGUI.gameClient.monsterMap.get(monsterName).setX(monsterX);
-            GameGUI.gameClient.monsterMap.get(monsterName).setY(monsterY);
-            GameGUI.gameClient.monsterMap.get(monsterName).setHP(hp);
-            GameGUI.gameClient.monsterMap.get(monsterName).setTotalHP(hptotal);
-            GameGUI.gameClient.monsterMap.get(monsterName).setMana(mp);
-            GameGUI.gameClient.monsterMap.get(monsterName).setTotalMana(mptotal);
+        if (!GameGUI.gameClient.returnMap().containsKey(monsterName)) {//------------------------------If we don't have it, add it to the map.
+            GameGUI.gameClient.returnMap().put(monsterName, new Monster(monsterName, monsterX, monsterY, hp, hptotal, mp, mptotal));
+        } else {//-----------------------------------------------------------------If we already have it, just update it's variables.
+            GameGUI.gameClient.returnMap().get(monsterName).setX(monsterX);
+            GameGUI.gameClient.returnMap().get(monsterName).setY(monsterY);
+            GameGUI.gameClient.returnMap().get(monsterName).setHP(hp);
+            GameGUI.gameClient.returnMap().get(monsterName).setTotalHP(hptotal);
+            GameGUI.gameClient.returnMap().get(monsterName).setMana(mp);
+            GameGUI.gameClient.returnMap().get(monsterName).setTotalMana(mptotal);
         }
     }
 
     public void createAccount(int accNumber, String password, String username) {
-        output.println("create¬"+ accNumber + "¬" + password + "¬" + username + "¬");
+        output.println("create¬" + accNumber + "¬" + password + "¬" + username + "¬");
     }
 
     /*
@@ -86,7 +89,7 @@ class GameController extends GameGUI {
      * attacking targetID.
      */
     public void sendAttack(int attackerID, int targetID) {
-        output.println("attack¬"+ attackerID + "¬" + targetID + "¬");
+        output.println("attack¬" + attackerID + "¬" + targetID + "¬");
     }
 
     /*
@@ -118,15 +121,15 @@ class GameController extends GameGUI {
     public void sendMoveLeft() {
         output.println("move¬left¬");
     }
-    
+
     public void sendMoveRight() {
         output.println("move¬right¬");
     }
-    
+
     public void sendMoveUp() {
         output.println("move¬up¬");
     }
-    
+
     public void sendMoveDown() {
         output.println("move¬down¬");
     }
@@ -138,10 +141,11 @@ class GameController extends GameGUI {
      * Sends acc# and pw to server for the server to verify.
      */
     public void logIn(int accNumber, String password) {
-        System.out.println("sent : "+accNumber+" "+password);
-        output.println("login¬"+ accNumber + "¬" + password + "¬"+"\n");
+        System.out.println("sent : " + accNumber + " " + password);
+        output.println("login¬" + accNumber + "¬" + password + "¬" + "\n");
     }
-    public void recieveLogIn(String charName, int x, int y,int hp,int totalhp,int mana,int totalmana){
+
+    public void recieveLogIn(String charName, int x, int y, int hp, int totalhp, int mana, int totalmana) {
         //----------------------------------------------------------------------Update Character Information on Client
         GameGUI.playerCon.setName(charName);
         GameGUI.playerCon.setPos(x, y);
