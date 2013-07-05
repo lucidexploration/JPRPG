@@ -183,22 +183,7 @@ public class Server {
 
                 } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {//We now have data, so read the data
 
-                    //----------------------------------------------------------We need to make sure all the loggedInAccounts are still logged in.
-                    Iterator nextCheck = loggedInAccounts.keySet().iterator();
-                    while (true) {//--------------------------------------------Keep going until done
-                        while (nextCheck.hasNext()) {//------------------------------As long as there are more accounts to check.
-                            int theKey;
-                            try {
-                                theKey = (Integer) nextCheck.next();
-                            } catch (ConcurrentModificationException e) {
-                                break;
-                            }
-                            if (loggedInAccounts.get(theKey).returnSocket().isClosed()) {
-                                loggedInAccounts.remove(theKey);
-                            }
-                        }
-                        break;//------------------------------------------------We have checked all accounts, so exit the loop.
-                    }
+                    removeClosedAccounts(loggedInAccounts.keySet().iterator(), selector);//We need to make sure all the loggedInAccounts are still logged in.
 
                     SocketChannel sc = (SocketChannel) key.channel();
 
@@ -210,6 +195,8 @@ public class Server {
                             number_of_bytes = sc.read(echoBuffer);
                         } catch (java.io.IOException e) {
                             sc.close();
+                            SelectionKey i = sc.keyFor(selector);
+                            i.cancel();
                         }
                         String message = new String(echoBuffer.array());
                         String[] splits = message.split("¬");//-----------------I chose "¬" because it's a very unlikely character to be used by the players.
@@ -252,14 +239,11 @@ public class Server {
                                     //------------------------------------------Write the string to the accounts sendBack[]
                                     int b = 0;
                                     while (true) {
-                                        if (accounts.get(Integer.parseInt(splits[1])).sendBack[b].length() > 1 || accounts.get(Integer.parseInt(splits[1])).sendBack[b].length() < 3) {
+                                        if (accounts.get(Integer.parseInt(splits[1])).sendBack[b].isEmpty()) {
                                             accounts.get(Integer.parseInt(splits[1])).sendBack[b] = sendBack;
                                             break;
                                         }
                                         b++;
-                                        if (b >= 10) {
-                                            break;
-                                        }
                                     }
 
                                     //------------------------------------------Register this account for writing to send the login information back.
@@ -273,7 +257,7 @@ public class Server {
                         //------------------------------------------------------ATTACK
                         if (splits[0].equals("attack")) {
                             //do attack shit
-                            sc.register(selector, SelectionKey.OP_WRITE);
+                            //sc.register(selector, SelectionKey.OP_WRITE);
                         }
 
                         //------------------------------------------------------CHAT
@@ -290,108 +274,51 @@ public class Server {
                         try {
                             if (splits[0].equals("move")) {
                                 String direction = splits[1];
-                                int o = 0;
-                                Iterator next = loggedInAccounts.keySet().iterator();//This iterator contains the list of logged in accounts to cycle through.
+                                //----------------------------------------------Setup Variables
+                                int myKey = returnOnlineKey(sc.getRemoteAddress());
+                                String monsterName = loggedInAccounts.get(myKey).returnChar().returnName();
+                                int monsterX;
+                                int monsterY;
+                                int monsterHP = loggedInAccounts.get(myKey).returnChar().returnHP();
+                                int monsterTotalHP = loggedInAccounts.get(myKey).returnChar().returnTotalHP();
+                                int monsterMP = loggedInAccounts.get(myKey).returnChar().returnMana();
+                                int monsterTotalMP = loggedInAccounts.get(myKey).returnChar().returnTotalMana();
+                                String sendBack;
 
                                 switch (direction) {
                                     case "left":
-                                        while (true) {//------------------------We need to identify the account.Until we are done, continue
-                                            while (next.hasNext()) {//----------If there are more still in the list, continue.
-                                                int theKey = (Integer) next.next();
-                                                if (loggedInAccounts.get(theKey).returnAddress() == sc.getRemoteAddress()) {//If this socket's address is equal to an address in the list, keep going.
-                                                    //------------------------------Update this characters position.
-                                                    loggedInAccounts.get(theKey).returnChar().decX();
-                                                    //------------------------------Setup Variables
-                                                    String monsterName = loggedInAccounts.get(theKey).returnChar().returnName();
-                                                    int monsterX = loggedInAccounts.get(theKey).returnChar().returnX();
-                                                    int monsterY = loggedInAccounts.get(theKey).returnChar().returnY();
-                                                    int monsterHP = loggedInAccounts.get(theKey).returnChar().returnHP();
-                                                    int monsterTotalHP = loggedInAccounts.get(theKey).returnChar().returnTotalHP();
-                                                    int monsterMP = loggedInAccounts.get(theKey).returnChar().returnMana();
-                                                    int monsterTotalMP = loggedInAccounts.get(theKey).returnChar().returnTotalMana();
-
-                                                    //------------------------------Prepare message for write to other players.
-                                                    String sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
-                                                    notifyAllInRange(theKey, selector, sendBack);
-                                                    break;
-                                                }
-                                            }
-                                            break;
-                                        }
+                                        //--------------------------------------Update this characters position.
+                                        loggedInAccounts.get(myKey).returnChar().decX();
+                                        //--------------------------------------Prepare message for write to other players.
+                                        monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
+                                        monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
+                                        sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
+                                        notifyAllInRange(myKey, selector, sendBack);
                                         break;
                                     case "right":
-                                        while (true) {//----------------------------We need to identify the account.Until we are done, continue
-                                            while (next.hasNext()) {//--------------If there are more still in the list, continue.
-                                                int theKey = (Integer) next.next();
-                                                if (loggedInAccounts.get(theKey).returnAddress() == sc.getRemoteAddress()) {//If this socket's address is equal to an address in the list, keep going.
-                                                    //------------------------------Update this characters position.
-                                                    loggedInAccounts.get(theKey).returnChar().incX();
-                                                    //------------------------------Setup Variables
-                                                    String monsterName = loggedInAccounts.get(theKey).returnChar().returnName();
-                                                    int monsterX = loggedInAccounts.get(theKey).returnChar().returnX();
-                                                    int monsterY = loggedInAccounts.get(theKey).returnChar().returnY();
-                                                    int monsterHP = loggedInAccounts.get(theKey).returnChar().returnHP();
-                                                    int monsterTotalHP = loggedInAccounts.get(theKey).returnChar().returnTotalHP();
-                                                    int monsterMP = loggedInAccounts.get(theKey).returnChar().returnMana();
-                                                    int monsterTotalMP = loggedInAccounts.get(theKey).returnChar().returnTotalMana();
-
-                                                    //------------------------------Prepare message for write to other players.
-                                                    String sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
-                                                    notifyAllInRange(theKey, selector, sendBack);
-                                                    break;
-                                                }
-                                            }
-                                            break;
-                                        }
+                                        //--------------------------------------Update this characters position.
+                                        loggedInAccounts.get(myKey).returnChar().incX();
+                                        //--------------------------------------Prepare message for write to other players.
+                                        monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
+                                        monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
+                                        sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
+                                        notifyAllInRange(myKey, selector, sendBack);
                                         break;
                                     case "up":
-                                        while (true) {//----------------------------We need to identify the account.Until we are done, continue
-                                            while (next.hasNext()) {//--------------If there are more still in the list, continue.
-                                                int theKey = (Integer) next.next();
-                                                if (loggedInAccounts.get(theKey).returnAddress() == sc.getRemoteAddress()) {//If this socket's address is equal to an address in the list, keep going.
-                                                    //------------------------------Update this characters position.
-                                                    loggedInAccounts.get(theKey).returnChar().decY();
-                                                    //------------------------------Setup Variables
-                                                    String monsterName = loggedInAccounts.get(theKey).returnChar().returnName();
-                                                    int monsterX = loggedInAccounts.get(theKey).returnChar().returnX();
-                                                    int monsterY = loggedInAccounts.get(theKey).returnChar().returnY();
-                                                    int monsterHP = loggedInAccounts.get(theKey).returnChar().returnHP();
-                                                    int monsterTotalHP = loggedInAccounts.get(theKey).returnChar().returnTotalHP();
-                                                    int monsterMP = loggedInAccounts.get(theKey).returnChar().returnMana();
-                                                    int monsterTotalMP = loggedInAccounts.get(theKey).returnChar().returnTotalMana();
-
-                                                    //------------------------------Prepare message for write to other players.
-                                                    String sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
-                                                    notifyAllInRange(theKey, selector, sendBack);
-                                                    break;
-                                                }
-                                            }
-                                            break;
-                                        }
+                                        //--------------------------------------Update this characters position.
+                                        monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
+                                        monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
+                                        //--------------------------------------Prepare message for write to other players.
+                                        sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
+                                        notifyAllInRange(myKey, selector, sendBack);
                                         break;
                                     case "down":
-                                        while (true) {//----------------------------We need to identify the account.Until we are done, continue
-                                            while (next.hasNext()) {//--------------If there are more still in the list, continue.
-                                                int theKey = (Integer) next.next();
-                                                if (loggedInAccounts.get(theKey).returnAddress() == sc.getRemoteAddress()) {//If this socket's address is equal to an address in the list, keep going.
-                                                    //------------------------------Setup Variables
-                                                    loggedInAccounts.get(theKey).returnChar().incY();
-                                                    String monsterName = loggedInAccounts.get(theKey).returnChar().returnName();
-                                                    int monsterX = loggedInAccounts.get(theKey).returnChar().returnX();
-                                                    int monsterY = loggedInAccounts.get(theKey).returnChar().returnY();
-                                                    int monsterHP = loggedInAccounts.get(theKey).returnChar().returnHP();
-                                                    int monsterTotalHP = loggedInAccounts.get(theKey).returnChar().returnTotalHP();
-                                                    int monsterMP = loggedInAccounts.get(theKey).returnChar().returnMana();
-                                                    int monsterTotalMP = loggedInAccounts.get(theKey).returnChar().returnTotalMana();
-
-                                                    //------------------------------Prepare message for write to other players.
-                                                    String sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
-                                                    notifyAllInRange(theKey, selector, sendBack);
-                                                    break;
-                                                }
-                                            }
-                                            break;
-                                        }
+                                        //--------------------------------------Update this characters position.
+                                        monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
+                                        monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
+                                        //--------------------------------------Prepare message for write to other players.
+                                        sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
+                                        notifyAllInRange(myKey, selector, sendBack);
                                         break;
                                     default:
                                         break;
@@ -412,39 +339,82 @@ public class Server {
 
                 } else if ((key.readyOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {//NOW WE WRITE TO THE CLIENT
                     SocketChannel sc = (SocketChannel) key.channel();
-
                     //----------------------------------------------------------Check map of logged in accounts to identify this account.
-                    int o = 0;
-                    Iterator next = loggedInAccounts.keySet().iterator();//-----This iterator contains the list of logged in accounts to cycle through. ;D
-                    while (true) {//--------------------------------------------Cycle through the list until done.
-                        while (next.hasNext()) {//------------------------------If there is more in the list, continue.
-                            int theKey = (Integer) next.next();
-                            if (loggedInAccounts.get(theKey).returnAddress() == sc.getRemoteAddress()) {//If this socket's address is equal to an address in the list, keep going.
-                                while (o < loggedInAccounts.get(theKey).sendBack.length) {//Write and send everything on this clients sendBack[].
-                                    if (loggedInAccounts.get(theKey).sendBack[o].length() > 1) {//As long as there is something in this slot of the sendBack[], write it.
-                                        echoBuffer.clear();//-------------------Reset buffer so that we write to the front of it.
-                                        echoBuffer.put(loggedInAccounts.get(theKey).sendBack[0].getBytes());
-                                        System.out.println("Sent : " + loggedInAccounts.get(theKey).sendBack[0] + "  To : " + sc.getRemoteAddress());
-                                        echoBuffer.flip();//--------------------Flip the echoBuffer for writing.
-                                        sc.write(echoBuffer);//-----------------Send to the client.
-                                        loggedInAccounts.get(theKey).sendBack[o] = "";//Since we wrote this string to the client, reset it to "".
-                                    }
-                                    o++;
-                                }
-                            }
-                        }
-                        break;
-                    }
-
-                    //----------------------------------------------------------Create a new clean buffer for the next go arround.
-                    echoBuffer = ByteBuffer.allocate(1024);
-
-                    //----------------------------------------------------------Everything has been sent to the client, so now we register this socket for reading again.
-                    sc.register(selector, SelectionKey.OP_READ);
+                    sendToClient(sc);//-----------------------------------------Send the messages.
+                    eraseSendback(sc);//----------------------------------------Erase the sent messages.
+                    echoBuffer = ByteBuffer.allocate(1024);//-------------------Create a new clean buffer for the next go arround.
+                    sc.register(selector, SelectionKey.OP_READ);//--------------Everything has been sent to the client, so now we register this socket for reading again.
                     it.remove();
                 }
             }
         }
+    }
+
+    //====================================================================================================================================================================
+    //--------------------------------------------------------------------------If a client has disconnected, remove it from the list.
+    private void removeClosedAccounts(Iterator<Integer> iterator, Selector selector) {
+        while (iterator.hasNext()) {//------------------------------As long as there are more accounts to check.
+            int theKey;
+            try {
+                theKey = iterator.next();
+            } catch (ConcurrentModificationException e) {//---------------------Can't do this right now, so we will do it later.
+                break;
+            }
+            if (loggedInAccounts.get(theKey).returnSocket().isClosed()) {
+                loggedInAccounts.remove(theKey);
+            }
+        }
+    }
+
+    //====================================================================================================================================================================
+    //--------------------------------------------------------------------------Clear clients entire sendBack[].
+    private void eraseSendback(SocketChannel sc) throws IOException {
+        int o = 0;
+        int theKey = (int) returnOnlineKey(sc.getRemoteAddress());
+        int stopHere = loggedInAccounts.get(theKey).sendBack.length;
+
+        while (o < stopHere) {
+            loggedInAccounts.get(theKey).sendBack[o] = "";
+            o++;
+        }
+    }
+
+    //====================================================================================================================================================================
+    //--------------------------------------------------------------------------Sends clients entire sendBack[].
+    private void sendToClient(SocketChannel sc) throws IOException {
+        int o = 0;
+        int theKey = (int) returnOnlineKey(sc.getRemoteAddress());
+        boolean done = false;
+
+        while (!done) {
+            if (loggedInAccounts.get(theKey).sendBack[o].isEmpty()) {
+                break;
+            }
+            echoBuffer.clear();
+            echoBuffer.put(loggedInAccounts.get(theKey).sendBack[o].getBytes());
+            echoBuffer.flip();
+            sc.write(echoBuffer);
+            if (o >= loggedInAccounts.get(theKey).sendBack.length) {
+                done = true;
+            }
+            o++;
+        }
+    }
+
+    //======================================================================================================================================================================
+    //--------------------------------------------------------------------------Returns the id of the provided socketAddress for accountsLoggedIn.
+    private int returnOnlineKey(SocketAddress address) {
+        Iterator iterator = loggedInAccounts.keySet().iterator();
+        int o = 0;
+        int theKey = 0;
+        while (iterator.hasNext()) {//------------------------------------------If there is more in the list, continue.
+            int currentKey = (Integer) iterator.next();
+            if (loggedInAccounts.get(currentKey).returnAddress() == address) {//If this socket's address is equal to an address in the list, keep going.
+                theKey = currentKey;
+                break;
+            }
+        }
+        return theKey;
     }
 
     //============================================================================================================================================================================
@@ -477,32 +447,30 @@ public class Server {
     //===========================================================================================================================================================================
     private void notifyAllInRange(int myKey, Selector selector, String sendBack) throws ClosedChannelException {
         int o = 0;
-        Iterator next = loggedInAccounts.keySet().iterator();//-----------------This iterator contains the list of logged in accounts to cycle through.
+        Iterator keys = loggedInAccounts.keySet().iterator();//-----------------This iterator contains the list of logged in accounts to cycle through.
         boolean wroteString = false;
-        while (true) {//--------------------------------------------------------Keep going until done
-            while (next.hasNext()) {//------------------------------------------While there are more people logged on
-                //--------------------------------------------------------------Prepare variables.
-                int theKey = (Integer) next.next();
-                int xDiff = loggedInAccounts.get(myKey).returnChar().returnX() - loggedInAccounts.get(theKey).returnChar().returnX();
-                int yDiff = loggedInAccounts.get(myKey).returnChar().returnY() - loggedInAccounts.get(theKey).returnChar().returnY();
-                int zDiff = loggedInAccounts.get(myKey).returnChar().returnZ() - loggedInAccounts.get(theKey).returnChar().returnZ();
 
-                //--------------------------------------------------------------If the account is within range.
-                if ((theKey != myKey) && (xDiff <= 10 || xDiff >= -10) && (yDiff <= 10 || yDiff >= -10) && (zDiff == 0)) {
-                    while (!wroteString) {//------------------------------------As long as we haven't written the string to this account
-                        if (loggedInAccounts.get(theKey).sendBack[o].length() < 1) {//If this slot is open, write to it.
-                            loggedInAccounts.get(theKey).sendBack[o] = sendBack;
-                            wroteString = true;//-------------------------------Now that we have written to it. Exit.
-                        }
-                        o++;//--------------------------------------------------Increase iterator.
+        while (keys.hasNext()) {//------------------------------------------While there are more people logged on
+            //--------------------------------------------------------------Prepare variables.
+            int currentKey = (Integer) keys.next();
+            int xDiff = loggedInAccounts.get(myKey).returnChar().returnX() - loggedInAccounts.get(currentKey).returnChar().returnX();
+            int yDiff = loggedInAccounts.get(myKey).returnChar().returnY() - loggedInAccounts.get(currentKey).returnChar().returnY();
+            int zDiff = loggedInAccounts.get(myKey).returnChar().returnZ() - loggedInAccounts.get(currentKey).returnChar().returnZ();
+
+            //--------------------------------------------------------------If the account is within range.
+            if ((currentKey != myKey) && (xDiff <= 5 || xDiff >= -5) && (yDiff <= 5 || yDiff >= -5) && (zDiff == 0)) {
+                while (!wroteString) {//------------------------------------As long as we haven't written the string to this account
+                    if (loggedInAccounts.get(currentKey).sendBack[o].isEmpty()) {//If this slot is open, write to it.
+                        loggedInAccounts.get(currentKey).sendBack[o] = sendBack;
+                        wroteString = true;//-------------------------------Now that we have written to it. Exit.
                     }
-                    //----------------------------------------------------------Now that we have written to this account, we need to register it for writing.
-                    loggedInAccounts.get(theKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
+                    o++;//--------------------------------------------------Increase iterator.
                 }
-                o = 0;//--------------------------------------------------------We exited the above loop, so reset the iterator.
-                wroteString = false;//------------------------------------------Reset this too.
+                //----------------------------------------------------------Now that we have written to this account, we need to register it for writing.
+                loggedInAccounts.get(currentKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
             }
-            break;//------------------------------------------------------------We have written to all accounts, so exit the loop.
+            o = 0;//--------------------------------------------------------We exited the above loop, so reset the iterator.
+            wroteString = false;//------------------------------------------Reset this too.
         }
     }
 
@@ -515,20 +483,19 @@ public class Server {
         //--stats
         //--chat
     }
-
-//==================================================================================================================================================================================
-    static public void main(String args[]) throws Exception {
-        if (args.length <= 0) {
-            System.err.println("Usage: java MultiPortEcho port [port port ...]");
-            System.exit(1);
-        }
-
-        int ports[] = new int[args.length];
-
-        for (int i = 0; i < args.length; ++i) {
-            ports[i] = Integer.parseInt(args[i]);
-        }
-
-        new Server(ports);
-    }
+////==================================================================================================================================================================================
+//    static public void main(String args[]) throws Exception {
+//        if (args.length <= 0) {
+//            System.err.println("Usage: java MultiPortEcho port [port port ...]");
+//            System.exit(1);
+//        }
+//
+//        int ports[] = new int[args.length];
+//
+//        for (int i = 0; i < args.length; ++i) {
+//            ports[i] = Integer.parseInt(args[i]);
+//        }
+//
+//        new Server(ports);
+//    }
 }

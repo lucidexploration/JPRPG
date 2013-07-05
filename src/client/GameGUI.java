@@ -242,10 +242,16 @@ class GameGUI {
                 while (true) {
                     while (iter.hasNext()) {
                         String currentMonster = (String) iter.next();
-                        int diffX = playerCon.returnX() - gameClient.monsterMap.get(currentMonster).returnX();
-                        int diffY = playerCon.returnY() - gameClient.monsterMap.get(currentMonster).returnY();
-                        int monsterX = playerCon.returnX()+diffX;
-                        int monsterY = playerCon.returnY()+diffY;
+                        int monsterX=playerCon.returnX();
+                        if(gameClient.monsterMap.get(currentMonster).returnX()>playerCon.returnX())
+                            monsterX =  (gameClient.monsterMap.get(currentMonster).returnX()-playerCon.returnX())+playerCon.returnX();
+                        if(gameClient.monsterMap.get(currentMonster).returnX()<playerCon.returnX())
+                            monsterX =  playerCon.returnX()-(playerCon.returnX()-gameClient.monsterMap.get(currentMonster).returnX());
+                        int monsterY=playerCon.returnY();
+                        if(gameClient.monsterMap.get(currentMonster).returnY()>playerCon.returnY())
+                            monsterY =  (gameClient.monsterMap.get(currentMonster).returnY()-playerCon.returnY())+playerCon.returnY();
+                        if(gameClient.monsterMap.get(currentMonster).returnY()<playerCon.returnY())
+                            monsterX =  playerCon.returnY()-(playerCon.returnY()-gameClient.monsterMap.get(currentMonster).returnY());
                         gameClient.returnTileGenerator().returnNPC(0, g, monsterX*90, monsterY*90);
                     }
                     break;
