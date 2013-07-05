@@ -1,0 +1,19 @@
+the issue in in the send to client and notify all in range methods. thats where the double thing is coming from
+
+if monster x > playerx
+	subtract player from monster, and add that x to your x
+if monster x < playerx
+	subtract monster from player, and subtract that x from your x
+
+
+Also
+
+The draw method takes playerX-5 and playerY-5 and sets them as the starting values.
+	The i = 0 becomes the number that is added to the starting value for drawing position.
+
+if monster x = 213 and starting x = 216
+then monster x - starting x = 7, and it gets drawn to position 7.
+if i move right, then starting x = 217 and monster x becomes position 6. i got closer to it.
+
+movement should be sent to everyone in range immediately. chat should be sent in write loop only.
+or anyone in write loop sends everyones sendback[]

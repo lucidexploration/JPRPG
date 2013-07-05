@@ -55,7 +55,7 @@ class TileGenerator {
     private void player(Graphics g, int xPos, int yPos){
         g.setColor(Color.ORANGE);
         g.fillOval(xPos+25, yPos+25, 45, 45);
-        g.setColor(Color.BLACK);
+        g.setColor(Color.BLUE);
         g.drawString("@", xPos+44, yPos+48);
     }
 }

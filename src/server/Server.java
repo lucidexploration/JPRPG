@@ -392,8 +392,10 @@ public class Server {
             if (loggedInAccounts.get(theKey).sendBack[o].isEmpty()) {
                 break;
             }
-            echoBuffer.clear();
-            echoBuffer.put(loggedInAccounts.get(theKey).sendBack[o].getBytes());
+            String message = loggedInAccounts.get(theKey).sendBack[o];
+            System.out.println("Sent : "+message + "      To : "+loggedInAccounts.get(theKey).returnChar().returnName());
+            echoBuffer = ByteBuffer.allocate(1024);
+            echoBuffer.put(message.getBytes());
             echoBuffer.flip();
             sc.write(echoBuffer);
             if (o >= loggedInAccounts.get(theKey).sendBack.length) {
@@ -431,7 +433,7 @@ public class Server {
                 while (!wroteString) {
 
                     //----------------------------------------------------------As long as we haven't written the string to this account.
-                    if (loggedInAccounts.get(theKey).sendBack[i].length() < 1) {//If this slot is open, write to it.
+                    if (loggedInAccounts.get(theKey).sendBack[i].isEmpty()) {//If this slot is open, write to it.
                         loggedInAccounts.get(theKey).sendBack[i] = sendBack;
                         wroteString = true;//-----------------------------------Now that we have written to it. Exit.
                     }
@@ -460,7 +462,7 @@ public class Server {
             int zDiff = loggedInAccounts.get(myKey).returnChar().returnZ() - loggedInAccounts.get(currentKey).returnChar().returnZ();
 
             //------------------------------------------------------------------If the account is within range.
-            if ((xDiff <= 5 || xDiff >= -5) && (yDiff <= 5 || yDiff >= -5) && (zDiff == 0)) {
+            if ((xDiff <= 5 || xDiff >= -4) && (yDiff <= 5 || yDiff >= -4) && (zDiff == 0)) {
                 String monsterName = loggedInAccounts.get(myKey).returnChar().returnName();
                 int monsterX = loggedInAccounts.get(currentKey).returnChar().returnX();
                 int monsterY = loggedInAccounts.get(currentKey).returnChar().returnY();

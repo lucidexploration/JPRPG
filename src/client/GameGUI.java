@@ -226,20 +226,20 @@ class GameGUI {
             private void drawPlayersNPCS(Graphics g) {
                 int tileWidth = 90;
                 int tileHeight = 90;
-                int baseX = playerCon.returnX() - 5;
-                int baseY = playerCon.returnY() - 5;
 
                 g.setColor(Color.red);
-                g.drawString(playerCon.returnName(), (5*90)+10, (5*90)+10);
+                g.drawString(playerCon.returnName(), (5 * 90) + 10, (5 * 90) + 10);
                 gameClient.returnTileGenerator().returnNPC(1, g, 5 * 90, 5 * 90);
                 Iterator iter = gameClient.returnMap().keySet().iterator();
                 while (true) {
                     while (iter.hasNext()) {
                         String currentMonster = (String) iter.next();
-                        int monsterX = (gameClient.returnMap().get(currentMonster).returnX() - baseX);
-                        int monsterY = (gameClient.returnMap().get(currentMonster).returnY() - baseY);
+                        int baseX = playerCon.returnX() - 5;
+                        int baseY = playerCon.returnY() - 5;
+                        int monsterX = gameClient.returnMap().get(currentMonster).returnX() - baseX;
+                        int monsterY = gameClient.returnMap().get(currentMonster).returnY() - baseY;
                         g.setColor(Color.red);
-                        g.drawString(gameClient.returnMap().get(currentMonster).returnName(), (monsterX * 90) + 10, (monsterY * 90 + 10));
+                        g.drawString(gameClient.returnMap().get(currentMonster).returnName(), (monsterX * 90) + 10, (monsterY * 90) + 10);
                         gameClient.returnTileGenerator().returnNPC(0, g, monsterX * tileWidth, monsterY * tileHeight);
                     }
                     break;
@@ -319,7 +319,7 @@ class GameGUI {
         chatboxInput.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!(chatboxInput.getText().length() == 0)) {
+                if (!chatboxInput.getText().isEmpty()) {
                     String text = chatboxInput.getText();
                     text = text.replaceAll("¬", ",");
                     gameClient.returnGameController().sendChat(playerCon.returnName(), text);
