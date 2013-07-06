@@ -1,7 +1,11 @@
 Things I think the game needs to be functionally complete and abstract development can begin (quests/monster ai).
 
 Client
+    Chat
+        *-Chat needs to be a JScrollPanel...
     Map
+        *-Client needs to know what it can and cannot walk on.
+        *-Client must not be able to walk past boundaries.
         *-Draw the map based on what the server sends it as it moves. an array would work well for this. lots of shifting data around.
     Options Pane
         *-Needs actual changeable options

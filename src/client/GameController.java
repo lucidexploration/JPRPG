@@ -11,20 +11,20 @@ import java.util.Map;
 
 class GameController extends GameGUI {
 
-    private Socket sock;//this is the socket connecting us to the server
-    private PrintWriter output;//this is the output stream
-    private BufferedReader input;//the input stream
+    private Socket sock;//------------------------------------------------------this is the socket connecting us to the server
+    private PrintWriter output;//-----------------------------------------------this is the output stream
+    private BufferedReader input;//---------------------------------------------the input stream
 
     public GameController() throws UnknownHostException, IOException {
-        //connects to the server
-        //this will need to be updated
+        //----------------------------------------------------------------------connects to the server
+        //----------------------------------------------------------------------this will need to be updated with the servers ip.
         sock = new Socket("localhost", 7171);
         output = new PrintWriter(sock.getOutputStream(), true);
         input = new BufferedReader(new InputStreamReader(sock.getInputStream()));
     }
 
     /*
-     * Recieves input from the server and parses it to know what to update.
+     * -------------------------------------------------------------------------Recieves input from the server and parses it to know what to update.
      */
     public void recieveInput() throws IOException {
         if (input.ready()) {
@@ -68,9 +68,9 @@ class GameController extends GameGUI {
             GameGUI.playerCon.setPos(monsterX, monsterY);
             return;
         }
-        if (!GameGUI.gameClient.returnMap().containsKey(monsterName)) {//------------------------------If we don't have it, add it to the map.
+        if (!GameGUI.gameClient.returnMap().containsKey(monsterName)) {//-------If we don't have it, add it to the map.
             GameGUI.gameClient.returnMap().put(monsterName, new Monster(monsterName, monsterX, monsterY, hp, hptotal, mp, mptotal));
-        } else {//-----------------------------------------------------------------If we already have it, just update it's variables.
+        } else {//---------------------------------------------------------------If we already have it, just update it's variables.
             GameGUI.gameClient.returnMap().get(monsterName).setX(monsterX);
             GameGUI.gameClient.returnMap().get(monsterName).setY(monsterY);
             GameGUI.gameClient.returnMap().get(monsterName).setHP(hp);

@@ -1,3 +1,5 @@
+need to make a logout method for when closing the sockets.
+
 need to notifySelfofAllPlayersInRange on first login.
 
 need to send mapinformation on first login, and updated map information on movement.

@@ -1,0 +1,30 @@
+Game
+    *-Rename the game "Lucid Exploration"
+
+Client
+    *-BattleList using map displayed in new tab.
+    *-Private chat commands.
+    *-Animations. Can be done by returning a random result when a tile is picked. One call returns one drawing of water, while the next call returns another.
+    *-Friends List?
+    *-Resizable client. Half size for smaller displays.
+
+Server
+    *-Crafting
+        Client will need a crafting window that is normally hidden for this. Or maybe just a crafting tab.
+    *-Combat
+    *-Monster AI
+        Fightable
+        Vendors
+            -*Client will need a vendor window that is normally hidden for this. Or maybe just a vendor tab.
+    *-Experience and levels.
+        Experience for quests
+        Experience for monsters
+    *-Quests
+        In-game creation
+        Completion
+    *-Items
+        Equipping.
+        Looting
+        Dropping
+        Selling
+        Buying

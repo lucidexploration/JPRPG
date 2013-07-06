@@ -5,10 +5,8 @@ class Tile {
     private int tileType;
     private int extraID;
     
-    public Tile(int id, int type, int extra) {
+    public Tile(int id) {
         this.tileID=id;
-        this.tileType=type;
-        this.extraID=extra;
     }
     
     public int returnID(){

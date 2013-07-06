@@ -6,7 +6,7 @@ import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
 
-public class Server {
+public class Server extends ServerRunner {
 
     //-----------------------CONFIGURE SERVER---------------------------------\\
     private int ports[];
@@ -17,22 +17,22 @@ public class Server {
     //----------------------------CREATURES-----------------------------------\\
     private Map<Integer, Monsters> monsters;
     //----------------------------MAP-----------------------------------------\\
-    private Map<Integer, Tile> map;
-    final int mapRows = 1000;
-    final int mapCols = 1000;
-    final int mapLevels = 10;
+    private Map<String, Tile> map;
+    final int mapRows = 2147483647;
+    final int mapCols = 2147483647;
+    final int mapLevels = 2147483647;
 
     public Server(int ports[]) throws IOException {
         //create new objects
         this.monsters = new HashMap<>(200);
         this.accounts = new HashMap<>(200);
         this.loggedInAccounts = new HashMap<>(100);
-        this.map = new HashMap<>(mapRows * mapCols * mapLevels);
+        this.map = new HashMap<>();
         this.ports = ports;
 
         //----------------------------------------------------------------------LOAD THINGS.
         loadAccounts();
-        //loadMap();//----------------------------------------------------------Disabled to more quickly debug other things.
+        loadMap();//------------------------------------------------------------LOAD MAP
         loadMonsters();
         //----------------------------------------------------------------------CLIENT INPUT.
         configure_selector();
@@ -76,44 +76,58 @@ public class Server {
                 accounts.put(accNumber, new Account(accNumber, password, name, x, y, z, accountType, hp, hpTotal, mana, manaTotal));
             }
         } catch (IOException ex) {
-            System.out.println("Scanner couldnt read the fucking line");
+            console.append("Scanner couldnt read the fucking line."+"\n");
         }
         try {
             scanner.close();
         } catch (IOException ex) {
-            System.out.println("scanner never even opened");
+            console.append("scanner never even opened"+"\n");
         }
-        System.out.println("This is whats loaded in accounts at start : " + accounts.keySet());
+        console.append("This is whats loaded in accounts at start : " + accounts.keySet()+"\n");
     }
 
 //==================================================================================================================================================================================
     //--------------------------------------------------------------------------LOAD THE MAP. If it doesn't exist, you need to run the empty map maker.
     private void loadMap() {
         Scanner scanner = null;
-        File file = new File((System.getProperty("user.home") + "//JPRPG//map.___"));
+        File dir = new File(System.getProperty("user.home") + "//JPRPG//");
+        File file = new File(dir,"map.txt");
         try {
             scanner = new Scanner(file);
-        } catch (FileNotFoundException ex) {
-            System.out.println("File not Found");//-----------------------------If file doesnt exist, you must make with EmptyMapMaker.java.
+        } catch (FileNotFoundException ex) {//----------------------------------If file doesnt exist, create it.
+            try {
+                file.createNewFile();
+                scanner = new Scanner(file);
+            } catch (IOException ex1) {//---------------------------------------If folders dont exist, create them.
+                file.mkdirs();
+            }
         }
 
         int x = 0;
         while (scanner.hasNext()) {//-------------------------------------------As long as there is more in the file, keep reading.
             String info = scanner.nextLine();
-            String[] infoSplit = info.split("=--=");
-            int id = Integer.parseInt(infoSplit[0]);
-            int type = Integer.parseInt(infoSplit[1]);
-            int extra = Integer.parseInt(infoSplit[2]);
-            map.put(x, new Tile(id, type, extra));
+            String[] infoSplit = info.split(",");
+            String id = infoSplit[0];
+            int tileType = Integer.parseInt(infoSplit[1]);
+            map.put(id, new Tile(tileType));
             x++;
         }
         scanner.close();
+        console.append("This is whats loaded on the map at start : "+map.keySet()+"\n");
     }
 
 //==================================================================================================================================================================================
     //--------------------------------------------------------------------------Returns the map index of specified X,Y,Z.
-    public int getIndex(int row, int col, int level) {
-        return row * (mapRows + mapCols) + col * mapCols + level;
+    public static String getIndex(Integer x, Integer y, Integer z) {
+        byte newX = x.byteValue();
+        byte newY = y.byteValue();
+        byte newZ = z.byteValue();
+        //creating byte array 
+        byte[] position = {newX,newY,newZ};
+
+        //creating UUID from byte     
+        UUID uuid = UUID.nameUUIDFromBytes(position);
+        return uuid.toString();
     }
 
 //==================================================================================================================================================================================
@@ -149,7 +163,7 @@ public class Server {
             //------------------------------------------------------------------know that a new connection has been accepted.
             ssc.register(selector, SelectionKey.OP_ACCEPT);
 
-            System.out.println("Going to listen on " + ports[i]);
+            console.append("Going to listen on " + ports[i]+"\n");
         }
 
         while (true) {
@@ -179,7 +193,7 @@ public class Server {
                     sc.register(selector, SelectionKey.OP_READ);//Add the new connection to the selector
                     it.remove();
 
-                    System.out.println("Got connection from " + sc);
+                    console.append("Got connection from " + sc+"\n");
 
                 } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {//We now have data, so read the data
 
@@ -188,33 +202,30 @@ public class Server {
                     SocketChannel sc = (SocketChannel) key.channel();
 
                     while (true) {
-                        System.out.println("received: " + new String(echoBuffer.array()));
                         int number_of_bytes = 0;
                         try {
                             number_of_bytes = sc.read(echoBuffer);
+                            console.append("received: " + new String(echoBuffer.array()).trim()+"\n");
                         } catch (java.io.IOException e) {
                             sc.close();
                             SelectionKey i = sc.keyFor(selector);
                             i.cancel();
                         }
                         String message = new String(echoBuffer.array());
-                        String[] splits = message.split("=--=");//-----------------I chose "=--=" because it's a very unlikely character to be used by the players.
+                        String[] splits = message.split("=--=");//--------------I chose "=--=" because it's a very unlikely character pattern to be used by the players.
 
 
                         //-----------------------INTERPRET INCOMING PACKETS-----------------------\\
                         //create account
                         if (splits[0].equals("create")) {
-                            System.out.println(accounts.keySet());
+                            console.append(accounts.keySet().toString()+"\n");
                         }
 
                         //------------------------------------------------------LOGIN
                         if (splits[0].equals("login")) {//----------------------If this is a login packet
-                            System.out.println("yes");
-                            System.out.println(accounts.keySet());
+                            console.append(accounts.keySet().toString()+"\n");
                             if (accounts.containsKey(Integer.parseInt(splits[1]))) {//And if we have this account
-                                System.out.println("yep");
                                 if (accounts.get(Integer.parseInt(splits[1])).returnPassword().equals(splits[2])) {//And if the password matches
-                                    System.out.println("yeppers");
 
                                     //------------------------------------------Prepare to send the login information
                                     int x = accounts.get(Integer.parseInt(splits[1])).returnChar().returnX();
@@ -245,7 +256,7 @@ public class Server {
                                         b++;
                                         break;
                                     }
-                                    System.out.println("login added: " + loggedInAccounts.keySet());
+                                    console.append("login added: " + loggedInAccounts.keySet()+"\n");
                                 }
                             }
                             //--------------------------------------------------Now tell everyone arround us that we have logged in.
@@ -418,7 +429,7 @@ public class Server {
                 break;
             }
             String message = loggedInAccounts.get(theKey).sendBack[o];
-            System.out.println("Sent : " + message + "      To : " + loggedInAccounts.get(theKey).returnChar().returnName());
+            console.append("Sent : " + message + "      To : " + loggedInAccounts.get(theKey).returnChar().returnName()+"\n");
             echoBuffer = ByteBuffer.allocate(1024);
             echoBuffer.put(message.getBytes());
             echoBuffer.flip();
@@ -498,8 +509,8 @@ public class Server {
                 //----------------------------------------------------------Now that we have written to this account, we need to register it for writing.
                 loggedInAccounts.get(currentKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
             }
-            o = 0;//--------------------------------------------------------We exited the above loop, so reset the iterator.
-            wroteString = false;//------------------------------------------Reset this too.
+            o = 0;//------------------------------------------------------------We exited the above loop, so reset the iterator.
+            wroteString = false;//----------------------------------------------Reset this too.
         }
     }
 
