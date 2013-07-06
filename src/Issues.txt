@@ -1,0 +1,9 @@
+need to notifySelfofAllPlayersInRange on first login.
+
+need to send mapinformation on first login, and updated map information on movement.
+
+need to create a few new tiles and work on map update commands.
+
+create a server gui, with a button that saves and exits.
+    also a jtextarea that displays System.out.println() output
+    also a jpanel that displays who is logged in.
