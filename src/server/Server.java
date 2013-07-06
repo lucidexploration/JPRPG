@@ -100,7 +100,7 @@ public class Server {
         int x = 0;
         while (scanner.hasNext()) {//-------------------------------------------As long as there is more in the file, keep reading.
             String info = scanner.nextLine();
-            String[] infoSplit = info.split("¬");
+            String[] infoSplit = info.split("=--=");
             int id = Integer.parseInt(infoSplit[0]);
             int type = Integer.parseInt(infoSplit[1]);
             int extra = Integer.parseInt(infoSplit[2]);
@@ -189,7 +189,6 @@ public class Server {
 
                     while (true) {
                         System.out.println("received: " + new String(echoBuffer.array()));
-                        echoBuffer.clear();
                         int number_of_bytes = 0;
                         try {
                             number_of_bytes = sc.read(echoBuffer);
@@ -199,7 +198,7 @@ public class Server {
                             i.cancel();
                         }
                         String message = new String(echoBuffer.array());
-                        String[] splits = message.split("¬");//-----------------I chose "¬" because it's a very unlikely character to be used by the players.
+                        String[] splits = message.split("=--=");//-----------------I chose "=--=" because it's a very unlikely character to be used by the players.
 
 
                         //-----------------------INTERPRET INCOMING PACKETS-----------------------\\
@@ -234,7 +233,7 @@ public class Server {
                                     //------------------------------------------Add this account to the logged on accounts map.
                                     loggedInAccounts.put((Integer) Integer.parseInt(splits[1]), accounts.get(Integer.parseInt(splits[1])));
                                     //------------------------------------------Now add it all to the sendBack string.
-                                    String sendBack = "login¬" + name + "¬" + x + "¬" + y + "¬" + hp + "¬" + totalhp + "¬" + mana + "¬" + totalmana + "¬\r";
+                                    String sendBack = "login=--=" + name + "=--=" + x + "=--=" + y + "=--=" + hp + "=--=" + totalhp + "=--=" + mana + "=--=" + totalmana + "=--=\r";
 
                                     //------------------------------------------Write the string to the accounts sendBack[]
                                     int b = 0;
@@ -244,14 +243,23 @@ public class Server {
                                             break;
                                         }
                                         b++;
+                                        break;
                                     }
-
-                                    //------------------------------------------Register this account for writing to send the login information back.
-                                    sc.register(selector, SelectionKey.OP_WRITE);
                                     System.out.println("login added: " + loggedInAccounts.keySet());
                                 }
                             }
-                            break;
+                            //--------------------------------------------------Now tell everyone arround us that we have logged in.
+                            int myKey = returnOnlineKey(sc.getRemoteAddress());
+                            String monsterName = loggedInAccounts.get(myKey).returnChar().returnName();
+                            int monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
+                            int monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
+                            int monsterHP = loggedInAccounts.get(myKey).returnChar().returnHP();
+                            int monsterTotalHP = loggedInAccounts.get(myKey).returnChar().returnTotalHP();
+                            int monsterMP = loggedInAccounts.get(myKey).returnChar().returnMana();
+                            int monsterTotalMP = loggedInAccounts.get(myKey).returnChar().returnTotalMana();
+                            String sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
+
+                            notifyAllInRange(myKey, selector, sendBack);
                         }
 
                         //------------------------------------------------------ATTACK
@@ -266,7 +274,7 @@ public class Server {
                             String text = splits[2];
 
                             //--------------------------------------------------Add everything to sendBack string.
-                            String sendBack = "chat¬" + name + "¬" + text + "¬" + "\r";
+                            String sendBack = "chat=--=" + name + "=--=" + text + "=--=" + "\r";
                             writeToAllOnline(selector, sendBack);
                         }
 
@@ -292,7 +300,7 @@ public class Server {
                                         //--------------------------------------Prepare message for write to other players.
                                         monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
                                         monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
-                                        sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
+                                        sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
                                         notifyAllInRange(myKey, selector, sendBack);
                                         break;
                                     case "right":
@@ -301,7 +309,7 @@ public class Server {
                                         //--------------------------------------Prepare message for write to other players.
                                         monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
                                         monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
-                                        sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
+                                        sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
                                         notifyAllInRange(myKey, selector, sendBack);
                                         break;
                                     case "up":
@@ -310,7 +318,7 @@ public class Server {
                                         monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
                                         monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
                                         //--------------------------------------Prepare message for write to other players.
-                                        sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
+                                        sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
                                         notifyAllInRange(myKey, selector, sendBack);
                                         break;
                                     case "down":
@@ -319,7 +327,7 @@ public class Server {
                                         monsterX = loggedInAccounts.get(myKey).returnChar().returnX();
                                         monsterY = loggedInAccounts.get(myKey).returnChar().returnY();
                                         //--------------------------------------Prepare message for write to other players.
-                                        sendBack = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
+                                        sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
                                         notifyAllInRange(myKey, selector, sendBack);
                                         break;
                                     default:
@@ -329,6 +337,23 @@ public class Server {
                         } catch (ClosedChannelException e) {//------------------If someone closes their socket in the middle of this, handle it.
                             sc.close();
                             break;
+                        }
+
+                        //------------------------------------------------------Check if anything was written to this account this loop. If so, register it for writing.
+                        try {
+                            if (loggedInAccounts.containsKey(returnOnlineKey(sc.getRemoteAddress()))) {
+                                int o = 0;
+                                while (o < loggedInAccounts.get(returnOnlineKey(sc.getRemoteAddress())).sendBack.length) {
+                                    if (!loggedInAccounts.get(returnOnlineKey(sc.getRemoteAddress())).sendBack[o].isEmpty()) {
+                                        sc.register(selector, SelectionKey.OP_WRITE);
+                                        break;
+                                    }
+                                    o++;
+                                }
+                                break;
+                            }
+                        } catch (ClosedChannelException e) {
+                            sc.close();
                         }
 
                         if (number_of_bytes <= 0) {//---------------------------If there was nothing else to read this cycle, exit the loop.
@@ -393,7 +418,7 @@ public class Server {
                 break;
             }
             String message = loggedInAccounts.get(theKey).sendBack[o];
-            System.out.println("Sent : "+message + "      To : "+loggedInAccounts.get(theKey).returnChar().returnName());
+            System.out.println("Sent : " + message + "      To : " + loggedInAccounts.get(theKey).returnChar().returnName());
             echoBuffer = ByteBuffer.allocate(1024);
             echoBuffer.put(message.getBytes());
             echoBuffer.flip();
@@ -463,28 +488,12 @@ public class Server {
 
             //------------------------------------------------------------------If the account is within range.
             if ((xDiff <= 5 || xDiff >= -4) && (yDiff <= 5 || yDiff >= -4) && (zDiff == 0)) {
-                String monsterName = loggedInAccounts.get(myKey).returnChar().returnName();
-                int monsterX = loggedInAccounts.get(currentKey).returnChar().returnX();
-                int monsterY = loggedInAccounts.get(currentKey).returnChar().returnY();
-                int monsterHP = loggedInAccounts.get(currentKey).returnChar().returnHP();
-                int monsterTotalHP = loggedInAccounts.get(currentKey).returnChar().returnTotalHP();
-                int monsterMP = loggedInAccounts.get(currentKey).returnChar().returnMana();
-                int monsterTotalMP = loggedInAccounts.get(currentKey).returnChar().returnTotalMana();
-                String theirSendback = "monsterInRange¬" + monsterName + "¬" + monsterX + "¬" + monsterY + "¬" + monsterHP + "¬" + monsterTotalHP + "¬" + monsterMP + "¬" + monsterTotalMP + "¬+\r";
                 while (!wroteString) {//----------------------------------------As long as we haven't written the string to this account
                     if (loggedInAccounts.get(currentKey).sendBack[o].isEmpty()) {//If this slot is open, write to it.
                         loggedInAccounts.get(currentKey).sendBack[o] = sendBack;
                         wroteString = true;//-----------------------------------Now that we have written to it. Exit.
                     }
                     o++;//------------------------------------------------------Increase iterator.
-                }
-                o = 0;//--------------------------------------------------------We now need to notify the guy that moved, of other players positions.
-                while (!wroteString) {
-                    if (loggedInAccounts.get(myKey).sendBack[o].isEmpty()) {
-                        loggedInAccounts.get(myKey).sendBack[o] = theirSendback;
-                        wroteString = true;
-                    }
-                    o++;
                 }
                 //----------------------------------------------------------Now that we have written to this account, we need to register it for writing.
                 loggedInAccounts.get(currentKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);

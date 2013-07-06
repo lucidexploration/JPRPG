@@ -2,8 +2,6 @@ Things I think the game needs to be functionally complete and abstract developme
 
 Client
     Map
-        *-Local Coordinates
-        *-Draw screen moving with player in center
         *-Draw the map based on what the server sends it as it moves. an array would work well for this. lots of shifting data around.
     Options Pane
         *-Needs actual changeable options
@@ -17,7 +15,6 @@ Client
 Server
     Server-Client Communication
         *-On login, need to send information of everyone and everything around people logging in, to the person that logged in.
-        *-On read, for movement and map update, query online list to see if anyone in range and if so, write to their sendback[] and flag for write.
     Accounts
         *-Finish basic account creation
         *-Accounts need to save either on creation, or exit.

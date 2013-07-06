@@ -29,7 +29,7 @@ class GameController extends GameGUI {
     public void recieveInput() throws IOException {
         if (input.ready()) {
             String message = input.readLine();
-            String[] splits = message.split("¬");
+            String[] splits = message.split("=--=");
             System.out.println("recieved : " + message);
             if (splits[0].equals("chat")) {
                 String name = splits[1];
@@ -81,7 +81,7 @@ class GameController extends GameGUI {
     }
 
     public void createAccount(int accNumber, String password, String username) {
-        output.println("create¬" + accNumber + "¬" + password + "¬" + username + "¬");
+        output.println("create=--=" + accNumber + "=--=" + password + "=--=" + username + "=--=");
     }
 
     /*
@@ -89,7 +89,7 @@ class GameController extends GameGUI {
      * attacking targetID.
      */
     public void sendAttack(int attackerID, int targetID) {
-        output.println("attack¬" + attackerID + "¬" + targetID + "¬");
+        output.println("attack=--=" + attackerID + "=--=" + targetID + "=--=");
     }
 
     /*
@@ -103,8 +103,8 @@ class GameController extends GameGUI {
      * chat box when the return key was pressed.
      */
     public void sendChat(String name, String text) {
-        output.println("chat¬" + name + "¬" + text + "¬");
-        System.out.println("sent : " + "chat¬" + name + "¬" + text + "¬");
+        output.println("chat=--=" + name + "=--=" + text + "=--=");
+        System.out.println("sent : " + "chat=--=" + name + "=--=" + text + "=--=");
     }
 
     /*
@@ -119,19 +119,19 @@ class GameController extends GameGUI {
      * for the server to verify the movement.
      */
     public void sendMoveLeft() {
-        output.println("move¬left¬");
+        output.println("move=--=left=--=");
     }
 
     public void sendMoveRight() {
-        output.println("move¬right¬");
+        output.println("move=--=right=--=");
     }
 
     public void sendMoveUp() {
-        output.println("move¬up¬");
+        output.println("move=--=up=--=");
     }
 
     public void sendMoveDown() {
-        output.println("move¬down¬");
+        output.println("move=--=down=--=");
     }
 
     public void recieveMovement(int moverID, int xPos, int yPos) {
@@ -142,7 +142,7 @@ class GameController extends GameGUI {
      */
     public void logIn(int accNumber, String password) {
         System.out.println("sent : " + accNumber + " " + password);
-        output.println("login¬" + accNumber + "¬" + password + "¬" + "\n");
+        output.println("login=--=" + accNumber + "=--=" + password + "=--=" + "\n");
     }
 
     public void recieveLogIn(String charName, int x, int y, int hp, int totalhp, int mana, int totalmana) {
