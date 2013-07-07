@@ -4,7 +4,10 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -21,6 +24,19 @@ public class ServerRunner {
     public static JTextArea onlineList;
     private static GridBagLayout layout = new GridBagLayout();
     private static GridBagConstraints constraints = new GridBagConstraints();
+    private static Server server;
+
+    //=========================================================================================================================
+    public static void main(String args[]) throws IOException {
+        makeGUI();
+        run();
+    }
+
+    public static void run() throws IOException {
+        int[] ports = new int[1];
+        ports[0] = 7171;
+        server = new Server(ports);
+    }
 
     private static void makeGUI() {
         window = new JFrame("Server");
@@ -41,7 +57,7 @@ public class ServerRunner {
         console.setEditable(false);
         console.setLineWrap(true);
         console.setWrapStyleWord(true);
-        DefaultCaret caret = (DefaultCaret)console.getCaret();
+        DefaultCaret caret = (DefaultCaret) console.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -60,7 +76,7 @@ public class ServerRunner {
         onlineList.setEditable(false);
         onlineList.setLineWrap(true);
         onlineList.setWrapStyleWord(true);
-        DefaultCaret caret = (DefaultCaret)onlineList.getCaret();
+        DefaultCaret caret = (DefaultCaret) onlineList.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         constraints.gridx = 1;
         constraints.gridy = 0;
@@ -76,22 +92,20 @@ public class ServerRunner {
         saveAndExit = new JButton("Save and Exit") {
         };
         saveAndExit.setPreferredSize(new Dimension(600, 200));
+        saveAndExit.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    server.saveAndExit();
+                } catch (IOException ex) {
+                    System.out.println("shit done broke");
+                }
+            }
+        });
         constraints.gridwidth = 2;
         constraints.gridx = 0;
         constraints.gridy = 1;
         cp.add(saveAndExit, constraints);
         window.validate();
-    }
-
-    //=========================================================================================================================
-    public static void main(String args[]) throws IOException {
-        makeGUI();
-        run();
-    }
-
-    public static void run() throws IOException {
-        int[] ports = new int[1];
-        ports[0] = 7171;
-        new Server(ports);
     }
 }

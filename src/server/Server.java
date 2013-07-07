@@ -9,19 +9,19 @@ import java.util.*;
 public class Server extends ServerRunner {
 
     //-----------------------CONFIGURE SERVER---------------------------------\\
-    private int ports[];
-    private ByteBuffer echoBuffer = ByteBuffer.allocate(1024);
+    private static int ports[];
+    private static ByteBuffer echoBuffer = ByteBuffer.allocate(1024);
     //----------------------------ACCOUNTS------------------------------------\\
-    private Map<Integer, Account> accounts;
-    private Map<Integer, Account> loggedInAccounts;
+    private static Map<Integer, Account> accounts;
+    private static Map<Integer, Account> loggedInAccounts;
     //----------------------------CREATURES-----------------------------------\\
-    private Map<Integer, Monsters> monsters;
+    private static Map<Integer, Monsters> monsters;
     //----------------------------MAP-----------------------------------------\\
-    private Map<String, Tile> map;
-    final int mapRows = 2147483647;
-    final int mapCols = 2147483647;
-    final int mapLevels = 2147483647;
+    private static Map<String, Tile> map;
+    public static boolean saveAndExit = false;
 
+    //=============================================================================================================================================================================
+    //--------------------------------------------------------------------------Constructor
     public Server(int ports[]) throws IOException {
         //create new objects
         this.monsters = new HashMap<>(200);
@@ -38,9 +38,66 @@ public class Server extends ServerRunner {
         configure_selector();
     }
 
-//==================================================================================================================================================================================
+    //=============================================================================================================================================================================
+    public static void saveAndExit() throws IOException {
+        //----------------------------------------------------------------------Save map first.
+        File mapDir = new File(System.getProperty("user.home") + "//JPRPG//");
+        File mapFile = new File(mapDir, "map.txt");
+        mapFile.delete();
+        mapFile.createNewFile();
+        FileWriter mapWriter = new FileWriter(mapFile);
+        Iterator mapIterator = map.keySet().iterator();
+        while (true) {
+            while (mapIterator.hasNext()) {
+                String nextTile = (String) mapIterator.next();
+                String index = nextTile;
+                int tileType = map.get(nextTile).returnType();
+                //--------------------------------------------------------------Write map to file.
+                String writeThis = index + "," + tileType +System.lineSeparator();
+                System.out.println(writeThis);
+                mapWriter.write(writeThis);
+                mapWriter.flush();
+            }
+            break;
+        }
+        //----------------------------------------------------------------------Now save accounts.
+        File accDir = new File(System.getProperty("user.home") + "//JPRPG//");
+        File accFile = new File(accDir, "accounts.txt");
+        accFile.delete();
+        accFile.createNewFile();
+        FileWriter accWriter = new FileWriter(accFile);
+        //----------------------------------------------------------------------This assumes that all accounts, even those logged in, are stored in the accounts map.
+        Iterator accIterator = accounts.keySet().iterator();
+        while (true) {
+            while (accIterator.hasNext()) {
+                int nextAcc = (int) accIterator.next();
+                //--------------------------------------------------------------Prepare values for write.
+                int accountNumber = nextAcc;
+                String password = accounts.get(nextAcc).returnPassword();
+                String name = accounts.get(nextAcc).returnChar().returnName();
+                int xPos = accounts.get(nextAcc).returnChar().returnX();
+                int yPos = accounts.get(nextAcc).returnChar().returnY();
+                int zPos = accounts.get(nextAcc).returnChar().returnZ();
+                int accType = 0;
+                int hp = accounts.get(nextAcc).returnChar().returnHP();
+                int hpTotal = accounts.get(nextAcc).returnChar().returnTotalHP();
+                int mp = accounts.get(nextAcc).returnChar().returnMana();
+                int mpTotal = accounts.get(nextAcc).returnChar().returnTotalMana();
+                //--------------------------------------------------------------Write to file
+                String writeThis = accountNumber + "," + password + "," + name + "," + xPos + "," + yPos + "," + zPos + "," + accType + "," + hp + "," + hpTotal + "," + mp + "," + mpTotal +System.lineSeparator();
+                accWriter.write(writeThis);
+                accWriter.flush();
+                System.out.println(writeThis);
+            }
+            break;
+        }
+        //----------------------------------------------------------------------We are done. Now exit.
+        System.exit(0);
+    }
+
+    //=============================================================================================================================================================================
     //-----------Load Accounts-if folder or files dont exist-Create them------\\
-    private void loadAccounts() {
+    private static void loadAccounts() {
         File dir = new File(System.getProperty("user.home") + "//JPRPG//");
         File file = new File(dir, "accounts.txt");
         BufferedReader scanner = null;
@@ -76,22 +133,22 @@ public class Server extends ServerRunner {
                 accounts.put(accNumber, new Account(accNumber, password, name, x, y, z, accountType, hp, hpTotal, mana, manaTotal));
             }
         } catch (IOException ex) {
-            console.append("Scanner couldnt read the fucking line."+"\n");
+            console.append("Scanner couldnt read the fucking line." + "\n");
         }
         try {
             scanner.close();
         } catch (IOException ex) {
-            console.append("scanner never even opened"+"\n");
+            console.append("scanner never even opened" + "\n");
         }
-        console.append("This is whats loaded in accounts at start : " + accounts.keySet()+"\n");
+        console.append("This is whats loaded in accounts at start : " + accounts.keySet() + "\n");
     }
 
 //==================================================================================================================================================================================
     //--------------------------------------------------------------------------LOAD THE MAP. If it doesn't exist, you need to run the empty map maker.
-    private void loadMap() {
+    private static void loadMap() {
         Scanner scanner = null;
         File dir = new File(System.getProperty("user.home") + "//JPRPG//");
-        File file = new File(dir,"map.txt");
+        File file = new File(dir, "map.txt");
         try {
             scanner = new Scanner(file);
         } catch (FileNotFoundException ex) {//----------------------------------If file doesnt exist, create it.
@@ -113,7 +170,7 @@ public class Server extends ServerRunner {
             x++;
         }
         scanner.close();
-        console.append("This is whats loaded on the map at start : "+map.keySet()+"\n");
+        console.append("This is whats loaded on the map at start : " + map.keySet() + "\n");
     }
 
 //==================================================================================================================================================================================
@@ -123,7 +180,7 @@ public class Server extends ServerRunner {
         byte newY = y.byteValue();
         byte newZ = z.byteValue();
         //creating byte array 
-        byte[] position = {newX,newY,newZ};
+        byte[] position = {newX, newY, newZ};
 
         //creating UUID from byte     
         UUID uuid = UUID.nameUUIDFromBytes(position);
@@ -132,14 +189,14 @@ public class Server extends ServerRunner {
 
 //==================================================================================================================================================================================
     //--------------------------------------------------------------------------LOAD MONSTERS. If monster file doesnt exist. Create it.
-    private void loadMonsters() {
+    private static void loadMonsters() {
         //load monsters from file
         //check map for spawnpoints and spawn a monster there if
         //-one hasnt been spawned in 1 minute and last one is dead
     }
 
 //==================================================================================================================================================================================
-    private void configure_selector() throws IOException, ClosedChannelException {
+    private static void configure_selector() throws IOException, ClosedChannelException {
 
         Selector selector = Selector.open();//----------------------------------Create a selector that will by used for multiplexing. The selector registers the socketserverchannel
         //----------------------------------------------------------------------as well as all socketchannels that are created.
@@ -163,7 +220,7 @@ public class Server extends ServerRunner {
             //------------------------------------------------------------------know that a new connection has been accepted.
             ssc.register(selector, SelectionKey.OP_ACCEPT);
 
-            console.append("Going to listen on " + ports[i]+"\n");
+            console.append("Going to listen on " + ports[i] + "\n");
         }
 
         while (true) {
@@ -193,11 +250,15 @@ public class Server extends ServerRunner {
                     sc.register(selector, SelectionKey.OP_READ);//Add the new connection to the selector
                     it.remove();
 
-                    console.append("Got connection from " + sc+"\n");
+                    console.append("Got connection from " + sc + "\n");
 
                 } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {//We now have data, so read the data
 
+                    if (saveAndExit == true) {
+                        saveAndExit();
+                    }
                     removeClosedAccounts(loggedInAccounts.keySet().iterator(), selector);//We need to make sure all the loggedInAccounts are still logged in.
+                    //----------------------------------------------------------Also need to write these closed accounts to the accounts map for when saving and exiting.
 
                     SocketChannel sc = (SocketChannel) key.channel();
 
@@ -205,7 +266,7 @@ public class Server extends ServerRunner {
                         int number_of_bytes = 0;
                         try {
                             number_of_bytes = sc.read(echoBuffer);
-                            console.append("received: " + new String(echoBuffer.array()).trim()+"\n");
+                            console.append("received: " + new String(echoBuffer.array()).trim() + "\n");
                         } catch (java.io.IOException e) {
                             sc.close();
                             SelectionKey i = sc.keyFor(selector);
@@ -218,12 +279,12 @@ public class Server extends ServerRunner {
                         //-----------------------INTERPRET INCOMING PACKETS-----------------------\\
                         //create account
                         if (splits[0].equals("create")) {
-                            console.append(accounts.keySet().toString()+"\n");
+                            console.append(accounts.keySet().toString() + "\n");
                         }
 
                         //------------------------------------------------------LOGIN
                         if (splits[0].equals("login")) {//----------------------If this is a login packet
-                            console.append(accounts.keySet().toString()+"\n");
+                            console.append(accounts.keySet().toString() + "\n");
                             if (accounts.containsKey(Integer.parseInt(splits[1]))) {//And if we have this account
                                 if (accounts.get(Integer.parseInt(splits[1])).returnPassword().equals(splits[2])) {//And if the password matches
 
@@ -256,7 +317,7 @@ public class Server extends ServerRunner {
                                         b++;
                                         break;
                                     }
-                                    console.append("login added: " + loggedInAccounts.keySet()+"\n");
+                                    console.append("login added: " + loggedInAccounts.keySet() + "\n");
                                 }
                             }
                             //--------------------------------------------------Now tell everyone arround us that we have logged in.
@@ -390,7 +451,7 @@ public class Server extends ServerRunner {
 
     //====================================================================================================================================================================
     //--------------------------------------------------------------------------If a client has disconnected, remove it from the list.
-    private void removeClosedAccounts(Iterator<Integer> iterator, Selector selector) {
+    private static void removeClosedAccounts(Iterator<Integer> iterator, Selector selector) {
         while (iterator.hasNext()) {//------------------------------As long as there are more accounts to check.
             int theKey;
             try {
@@ -406,7 +467,7 @@ public class Server extends ServerRunner {
 
     //====================================================================================================================================================================
     //--------------------------------------------------------------------------Clear clients entire sendBack[].
-    private void eraseSendback(SocketChannel sc) throws IOException {
+    private static void eraseSendback(SocketChannel sc) throws IOException {
         int o = 0;
         int theKey = (int) returnOnlineKey(sc.getRemoteAddress());
         int stopHere = loggedInAccounts.get(theKey).sendBack.length;
@@ -419,7 +480,7 @@ public class Server extends ServerRunner {
 
     //====================================================================================================================================================================
     //--------------------------------------------------------------------------Sends clients entire sendBack[].
-    private void sendToClient(SocketChannel sc) throws IOException {
+    private static void sendToClient(SocketChannel sc) throws IOException {
         int o = 0;
         int theKey = (int) returnOnlineKey(sc.getRemoteAddress());
         boolean done = false;
@@ -429,7 +490,7 @@ public class Server extends ServerRunner {
                 break;
             }
             String message = loggedInAccounts.get(theKey).sendBack[o];
-            console.append("Sent : " + message + "      To : " + loggedInAccounts.get(theKey).returnChar().returnName()+"\n");
+            console.append("Sent : " + message + "      To : " + loggedInAccounts.get(theKey).returnChar().returnName() + "\n");
             echoBuffer = ByteBuffer.allocate(1024);
             echoBuffer.put(message.getBytes());
             echoBuffer.flip();
@@ -443,7 +504,7 @@ public class Server extends ServerRunner {
 
     //======================================================================================================================================================================
     //--------------------------------------------------------------------------Returns the id of the provided socketAddress for accountsLoggedIn.
-    private int returnOnlineKey(SocketAddress address) {
+    private static int returnOnlineKey(SocketAddress address) {
         Iterator iterator = loggedInAccounts.keySet().iterator();
         int o = 0;
         int theKey = 0;
@@ -458,7 +519,7 @@ public class Server extends ServerRunner {
     }
 
     //============================================================================================================================================================================
-    private void writeToAllOnline(Selector selector, String message) throws ClosedChannelException {
+    private static void writeToAllOnline(Selector selector, String message) throws ClosedChannelException {
         int i = 0;
         Iterator next = loggedInAccounts.keySet().iterator();
         String sendBack = message;
@@ -485,7 +546,7 @@ public class Server extends ServerRunner {
     }
 
     //===========================================================================================================================================================================
-    private void notifyAllInRange(int myKey, Selector selector, String sendBack) throws ClosedChannelException {
+    private static void notifyAllInRange(int myKey, Selector selector, String sendBack) throws ClosedChannelException {
         int o = 0;
         Iterator keys = loggedInAccounts.keySet().iterator();//-----------------This iterator contains the list of logged in accounts to cycle through.
         boolean wroteString = false;
@@ -515,7 +576,7 @@ public class Server extends ServerRunner {
     }
 
     //==============================================================================================================================================================================
-    private void spawnPlayer() {
+    private static void spawnPlayer() {
         //load player data and send to client all relevant info
         //such as:
         //--surrounding tiles
@@ -523,19 +584,4 @@ public class Server extends ServerRunner {
         //--stats
         //--chat
     }
-////==================================================================================================================================================================================
-//    static public void main(String args[]) throws Exception {
-//        if (args.length <= 0) {
-//            System.err.println("Usage: java MultiPortEcho port [port port ...]");
-//            System.exit(1);
-//        }
-//
-//        int ports[] = new int[args.length];
-//
-//        for (int i = 0; i < args.length; ++i) {
-//            ports[i] = Integer.parseInt(args[i]);
-//        }
-//
-//        new Server(ports);
-//    }
 }

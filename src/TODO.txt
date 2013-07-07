@@ -21,9 +21,7 @@ Server
         *-On login, need to send information of everyone and everything around people logging in, to the person that logged in.
     Accounts
         *-Finish basic account creation
-        *-Accounts need to save either on creation, or exit.
+        *-Accounts on when being cleaned from onlineMap need to be saved to normal accounts map, for server saving.
     Map
         *-Server sends proper map tiles based on player movement
         *-Map updates from client commands
-        *-Changes need to save, either on creation, or exit.
-        *-Map file needs to be created to contain just tile information.
