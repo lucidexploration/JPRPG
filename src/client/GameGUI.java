@@ -213,7 +213,7 @@ class GameGUI {
                 while (xTile * tileWidth < windowWidth) {
                     while (yTile * tileHeight < windowHeight) {
                         gameClient.returnTileGenerator().returnTile(0, g, xTile * tileWidth, yTile * tileHeight);
-                        g.setColor(Color.red);
+                        g.setColor(Color.black);
                         g.drawRect(xTile * tileWidth, yTile * tileHeight, tileWidth, tileHeight);
                         yTile++;
                     }
@@ -227,7 +227,7 @@ class GameGUI {
                 int tileWidth = 90;
                 int tileHeight = 90;
 
-                g.setColor(Color.red);
+                g.setColor(Color.black);
                 g.drawString(playerCon.returnName(), (5 * 90) + 10, (5 * 90) + 10);
                 gameClient.returnTileGenerator().returnNPC(1, g, 5 * 90, 5 * 90);
                 Iterator iter = gameClient.returnMap().keySet().iterator();

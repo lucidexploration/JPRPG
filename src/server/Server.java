@@ -198,6 +198,24 @@ public class Server extends ServerRunner {
                             number_of_bytes = sc.read(echoBuffer);
                             console.append("received: " + new String(echoBuffer.array()).trim() + "\n");
                         } catch (java.io.IOException e) {
+                            
+                            //--------------------------------------------------If this account was online, we need to update his information for the next time he logs in.
+                            if(loggedInAccounts.containsKey(PacketManager.returnOnlineKey(sc.getRemoteAddress()))){
+                                int thisKey = PacketManager.returnOnlineKey(sc.getRemoteAddress());
+                                int newX = loggedInAccounts.get(thisKey).returnChar().returnX();
+                                int newY = loggedInAccounts.get(thisKey).returnChar().returnY();
+                                int newZ = loggedInAccounts.get(thisKey).returnChar().returnZ();
+                                int newHP = loggedInAccounts.get(thisKey).returnChar().returnHP();
+                                int newTHP = loggedInAccounts.get(thisKey).returnChar().returnTotalHP();
+                                int newMana = loggedInAccounts.get(thisKey).returnChar().returnMana();
+                                int newTMana = loggedInAccounts.get(thisKey).returnChar().returnTotalMana();
+                                //----------------------------------------------Update now
+                                accounts.get(thisKey).returnChar().setHP(newHP);
+                                accounts.get(thisKey).returnChar().setMana(newMana);
+                                accounts.get(thisKey).returnChar().setPos(newX, newY, newZ);
+                                accounts.get(thisKey).returnChar().setTotalHP(newTHP);
+                                accounts.get(thisKey).returnChar().setTotalMana(newTMana);
+                            }
                             sc.close();
                             SelectionKey i = sc.keyFor(selector);
                             i.cancel();

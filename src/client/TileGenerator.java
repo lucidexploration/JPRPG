@@ -41,8 +41,11 @@ class TileGenerator {
     //-------------------Graphics Below Here-------------------\\
     //-------------Tiles--------------
     private void emptySquare(Graphics g, int xPos, int yPos){
-        g.setColor(Color.BLACK);
+        g.setColor(new Color(70,127,65));
         g.fillRect(xPos, yPos, 90, 90);
+        g.setColor(Color.lightGray);
+        g.drawString("~//\\//\\", xPos, yPos);
+        
     }
     
     //------------People----------------
@@ -53,9 +56,31 @@ class TileGenerator {
         g.drawString("@dmin", xPos+30, yPos+48);
     }
     private void player(Graphics g, int xPos, int yPos){
-        g.setColor(Color.ORANGE);
-        g.fillOval(xPos+25, yPos+25, 45, 45);
-        g.setColor(Color.BLUE);
-        g.drawString("@", xPos+44, yPos+48);
+        g.setColor(new Color(232,159,173));
+        g.fillOval(xPos+35, yPos+10, 20, 20);//---------------------------------Head
+        g.setColor(Color.BLACK);
+        g.drawOval(xPos+35, yPos+10, 20, 20);//---------------------------------Head outline
+        g.setColor(Color.RED);
+        g.fillRect(xPos+35, yPos+30, 20, 20);//---------------------------------Body
+        g.setColor(Color.BLACK);
+        g.drawRect(xPos+35, yPos+30, 20, 20);//---------------------------------Body outline
+        g.setColor(new Color(232,159,173));
+        g.fillRect(xPos+55, yPos+30, 5, 15);//----------------------------------Right arm
+        g.setColor(Color.BLACK);
+        g.drawRect(xPos+55, yPos+30, 5, 15);//----------------------------------Right arm outline
+        g.setColor(new Color(232,159,173));
+        g.fillRect(xPos+30, yPos+30, 5, 15);//----------------------------------Left arm
+        g.setColor(Color.BLACK);
+        g.drawRect(xPos+30, yPos+30, 5, 15);//----------------------------------Left arm outline
+        g.setColor(Color.RED);
+        g.fillRect(xPos+35, yPos+50, 10, 30);//---------------------------------Left leg
+        g.setColor(Color.BLACK);
+        g.drawRect(xPos+35, yPos+50, 10, 30);//---------------------------------Left leg outline
+        g.setColor(Color.RED);
+        g.fillRect(xPos+45, yPos+50, 10, 30);//---------------------------------Right leg
+        g.setColor(Color.BLACK);
+        g.drawRect(xPos+45, yPos+50, 10, 30);//---------------------------------Right leg outline
+        g.setColor(Color.BLACK);
+        g.fillRect(xPos+35, yPos+80, 21, 5);//---------------------------------Right leg outline
     }
 }

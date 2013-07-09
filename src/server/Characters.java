@@ -93,8 +93,12 @@ class Characters {
     public int returnHP() {
         return this.hitpoints;
     }
+    
+    //--------------------------------------------------------------------------Set Total HP
+    public void setTotalHP(int newHP){
+        this.totalHitPoints=newHP;
+    }
     //--------------------------------------------------------------------------Return Total HP
-
     public int returnTotalHP() {
         return this.totalHitPoints;
     }
@@ -109,8 +113,12 @@ class Characters {
     public int returnMana() {
         return this.mana;
     }
+    
+    //--------------------------------------------------------------------------Set Total Mana
+    public void setTotalMana(int newMana){
+        this.totalMana=newMana;
+    }
     //--------------------------------------------------------------------------Return Total Mana
-
     public int returnTotalMana() {
         return this.totalMana;
     }
