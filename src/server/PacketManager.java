@@ -7,7 +7,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.UUID;
 

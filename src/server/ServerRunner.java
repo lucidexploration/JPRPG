@@ -6,8 +6,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -52,8 +50,7 @@ public class ServerRunner {
     }
 
     private static void addConsole(Container cp) {
-        console = new JTextArea() {
-        };
+        console = new JTextArea() {};
         console.setEditable(false);
         console.setLineWrap(true);
         console.setWrapStyleWord(true);

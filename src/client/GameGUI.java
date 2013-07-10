@@ -21,9 +21,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.text.DefaultCaret;
 
 /**
  *
@@ -42,6 +44,7 @@ class GameGUI {
     public static double totalMana;
     public static double currentMana;
     //--------------------------------------------------------------------------Chat objects.
+    private static JScrollPane chatScrollPane;
     public static JTextArea chatBox;
     public static JTextField chatboxInput;
     //--------------------------------------------------------------------------Tabbed objects.
@@ -257,7 +260,9 @@ class GameGUI {
         objectPosition.gridx = 0;
         objectPosition.gridy = 0;
         objectPosition.fill = GridBagConstraints.BOTH;
+        objectPosition.gridheight=2;
         cp.add(worldDisplay, objectPosition);
+        objectPosition.gridheight=1;
         window.validate();
 
         //----------------------------------------------------------------------Start the time to check for Input
@@ -296,7 +301,7 @@ class GameGUI {
                 g.fillRect(110, 50, (int) mpPercent, barHeight);
             }
         };
-        statusDisplay.setPreferredSize(new Dimension(400, 900));
+        statusDisplay.setPreferredSize(new Dimension(400, 400));
         statusDisplay.setEditable(false);
         statusDisplay.setFocusable(false);
         //----------------------------------------------------------------------Position the statusdiplay and add it.
@@ -310,11 +315,34 @@ class GameGUI {
 
     //=================================================================================================================================================================================
     private static void addChatBox(Container cp) {
+        //----------------------------------------------------------------------Create the chatbox and set options
         chatBox = new JTextArea("Welcome to JPRPG.");
-        chatBox.setFocusable(false);
-        chatBox.setPreferredSize(new Dimension(400, 500));//--------------------Specifiy the size of the chat box.
+        
+        chatBox.setEditable(false);
+        chatBox.setLineWrap(true);
+        chatBox.setWrapStyleWord(true);
+        DefaultCaret caret = (DefaultCaret) chatBox.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        
+        //----------------------------------------------------------------------Position the scrollpane containing the chatbox
+        objectPosition.gridx = 2;
+        objectPosition.gridy = 1;
+        objectPosition.anchor = GridBagConstraints.SOUTH;
+        objectPosition.fill = GridBagConstraints.BOTH;
+        
+        //----------------------------------------------------------------------Create the scrollpane and set options.
+        chatScrollPane = new JScrollPane(chatBox);
+        chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        chatScrollPane.setAutoscrolls(true);
+        chatScrollPane.setFocusable(false);
+        cp.add(chatScrollPane, objectPosition);
+        window.validate();
+        
+        
+        //----------------------------------------------------------------------CHATBOX INPUT
         chatboxInput = new JTextField("Chat here.");
         chatboxInput.setVisible(false);
+        
         //----------------------------------------------------------------------Send Chat when enter pressed.
         chatboxInput.addActionListener(new ActionListener() {
             @Override
@@ -324,9 +352,11 @@ class GameGUI {
                     text = text.replaceAll("=--=", ",");
                     gameClient.returnGameController().sendChat(playerCon.returnName(), text);
                     chatboxInput.setText("");
+                    //chatBox.setCaretPosition(chatBox.getText().length());
                 }
             }
         });
+        
         //----------------------------------------------------------------------If the escape key is pressed, shift focus back to the game world.
         chatboxInput.addKeyListener(new KeyListener() {
             @Override
@@ -350,14 +380,6 @@ class GameGUI {
                 }
             }
         });
-        //----------------------------------------------------------------------Position and add the chatbox
-        objectPosition.gridx = 2;
-        objectPosition.gridy = 0;
-        objectPosition.anchor = GridBagConstraints.SOUTH;
-        objectPosition.fill = GridBagConstraints.NONE;
-        cp.add(chatBox, objectPosition);
-        window.validate();
-        //----------------------------------------------------------------------Position and add the chatbox text input
         objectPosition.gridx = 2;
         objectPosition.gridy = 2;
         objectPosition.anchor = GridBagConstraints.SOUTH;
@@ -381,6 +403,7 @@ class GameGUI {
         objectPosition.gridy = 0;
         objectPosition.fill = GridBagConstraints.BOTH;
         objectPosition.anchor = GridBagConstraints.CENTER;
+        objectPosition.gridheight=2;
         cp.add(tabbedPane, objectPosition);
         //----------------------------------------------------------------------Add inventory to pane
         inventory = new JPanel() {
