@@ -6,9 +6,14 @@ import java.awt.Graphics;
 
 class TileGenerator {
     
-    final int rows = 1000;
-    final int cols = 1000;
-    int levels = 10;
+    final Color GRASS = new Color(70,127,65);
+    final Color SKIN = new Color(232,159,173);
+    final Color WATER = new Color(47,128,179);
+    final Color DIRT = new Color(140,115,84);
+    final Color IRON = new Color(98,102,108);
+    final int rows = 10;
+    final int cols = 10;
+    int levels = 1;
     char[] tiles;
 
 
@@ -41,7 +46,7 @@ class TileGenerator {
     //-------------------Graphics Below Here-------------------\\
     //-------------Tiles--------------
     private void emptySquare(Graphics g, int xPos, int yPos){
-        g.setColor(new Color(70,127,65));
+        g.setColor(GRASS);
         g.fillRect(xPos, yPos, 90, 90);
         g.setColor(Color.lightGray);
         g.drawString("~//\\//\\", xPos, yPos);
@@ -56,7 +61,7 @@ class TileGenerator {
         g.drawString("@dmin", xPos+30, yPos+48);
     }
     private void player(Graphics g, int xPos, int yPos){
-        g.setColor(new Color(232,159,173));
+        g.setColor(SKIN);
         g.fillOval(xPos+35, yPos+10, 20, 20);//---------------------------------Head
         g.setColor(Color.BLACK);
         g.drawOval(xPos+35, yPos+10, 20, 20);//---------------------------------Head outline
@@ -64,11 +69,11 @@ class TileGenerator {
         g.fillRect(xPos+35, yPos+30, 20, 20);//---------------------------------Body
         g.setColor(Color.BLACK);
         g.drawRect(xPos+35, yPos+30, 20, 20);//---------------------------------Body outline
-        g.setColor(new Color(232,159,173));
+        g.setColor(SKIN);
         g.fillRect(xPos+55, yPos+30, 5, 15);//----------------------------------Right arm
         g.setColor(Color.BLACK);
         g.drawRect(xPos+55, yPos+30, 5, 15);//----------------------------------Right arm outline
-        g.setColor(new Color(232,159,173));
+        g.setColor(SKIN);
         g.fillRect(xPos+30, yPos+30, 5, 15);//----------------------------------Left arm
         g.setColor(Color.BLACK);
         g.drawRect(xPos+30, yPos+30, 5, 15);//----------------------------------Left arm outline

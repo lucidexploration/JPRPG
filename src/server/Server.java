@@ -187,7 +187,7 @@ public class Server extends ServerRunner {
 
                 } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {//We now have data, so read the data
 
-                    PacketManager.removeClosedAccounts(loggedInAccounts.keySet().iterator(), selector);//We need to make sure all the loggedInAccounts are still logged in.
+                    removeClosedAccounts(loggedInAccounts.keySet().iterator(), selector);//We need to make sure all the loggedInAccounts are still logged in.
                     //----------------------------------------------------------Also need to write these closed accounts to the accounts map for when saving and exiting.
 
                     SocketChannel sc = (SocketChannel) key.channel();
@@ -202,21 +202,11 @@ public class Server extends ServerRunner {
                             //--------------------------------------------------If this account was online, we need to update his information for the next time he logs in.
                             if(loggedInAccounts.containsKey(PacketManager.returnOnlineKey(sc.getRemoteAddress()))){
                                 int thisKey = PacketManager.returnOnlineKey(sc.getRemoteAddress());
-                                int newX = loggedInAccounts.get(thisKey).returnChar().returnX();
-                                int newY = loggedInAccounts.get(thisKey).returnChar().returnY();
-                                int newZ = loggedInAccounts.get(thisKey).returnChar().returnZ();
-                                int newHP = loggedInAccounts.get(thisKey).returnChar().returnHP();
-                                int newTHP = loggedInAccounts.get(thisKey).returnChar().returnTotalHP();
-                                int newMana = loggedInAccounts.get(thisKey).returnChar().returnMana();
-                                int newTMana = loggedInAccounts.get(thisKey).returnChar().returnTotalMana();
-                                //----------------------------------------------Update now
-                                accounts.get(thisKey).returnChar().setHP(newHP);
-                                accounts.get(thisKey).returnChar().setMana(newMana);
-                                accounts.get(thisKey).returnChar().setPos(newX, newY, newZ);
-                                accounts.get(thisKey).returnChar().setTotalHP(newTHP);
-                                accounts.get(thisKey).returnChar().setTotalMana(newTMana);
+                                accounts.put(thisKey, loggedInAccounts.get(thisKey));
                             }
+                            //--------------------------------------------------Close this socket
                             sc.close();
+                            //--------------------------------------------------Make sure it is removed from the selector so we dont waste time on it.
                             SelectionKey i = sc.keyFor(selector);
                             i.cancel();
                         }
@@ -257,6 +247,23 @@ public class Server extends ServerRunner {
                     sc.register(selector, SelectionKey.OP_READ);//--------------Everything has been sent to the client, so now we register this socket for reading again.
                     it.remove();
                 }
+            }
+        }
+    }
+    
+    
+    //====================================================================================================================================================================
+    //--------------------------------------------------------------------------If a client has disconnected, remove it from the list.
+    public static void removeClosedAccounts(Iterator<Integer> iterator, Selector selector) {
+        while (iterator.hasNext()) {//------------------------------As long as there are more accounts to check.
+            int theKey;
+            try {
+                theKey = iterator.next();
+            } catch (ConcurrentModificationException e) {//---------------------Can't do this right now, so we will do it later.
+                break;
+            }
+            if (loggedInAccounts.get(theKey).returnSocket().isClosed()) {
+                loggedInAccounts.remove(theKey);
             }
         }
     }

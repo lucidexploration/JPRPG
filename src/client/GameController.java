@@ -29,13 +29,19 @@ class GameController extends GameGUI {
     public void recieveInput() throws IOException {
         if (input.ready()) {
             String message = input.readLine();
+            message = message.trim();
             String[] splits = message.split("=--=");
             System.out.println("recieved : " + message);
+            
+            //------------------------------------------------------------------We recieved a chat packet.
             if (splits[0].equals("chat")) {
                 String name = splits[1];
                 String words = splits[2];
+                //--------------------------------------------------------------Handle the chat message
                 recieveChat(name, words);
             }
+            
+            //------------------------------------------------------------------We recieved a login packet.
             if (splits[0].equals("login")) {
                 String name = splits[1];
                 int x = Integer.parseInt(splits[2]);
@@ -44,6 +50,7 @@ class GameController extends GameGUI {
                 int totalhp = Integer.parseInt(splits[5]);
                 int mana = Integer.parseInt(splits[6]);
                 int totalmana = Integer.parseInt(splits[7]);
+                //--------------------------------------------------------------Handle the login
                 recieveLogIn(name, x, y, hp, totalhp, mana, totalmana);
             }
 

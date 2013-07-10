@@ -433,10 +433,12 @@ class GameGUI {
         loginButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    gameClient.returnGameController().logIn(Integer.parseInt(loginBox.getText()), passwordBox.getText());
-                } catch (NumberFormatException x) {//---------------------------This occurs if non number characters are put into the Account Number field.
-                    JOptionPane.showMessageDialog(window, "The acc number must be numbers!!!");
+                if (!loginBox.getText().isEmpty() && !passwordBox.getText().isEmpty()) {
+                    try {
+                        gameClient.returnGameController().logIn(Integer.parseInt(loginBox.getText().trim()), passwordBox.getText().trim());
+                    } catch (NumberFormatException x) {//---------------------------This occurs if non number characters are put into the Account Number field.
+                        JOptionPane.showMessageDialog(window, "The acc number must be numbers!!!");
+                    }
                 }
             }
         });
@@ -482,10 +484,12 @@ class GameGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //add code here to send info to the server
-                gameClient.returnGameController().createAccount(
-                        Integer.valueOf(accCreationBox.getText()),
-                        passCreationBox.getText(),
-                        nameCreationBox.getText());
+                if (!accCreationBox.getText().isEmpty() && !passCreationBox.getText().isEmpty() && !nameCreationBox.getText().isEmpty()) {
+                    gameClient.returnGameController().createAccount(
+                            Integer.valueOf(accCreationBox.getText()),
+                            passCreationBox.getText().trim(),
+                            nameCreationBox.getText());
+                }
             }
         });
         //----------------------------------------------------------------------Pop-Up Account Creation Window when create account button is pressed.
