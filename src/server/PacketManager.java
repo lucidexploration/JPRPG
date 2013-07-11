@@ -76,10 +76,7 @@ public class PacketManager {
             int monsterTotalMP = Server.loggedInAccounts.get(myKey).returnChar().returnTotalMana();
             String sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
 
-            notifyAllInRange(myKey, selector, sendBack);
-
-            //------------------------------------------------------------------And tell the person that logged in, all that is arround him.
-            tellWhatsArround(myKey, selector);
+            notifyAllInRange(myKey, selector, sendBack, 2);
         }
 
         //----------------------------------------------------------------------ATTACK
@@ -120,7 +117,7 @@ public class PacketManager {
                     monsterX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
-                    notifyAllInRange(myKey, selector, sendBack);
+                    notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
                 case "right":
                     //----------------------------------------------------------Update this characters position.
@@ -129,7 +126,7 @@ public class PacketManager {
                     monsterX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
-                    notifyAllInRange(myKey, selector, sendBack);
+                    notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
                 case "up":
                     //----------------------------------------------------------Update this characters position.
@@ -138,7 +135,7 @@ public class PacketManager {
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     //----------------------------------------------------------Prepare message for write to other players.
                     sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
-                    notifyAllInRange(myKey, selector, sendBack);
+                    notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
                 case "down":
                     //-----------------------------------------------------------Update this characters position.
@@ -147,7 +144,7 @@ public class PacketManager {
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     //----------------------------------------------------------Prepare message for write to other players.
                     sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
-                    notifyAllInRange(myKey, selector, sendBack);
+                    notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
                 default:
                     break;
@@ -156,10 +153,10 @@ public class PacketManager {
     }
 
     //===========================================================================================================================================================================
-    public static void notifyAllInRange(int myKey, Selector selector, String sendBack) throws ClosedChannelException {
+    public static void notifyAllInRange(int myKey, Selector selector, String sendBack, int bitSwitch) throws ClosedChannelException {
         int o = 0;
         Iterator keys = Server.loggedInAccounts.keySet().iterator();//----------This iterator contains the list of logged in accounts to cycle through.
-        boolean wroteString = false;
+        boolean wroteString = false;//------------------------------------------This boolean lets us know when we have written to the current clients sendback[]
 
         while (keys.hasNext()) {//----------------------------------------------While there are more people logged on
             //------------------------------------------------------------------Prepare variables.
@@ -168,20 +165,57 @@ public class PacketManager {
             int yDiff = Server.loggedInAccounts.get(myKey).returnChar().returnY() - Server.loggedInAccounts.get(currentKey).returnChar().returnY();
             int zDiff = Server.loggedInAccounts.get(myKey).returnChar().returnZ() - Server.loggedInAccounts.get(currentKey).returnChar().returnZ();
 
+
             //------------------------------------------------------------------If the account is within range.
             if ((xDiff <= 5 || xDiff >= -4) && (yDiff <= 5 || yDiff >= -4) && (zDiff == 0)) {
-                while (!wroteString) {//----------------------------------------As long as we haven't written the string to this account
-                    if (Server.loggedInAccounts.get(currentKey).sendBack[o].isEmpty()) {//If this slot is open, write to it.
-                        Server.loggedInAccounts.get(currentKey).sendBack[o] = sendBack;
-                        wroteString = true;//-----------------------------------Now that we have written to it. Exit.
+
+                //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                //--------------------------------------------------------------If we are sending to just others, or, both parties.
+                if (bitSwitch == 0 || bitSwitch == 2) {
+                    while (!wroteString) {//------------------------------------As long as we haven't written the string to this account
+                        if (Server.loggedInAccounts.get(currentKey).sendBack[o].isEmpty()) {//If this slot is open, write to it.
+                            Server.loggedInAccounts.get(currentKey).sendBack[o] = sendBack;
+                            wroteString = true;//-------------------------------Now that we have written to it. Exit.
+                        }
+                        o++;//--------------------------------------------------Increase iterator.
                     }
-                    o++;//------------------------------------------------------Increase iterator.
+                    //----------------------------------------------------------Now that we have written to this account, we need to register it for writing.
+                    Server.loggedInAccounts.get(currentKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
                 }
-                //----------------------------------------------------------Now that we have written to this account, we need to register it for writing.
-                Server.loggedInAccounts.get(currentKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
+                o = 0;//--------------------------------------------------------We exited the above loop, so reset the iterator.
+                wroteString = false;//------------------------------------------Reset this too.
+
+                //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                //--------------------------------------------------------------If we are sending to just ourself, or both parties.
+                if (bitSwitch == 1 || bitSwitch == 2) {
+                    String monsterName = Server.loggedInAccounts.get(currentKey).returnChar().returnName();
+                    int monsterX = Server.loggedInAccounts.get(currentKey).returnChar().returnX();
+                    int monsterY = Server.loggedInAccounts.get(currentKey).returnChar().returnY();
+                    int monsterHP = Server.loggedInAccounts.get(currentKey).returnChar().returnHP();
+                    int monsterTotalHP = Server.loggedInAccounts.get(currentKey).returnChar().returnTotalHP();
+                    int monsterMP = Server.loggedInAccounts.get(currentKey).returnChar().returnMana();
+                    int monsterTotalMP = Server.loggedInAccounts.get(currentKey).returnChar().returnTotalMana();
+
+                    String sendBackToMe = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
+
+                    while (!wroteString) {//------------------------------------As long as we haven't written the string to this account
+
+                        //------------------------------------------------------If this slot is open, write to it.
+                        if (Server.loggedInAccounts.get(myKey).sendBack[o].isEmpty()) {
+                            Server.loggedInAccounts.get(myKey).sendBack[o] = sendBackToMe;
+                            wroteString = true;//-------------------------------Now that we have written to it. Exit.
+                        }
+                        o++;//--------------------------------------------------Increase iterator.
+                    }
+                }
+                o = 0;//--------------------------------------------------------We exited the above loop, so reset the iterator.
+                wroteString = false;//------------------------------------------Reset this too.
             }
-            o = 0;//------------------------------------------------------------We exited the above loop, so reset the iterator.
-            wroteString = false;//----------------------------------------------Reset this too.
+        }
+
+        //----------------------------------------------------------------------Here at the end, if we had to send to current client, we need to register him for writing.
+        if (bitSwitch == 1 || bitSwitch == 2) {
+            Server.loggedInAccounts.get(myKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
         }
     }
 
@@ -264,50 +298,6 @@ public class PacketManager {
         while (o < stopHere) {
             Server.loggedInAccounts.get(theKey).sendBack[o] = "";
             o++;
-        }
-    }
-
-    
-    //====================================================================================================================================================================
-    //--------------------------------------------------------------------------Tells client everything arround him.
-    //--------------------------------------------------------------------------Used for login, and teleporting.
-    private static void tellWhatsArround(int myKey, Selector selector) {
-        int o = 0;
-        Iterator keys = Server.loggedInAccounts.keySet().iterator();//----------This iterator contains the list of logged in accounts to cycle through.
-        boolean wroteString = false;
-
-        while (keys.hasNext()) {//----------------------------------------------While there are more people logged on
-            //------------------------------------------------------------------Prepare variables.
-            int currentKey = (Integer) keys.next();
-            int xDiff = Server.loggedInAccounts.get(myKey).returnChar().returnX() - Server.loggedInAccounts.get(currentKey).returnChar().returnX();
-            int yDiff = Server.loggedInAccounts.get(myKey).returnChar().returnY() - Server.loggedInAccounts.get(currentKey).returnChar().returnY();
-            int zDiff = Server.loggedInAccounts.get(myKey).returnChar().returnZ() - Server.loggedInAccounts.get(currentKey).returnChar().returnZ();
-
-            //------------------------------------------------------------------If the account is within range.
-            if ((xDiff <= 5 || xDiff >= -4) && (yDiff <= 5 || yDiff >= -4) && (zDiff == 0)) {
-
-                String monsterName = Server.loggedInAccounts.get(currentKey).returnChar().returnName();
-                int monsterX = Server.loggedInAccounts.get(currentKey).returnChar().returnX();
-                int monsterY = Server.loggedInAccounts.get(currentKey).returnChar().returnY();
-                int monsterHP = Server.loggedInAccounts.get(currentKey).returnChar().returnHP();
-                int monsterTotalHP = Server.loggedInAccounts.get(currentKey).returnChar().returnTotalHP();
-                int monsterMP = Server.loggedInAccounts.get(currentKey).returnChar().returnMana();
-                int monsterTotalMP = Server.loggedInAccounts.get(currentKey).returnChar().returnTotalMana();
-
-                String sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
-
-                while (!wroteString) {//----------------------------------------As long as we haven't written the string to this account
-
-                    //----------------------------------------------------------If this slot is open, write to it.
-                    if (Server.loggedInAccounts.get(myKey).sendBack[o].isEmpty()) {
-                        Server.loggedInAccounts.get(myKey).sendBack[o] = sendBack;
-                        wroteString = true;//-----------------------------------Now that we have written to it. Exit.
-                    }
-                    o++;//------------------------------------------------------Increase iterator.
-                }
-            }
-            o = 0;//------------------------------------------------------------We exited the above loop, so reset the iterator.
-            wroteString = false;//----------------------------------------------Reset this too.
         }
     }
 

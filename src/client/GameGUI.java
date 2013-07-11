@@ -37,6 +37,8 @@ class GameGUI {
     public static JFrame window;
     //--------------------------------------------------------------------------World display objects.
     public static JLabel worldDisplay;
+    //--------------------------------------------------------------------------System status objects
+    public static JPanel statusPanel;
     //--------------------------------------------------------------------------Status display objects.
     public static JTextArea statusDisplay;
     public static double totalHealth;
@@ -69,6 +71,10 @@ class GameGUI {
     //--------------------------------------------------------------------------Input.
     private static long lastSent = System.currentTimeMillis();
     private static boolean canSend = false;
+    static long nextSecond = System.currentTimeMillis() + 1000;
+    static int frameInLastSecond = 0;
+    static int framesInCurrentSecond = 0;
+    //--------------------------------------------------------------------------Timer for input
     public static Timer timer = new Timer();//----------------------------------The time checks for input from server, or player.
     public static TimerTask task = new TimerTask() {
         @Override
@@ -89,9 +95,6 @@ class GameGUI {
     //--------------------------------------------------------------------------Add the game client.
     public static GameClient gameClient;
     public static PlayerController playerCon;
-
-    public void actionPerformed(ActionEvent e) {
-    }
 
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -138,6 +141,7 @@ class GameGUI {
         Container cp = window.getContentPane();
         //----------------------------------------------------------------------Add game parts to the Window.
         addWorldDisplay(cp);
+        addSystemStatus(cp);
         addStatusDisplay(cp);
         addChatBox(cp);
         addTabbedPane(cp);
@@ -202,6 +206,14 @@ class GameGUI {
                 drawWorld(g);
                 drawItems();
                 drawPlayersNPCS(g);
+
+                long currentTime = System.currentTimeMillis();
+                if (currentTime > nextSecond) {
+                    nextSecond += 1000;
+                    frameInLastSecond = framesInCurrentSecond;
+                    framesInCurrentSecond = 0;
+                }
+                framesInCurrentSecond++;
             }
             //------------------------------------------------------------------Draw the gameworld using information recieved from server-----\\
 
@@ -260,13 +272,31 @@ class GameGUI {
         objectPosition.gridx = 0;
         objectPosition.gridy = 0;
         objectPosition.fill = GridBagConstraints.BOTH;
-        objectPosition.gridheight=2;
+        objectPosition.gridheight = 2;
         cp.add(worldDisplay, objectPosition);
-        objectPosition.gridheight=1;
+        objectPosition.gridheight = 1;
         window.validate();
 
         //----------------------------------------------------------------------Start the time to check for Input
         timer.schedule(task, 0, 1);
+    }
+
+    //============================================================================================================================================================================
+    //--------------------------------------------------------------------------Add system status display.
+    private static void addSystemStatus(Container cp) {
+        objectPosition.gridx = 0;
+        objectPosition.gridy = 2;
+        objectPosition.anchor = GridBagConstraints.CENTER;
+        statusPanel = new JPanel() {
+            @Override
+            public void paint(Graphics g) {
+                g.drawString(frameInLastSecond + " fps", 0, 15);
+            }
+        };
+        statusPanel.setPreferredSize(new Dimension(900,20));
+        cp.add(statusPanel, objectPosition);
+        window.validate();
+        statusPanel.setVisible(false);
     }
 
     //=================================================================================================================================================================================
@@ -317,19 +347,19 @@ class GameGUI {
     private static void addChatBox(Container cp) {
         //----------------------------------------------------------------------Create the chatbox and set options
         chatBox = new JTextArea("Welcome to JPRPG.");
-        
+
         chatBox.setEditable(false);
         chatBox.setLineWrap(true);
         chatBox.setWrapStyleWord(true);
         DefaultCaret caret = (DefaultCaret) chatBox.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-        
+
         //----------------------------------------------------------------------Position the scrollpane containing the chatbox
         objectPosition.gridx = 2;
         objectPosition.gridy = 1;
         objectPosition.anchor = GridBagConstraints.SOUTH;
         objectPosition.fill = GridBagConstraints.BOTH;
-        
+
         //----------------------------------------------------------------------Create the scrollpane and set options.
         chatScrollPane = new JScrollPane(chatBox);
         chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -337,12 +367,12 @@ class GameGUI {
         chatScrollPane.setFocusable(false);
         cp.add(chatScrollPane, objectPosition);
         window.validate();
-        
-        
+
+
         //----------------------------------------------------------------------CHATBOX INPUT
         chatboxInput = new JTextField("Chat here.");
         chatboxInput.setVisible(false);
-        
+
         //----------------------------------------------------------------------Send Chat when enter pressed.
         chatboxInput.addActionListener(new ActionListener() {
             @Override
@@ -356,7 +386,7 @@ class GameGUI {
                 }
             }
         });
-        
+
         //----------------------------------------------------------------------If the escape key is pressed, shift focus back to the game world.
         chatboxInput.addKeyListener(new KeyListener() {
             @Override
@@ -403,7 +433,7 @@ class GameGUI {
         objectPosition.gridy = 0;
         objectPosition.fill = GridBagConstraints.BOTH;
         objectPosition.anchor = GridBagConstraints.CENTER;
-        objectPosition.gridheight=2;
+        objectPosition.gridheight = 2;
         cp.add(tabbedPane, objectPosition);
         //----------------------------------------------------------------------Add inventory to pane
         inventory = new JPanel() {

@@ -157,6 +157,8 @@ class GameController extends GameGUI {
         GameGUI.createAccount.setVisible(false);
         GameGUI.loginButton.setVisible(false);
         GameGUI.chatboxInput.setVisible(true);
+        //----------------------------------------------------------------------And show input for another.
+        GameGUI.statusPanel.setVisible(true);
         //----------------------------------------------------------------------Allow input in gameWindow
         window.setFocusable(true);
         window.requestFocus();
