@@ -293,7 +293,7 @@ class GameGUI {
                 g.drawString(frameInLastSecond + " fps", 0, 15);
             }
         };
-        statusPanel.setPreferredSize(new Dimension(900,20));
+        statusPanel.setPreferredSize(new Dimension(900, 20));
         cp.add(statusPanel, objectPosition);
         window.validate();
         statusPanel.setVisible(false);
@@ -305,30 +305,61 @@ class GameGUI {
         statusDisplay = new JTextArea() {
             @Override
             public void paint(Graphics g) {//-----------------------------------Draw the display area.
-                g.setColor(Color.red);
-                g.fillOval(100, 150, 200, 200);
+                drawCharacterStatus(g);
+                drawMiniMap(g);
+            }
+
+            private void drawCharacterStatus(Graphics g) {
                 int barWidth = 100;
                 int barHeight = 10;
                 float hpPercent = (((float) playerCon.returnHP() / (float) playerCon.returnTotalHP()) * 100);//The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
                 float mpPercent = (((float) playerCon.returnMana() / (float) playerCon.returnTotalMana()) * 100);//This fraction is decided by the fraction of health remaining.
 
+                //Draw background and border
+                g.setColor(new Color(139, 113, 106));
+                g.fillRect(0, 0, 400, 130);
+                g.setColor(new Color(118, 155, 88));
+                g.fillRect(20, 10, 360, 100);
+                g.setColor(Color.BLACK);
+                g.drawRect(0, 0, 400, 130);
+                g.drawRect(20, 10, 360, 100);
                 //--------------------------------------------------------------Name
                 g.setColor(Color.black);
-                g.drawString(playerCon.returnName(), 10, 20);
+                g.drawString(playerCon.returnName(), 25, 25);
                 //--------------------------------------------------------------Draw HealthBar
                 g.setColor(Color.black);
-                g.drawString("Health : " + playerCon.returnHP() + "/" + playerCon.returnTotalHP(), 10, 40);
+                g.drawString("Health : " + playerCon.returnHP() + "/" + playerCon.returnTotalHP(), 25, 45);
                 g.setColor(Color.red);
-                g.fillRect(110, 30, barWidth, barHeight);
+                g.fillRect(125, 35, barWidth, barHeight);
                 g.setColor(Color.green);
-                g.fillRect(110, 30, (int) hpPercent, barHeight);
+                g.fillRect(125, 35, (int) hpPercent, barHeight);
+                g.setColor(Color.black);
+                g.drawRect(125, 35, barWidth, barHeight);
                 //--------------------------------------------------------------Draw ManaBar
                 g.setColor(Color.black);
-                g.drawString("Mana : " + playerCon.returnMana() + "/" + playerCon.returnTotalMana(), 10, 60);
+                g.drawString("Mana : " + playerCon.returnMana() + "/" + playerCon.returnTotalMana(), 25, 65);
                 g.setColor(Color.red);
-                g.fillRect(110, 50, barWidth, barHeight);
+                g.fillRect(125, 55, barWidth, barHeight);
                 g.setColor(Color.green);
-                g.fillRect(110, 50, (int) mpPercent, barHeight);
+                g.fillRect(125, 55, (int) mpPercent, barHeight);
+                g.setColor(Color.black);
+                g.drawRect(125, 55, barWidth, barHeight);
+            }
+
+            private void drawMiniMap(Graphics g) {
+                int miniMapWidth = 360;
+                int miniMapHeight = 270;
+                int pixelWidth = 3;
+                int pixelHeight = 4;
+
+                g.setColor(new Color(139, 113, 106));
+                g.fillRect(0, 120, 400, 279);
+                g.setColor(new Color(118, 155, 88));
+                g.fillRect(20, 125, miniMapWidth, miniMapHeight);
+                g.setColor(Color.BLACK);
+                g.drawString("Minimap", 180, 145);
+                g.drawRect(0, 120, 399, 279);
+                g.drawRect(20, 125, miniMapWidth, miniMapHeight);
             }
         };
         statusDisplay.setPreferredSize(new Dimension(400, 400));
@@ -377,12 +408,11 @@ class GameGUI {
         chatboxInput.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!chatboxInput.getText().isEmpty()) {
+                if (!chatboxInput.getText().trim().isEmpty()) {
                     String text = chatboxInput.getText();
                     text = text.replaceAll("=--=", ",");
                     gameClient.returnGameController().sendChat(playerCon.returnName(), text);
                     chatboxInput.setText("");
-                    //chatBox.setCaretPosition(chatBox.getText().length());
                 }
             }
         });
@@ -486,7 +516,7 @@ class GameGUI {
         loginButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!loginBox.getText().isEmpty() && !passwordBox.getText().isEmpty()) {
+                if (!loginBox.getText().trim().isEmpty() && !passwordBox.getText().trim().isEmpty()) {
                     try {
                         gameClient.returnGameController().logIn(Integer.parseInt(loginBox.getText().trim()), passwordBox.getText().trim());
                     } catch (NumberFormatException x) {//---------------------------This occurs if non number characters are put into the Account Number field.
