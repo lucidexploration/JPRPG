@@ -21,11 +21,13 @@ class TileGenerator {
     private char[] tiles;
     //--------------------------------------------------------------------------Sprites
     private Image grass;
-    private Image bush;
+    private Image tree;
+    private Image character;
 
     public TileGenerator() throws IOException {
         grass = ImageIO.read(getClass().getResourceAsStream("/assets/grass.gif"));
-        bush = ImageIO.read(getClass().getResourceAsStream("/assets/bush.gif"));
+        tree = ImageIO.read(getClass().getResourceAsStream("/assets/tree.gif"));
+        character = ImageIO.read(getClass().getResourceAsStream("/assets/character.gif"));
 
         tiles = new char[rows * cols * levels];
     }
@@ -52,7 +54,7 @@ class TileGenerator {
     }
 
     public void returnObject(Graphics g, int object, int xPos, int yPos) {
-        g.drawImage(bush, xPos, yPos, null);
+        g.drawImage(tree, xPos, yPos, null);
     }
 
     //-------------------Graphics Below Here-------------------\\
@@ -64,38 +66,10 @@ class TileGenerator {
 
     //------------People----------------
     private void admin(Graphics g, int xPos, int yPos) {
-        g.setColor(Color.GREEN);
-        g.fillOval(xPos + 25, yPos + 25, 45, 45);
-        g.setColor(Color.BLACK);
-        g.drawString("@dmin", xPos + 30, yPos + 48);
+        g.drawImage(character, xPos, yPos, null);
     }
 
     private void player(Graphics g, int xPos, int yPos) {
-        g.setColor(SKIN);
-        g.fillOval(xPos + 35, yPos + 10, 20, 20);//---------------------------------Head
-        g.setColor(Color.BLACK);
-        g.drawOval(xPos + 35, yPos + 10, 20, 20);//---------------------------------Head outline
-        g.setColor(Color.RED);
-        g.fillRect(xPos + 35, yPos + 30, 20, 20);//---------------------------------Body
-        g.setColor(Color.BLACK);
-        g.drawRect(xPos + 35, yPos + 30, 20, 20);//---------------------------------Body outline
-        g.setColor(SKIN);
-        g.fillRect(xPos + 55, yPos + 30, 5, 15);//----------------------------------Right arm
-        g.setColor(Color.BLACK);
-        g.drawRect(xPos + 55, yPos + 30, 5, 15);//----------------------------------Right arm outline
-        g.setColor(SKIN);
-        g.fillRect(xPos + 30, yPos + 30, 5, 15);//----------------------------------Left arm
-        g.setColor(Color.BLACK);
-        g.drawRect(xPos + 30, yPos + 30, 5, 15);//----------------------------------Left arm outline
-        g.setColor(Color.RED);
-        g.fillRect(xPos + 35, yPos + 50, 10, 30);//---------------------------------Left leg
-        g.setColor(Color.BLACK);
-        g.drawRect(xPos + 35, yPos + 50, 10, 30);//---------------------------------Left leg outline
-        g.setColor(Color.RED);
-        g.fillRect(xPos + 45, yPos + 50, 10, 30);//---------------------------------Right leg
-        g.setColor(Color.BLACK);
-        g.drawRect(xPos + 45, yPos + 50, 10, 30);//---------------------------------Right leg outline
-        g.setColor(Color.BLACK);
-        g.fillRect(xPos + 35, yPos + 80, 21, 5);//---------------------------------Right leg outline
+        g.drawImage(character, xPos, yPos, null);
     }
 }

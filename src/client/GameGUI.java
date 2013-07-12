@@ -245,7 +245,8 @@ class GameGUI {
                 int tileHeight = 90;
 
                 g.setColor(Color.black);
-                g.drawString(playerCon.returnName(), (5 * 90) + 10, (5 * 90) + 10);
+                //--------------------------------------------------------------This stupid math below keeps names centered above the players character, regardless of length.
+                g.drawString(playerCon.returnName(), (5 * 90) + ((90-playerCon.returnName().length())/2)-playerCon.returnName().length()*2, (5 * 90) + 30);
                 tileGen.returnNPC(g, 1, 5 * 90, 5 * 90);
                 Iterator iter = npcMap.keySet().iterator();
                 while (true) {
