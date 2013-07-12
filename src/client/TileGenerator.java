@@ -23,11 +23,16 @@ class TileGenerator {
     private Image grass;
     private Image tree;
     private Image character;
+    public static Image statusBackground;
+    public static Image statusBar;
+    public static Image backGround;
 
     public TileGenerator() throws IOException {
         grass = ImageIO.read(getClass().getResourceAsStream("/assets/grass.gif"));
         tree = ImageIO.read(getClass().getResourceAsStream("/assets/tree.gif"));
         character = ImageIO.read(getClass().getResourceAsStream("/assets/character.gif"));
+        statusBackground = ImageIO.read(getClass().getResourceAsStream("/assets/statusbackground.gif"));
+        statusBar = ImageIO.read(getClass().getResourceAsStream("/assets/statusbar.gif"));
 
         tiles = new char[rows * cols * levels];
     }

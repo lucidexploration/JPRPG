@@ -290,17 +290,17 @@ class GameGUI {
     private static void addSystemStatus(Container cp) {
         objectPosition.gridx = 0;
         objectPosition.gridy = 2;
-        objectPosition.anchor = GridBagConstraints.CENTER;
         statusPanel = new JPanel() {
             @Override
             public void paint(Graphics g) {
+                g.drawImage(tileGen.statusBar, 0, 0, null);
                 g.drawString(frameInLastSecond + " fps", 0, 15);
             }
         };
         statusPanel.setPreferredSize(new Dimension(900, 20));
         cp.add(statusPanel, objectPosition);
         window.validate();
-        statusPanel.setVisible(false);
+        statusPanel.setVisible(true);
     }
 
     //=================================================================================================================================================================================
@@ -319,14 +319,7 @@ class GameGUI {
                 float hpPercent = (((float) playerCon.returnHP() / (float) playerCon.returnTotalHP()) * 100);//The bar health and mana bars are 100 pixels wide. The green bar will be a fraction of this width.
                 float mpPercent = (((float) playerCon.returnMana() / (float) playerCon.returnTotalMana()) * 100);//This fraction is decided by the fraction of health remaining.
 
-                //Draw background and border
-                g.setColor(new Color(139, 113, 106));
-                g.fillRect(0, 0, 400, 130);
-                g.setColor(new Color(118, 155, 88));
-                g.fillRect(20, 10, 360, 100);
-                g.setColor(Color.BLACK);
-                g.drawRect(0, 0, 400, 130);
-                g.drawRect(20, 10, 360, 100);
+                g.drawImage(TileGenerator.statusBackground, 0, 0, null);
                 //--------------------------------------------------------------Name
                 g.setColor(Color.black);
                 g.drawString(playerCon.returnName(), 25, 25);
@@ -356,14 +349,8 @@ class GameGUI {
                 int pixelWidth = 3;
                 int pixelHeight = 4;
 
-                g.setColor(new Color(139, 113, 106));
-                g.fillRect(0, 120, 400, 279);
-                g.setColor(new Color(118, 155, 88));
-                g.fillRect(20, 125, miniMapWidth, miniMapHeight);
                 g.setColor(Color.BLACK);
                 g.drawString("Minimap", 180, 145);
-                g.drawRect(0, 120, 399, 279);
-                g.drawRect(20, 125, miniMapWidth, miniMapHeight);
             }
         };
         statusDisplay.setPreferredSize(new Dimension(400, 400));
@@ -590,9 +577,9 @@ class GameGUI {
             }
         });
         //----------------------------------------------------------------------Add and align the account creation button.
-        objectPosition.gridx = 0;
+        objectPosition.gridx = 3;
         objectPosition.gridy = 2;
-        objectPosition.anchor = GridBagConstraints.WEST;
+        objectPosition.anchor = GridBagConstraints.EAST;
         objectPosition.fill = objectPosition.NONE;
         cp.add(createAccount, objectPosition);
         window.validate();
