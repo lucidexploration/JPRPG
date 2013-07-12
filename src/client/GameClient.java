@@ -6,26 +6,32 @@ import java.util.HashMap;
 import java.util.Map;
 
 class GameClient {
-    
+
     private TileGenerator tileGen;
-    private GameController gameCon;
-    private Map<String,Monster> monsterMap;
-    
-    public GameClient() throws UnknownHostException, IOException{
+    private PacketManager gameCon;
+    private Map<String, Monster> monsterMap;
+    private PlayerController playerCon;
+
+    public GameClient() throws UnknownHostException, IOException {
         tileGen = new TileGenerator();
-        gameCon = new GameController();
-        monsterMap = new HashMap<>(100);
+        gameCon = new PacketManager();
+        monsterMap = new HashMap<>();
+        playerCon = new PlayerController();
     }
-    
-    public GameController returnGameController(){
+
+    public PacketManager returnGameController() {
         return this.gameCon;
     }
-    
-    public TileGenerator returnTileGenerator(){
+
+    public TileGenerator returnTileGenerator() {
         return this.tileGen;
     }
-    
-    public Map<String, Monster> returnMap(){
+
+    public Map<String, Monster> returnNPCMap() {
         return this.monsterMap;
+    }
+
+    public PlayerController returnPlayerCon() {
+        return this.playerCon;
     }
 }

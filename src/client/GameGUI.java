@@ -14,6 +14,7 @@ import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JButton;
@@ -95,6 +96,8 @@ class GameGUI {
     //--------------------------------------------------------------------------Add the game client.
     public static GameClient gameClient;
     public static PlayerController playerCon;
+    public static TileGenerator tileGen;
+    public static Map<String, Monster> npcMap;
 
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -102,7 +105,6 @@ class GameGUI {
             public void run() {
                 try {
                     //----------------------------------------------------------Load the data
-                    loadPlayer();
                     loadData();
                 } catch (UnknownHostException ex) {
                     System.exit(-1);
@@ -115,14 +117,14 @@ class GameGUI {
             }
         });
     }
+    
     //=================================================================================================================================================================================
-
+    //--------------------------------------------------------------------------Load the different client parts.
     private static void loadData() throws UnknownHostException, IOException {
         gameClient = new GameClient();
-    }
-
-    private static void loadPlayer() {
-        playerCon = new PlayerController();
+        playerCon = gameClient.returnPlayerCon();
+        tileGen = gameClient.returnTileGenerator();
+        npcMap = gameClient.returnNPCMap();
     }
 
     //=================================================================================================================================================================================
@@ -204,7 +206,7 @@ class GameGUI {
             @Override
             public void paint(Graphics g) {
                 drawWorld(g);
-                drawItems();
+                drawItems(g);
                 drawPlayersNPCS(g);
 
                 long currentTime = System.currentTimeMillis();
@@ -227,7 +229,7 @@ class GameGUI {
 
                 while (xTile * tileWidth < windowWidth) {
                     while (yTile * tileHeight < windowHeight) {
-                        gameClient.returnTileGenerator().returnTile(0, g, xTile * tileWidth, yTile * tileHeight);
+                        tileGen.returnTile(0, g, xTile * tileWidth, yTile * tileHeight);
                         g.setColor(Color.black);
                         g.drawRect(xTile * tileWidth, yTile * tileHeight, tileWidth, tileHeight);
                         yTile++;
@@ -244,25 +246,26 @@ class GameGUI {
 
                 g.setColor(Color.black);
                 g.drawString(playerCon.returnName(), (5 * 90) + 10, (5 * 90) + 10);
-                gameClient.returnTileGenerator().returnNPC(1, g, 5 * 90, 5 * 90);
-                Iterator iter = gameClient.returnMap().keySet().iterator();
+                tileGen.returnNPC(g, 1, 5 * 90, 5 * 90);
+                Iterator iter = npcMap.keySet().iterator();
                 while (true) {
                     while (iter.hasNext()) {
                         String currentMonster = (String) iter.next();
                         int baseX = playerCon.returnX() - 5;
                         int baseY = playerCon.returnY() - 5;
-                        int monsterX = gameClient.returnMap().get(currentMonster).returnX() - baseX;
-                        int monsterY = gameClient.returnMap().get(currentMonster).returnY() - baseY;
+                        int monsterX = npcMap.get(currentMonster).returnX() - baseX;
+                        int monsterY = npcMap.get(currentMonster).returnY() - baseY;
                         g.setColor(Color.red);
-                        g.drawString(gameClient.returnMap().get(currentMonster).returnName(), (monsterX * 90) + 10, (monsterY * 90) + 10);
-                        gameClient.returnTileGenerator().returnNPC(0, g, monsterX * tileWidth, monsterY * tileHeight);
+                        g.drawString(npcMap.get(currentMonster).returnName(), (monsterX * 90) + 10, (monsterY * 90) + 10);
+                        tileGen.returnNPC(g, 0, monsterX * tileWidth, monsterY * tileHeight);
                     }
                     break;
                 }
             }
 
             //------------------------------------------------------------------Draw the items using information recieved from server
-            private void drawItems() {
+            private void drawItems(Graphics g) {
+                tileGen.returnObject(g, 1, 90 * 4, 90 * 4);
             }
         };
 

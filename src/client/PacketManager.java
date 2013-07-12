@@ -7,13 +7,13 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-class GameController extends GameGUI {
+class PacketManager extends GameGUI {
 
     private Socket sock;//------------------------------------------------------this is the socket connecting us to the server
     private PrintWriter output;//-----------------------------------------------this is the output stream
     private BufferedReader input;//---------------------------------------------the input stream
 
-    public GameController() throws UnknownHostException, IOException {
+    public PacketManager() throws UnknownHostException, IOException {
         //----------------------------------------------------------------------connects to the server
         //----------------------------------------------------------------------this will need to be updated with the servers ip.
         sock = new Socket("localhost", 7171);
@@ -66,15 +66,15 @@ class GameController extends GameGUI {
             GameGUI.playerCon.setPos(monsterX, monsterY);
             return;
         }
-        if (!GameGUI.gameClient.returnMap().containsKey(monsterName)) {//-------If we don't have it, add it to the map.
-            GameGUI.gameClient.returnMap().put(monsterName, new Monster(monsterName, monsterX, monsterY, hp, hptotal, mp, mptotal));
+        if (!GameGUI.gameClient.returnNPCMap().containsKey(monsterName)) {//-------If we don't have it, add it to the map.
+            GameGUI.gameClient.returnNPCMap().put(monsterName, new Monster(monsterName, monsterX, monsterY, hp, hptotal, mp, mptotal));
         } else {//---------------------------------------------------------------If we already have it, just update it's variables.
-            GameGUI.gameClient.returnMap().get(monsterName).setX(monsterX);
-            GameGUI.gameClient.returnMap().get(monsterName).setY(monsterY);
-            GameGUI.gameClient.returnMap().get(monsterName).setHP(hp);
-            GameGUI.gameClient.returnMap().get(monsterName).setTotalHP(hptotal);
-            GameGUI.gameClient.returnMap().get(monsterName).setMana(mp);
-            GameGUI.gameClient.returnMap().get(monsterName).setTotalMana(mptotal);
+            GameGUI.gameClient.returnNPCMap().get(monsterName).setX(monsterX);
+            GameGUI.gameClient.returnNPCMap().get(monsterName).setY(monsterY);
+            GameGUI.gameClient.returnNPCMap().get(monsterName).setHP(hp);
+            GameGUI.gameClient.returnNPCMap().get(monsterName).setTotalHP(hptotal);
+            GameGUI.gameClient.returnNPCMap().get(monsterName).setMana(mp);
+            GameGUI.gameClient.returnNPCMap().get(monsterName).setTotalMana(mptotal);
         }
     }
 

@@ -27,10 +27,10 @@ public class ServerRunner {
     //=========================================================================================================================
     public static void main(String args[]) throws IOException {
         makeGUI();
-        run();
+        startRecieving();
     }
 
-    public static void run() throws IOException {
+    public static void startRecieving() throws IOException {
         int[] ports = new int[1];
         ports[0] = 7171;
         server = new Server(ports);
@@ -50,7 +50,8 @@ public class ServerRunner {
     }
 
     private static void addConsole(Container cp) {
-        console = new JTextArea() {};
+        console = new JTextArea() {
+        };
         console.setEditable(false);
         console.setLineWrap(true);
         console.setWrapStyleWord(true);
