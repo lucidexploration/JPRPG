@@ -50,7 +50,7 @@ public class PacketManager {
                     //----------------------------------------------------------Add this account to the logged on accounts map.
                     Server.loggedInAccounts.put((Integer) Integer.parseInt(splits[1]), Server.accounts.get(Integer.parseInt(splits[1])));
                     //----------------------------------------------------------Now add it all to the sendBack string.
-                    String sendBack = "login=--=" + name + "=--=" + x + "=--=" + y + "=--=" + hp + "=--=" + totalhp + "=--=" + mana + "=--=" + totalmana + "=--=\r";
+                    String sendBack = "login=--=" + name + "=--=" + x + "=--=" + y + "=--=" + hp + "=--=" + totalhp + "=--=" + mana + "=--=" + totalmana + "=--=\n";
 
                     //-----------------------------------------------------------Write the string to the accounts sendBack[]
                     int b = 0;
@@ -74,7 +74,7 @@ public class PacketManager {
             int monsterTotalHP = Server.loggedInAccounts.get(myKey).returnChar().returnTotalHP();
             int monsterMP = Server.loggedInAccounts.get(myKey).returnChar().returnMana();
             int monsterTotalMP = Server.loggedInAccounts.get(myKey).returnChar().returnTotalMana();
-            String sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
+            String sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
 
             notifyAllInRange(myKey, selector, sendBack, 2);
         }
@@ -91,7 +91,7 @@ public class PacketManager {
             String text = splits[2];
 
             //------------------------------------------------------------------Add everything to sendBack string.
-            String sendBack = "chat=--=" + name + "=--=" + text + "=--=" + "\r";
+            String sendBack = "chat=--=" + name + "=--=" + text + "=--=" + "\n";
             writeToAllOnline(selector, sendBack);
         }
 
@@ -116,7 +116,8 @@ public class PacketManager {
                     //----------------------------------------------------------Prepare message for write to other players.
                     monsterX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
-                    sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
+                    sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
+                    sendObjectsArround(myKey);
                     notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
                 case "right":
@@ -125,7 +126,8 @@ public class PacketManager {
                     //----------------------------------------------------------Prepare message for write to other players.
                     monsterX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
-                    sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
+                    sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
+                    sendObjectsArround(myKey);
                     notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
                 case "up":
@@ -134,7 +136,8 @@ public class PacketManager {
                     monsterX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     //----------------------------------------------------------Prepare message for write to other players.
-                    sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
+                    sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
+                    sendObjectsArround(myKey);
                     notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
                 case "down":
@@ -143,7 +146,8 @@ public class PacketManager {
                     monsterX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     //----------------------------------------------------------Prepare message for write to other players.
-                    sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
+                    sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
+                    sendObjectsArround(myKey);
                     notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
                 default:
@@ -180,7 +184,9 @@ public class PacketManager {
                         o++;//--------------------------------------------------Increase iterator.
                     }
                     //----------------------------------------------------------Now that we have written to this account, we need to register it for writing.
-                    Server.loggedInAccounts.get(currentKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
+                    if (currentKey != myKey) {
+                        Server.loggedInAccounts.get(currentKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
+                    }
                 }
                 o = 0;//--------------------------------------------------------We exited the above loop, so reset the iterator.
                 wroteString = false;//------------------------------------------Reset this too.
@@ -196,7 +202,7 @@ public class PacketManager {
                     int monsterMP = Server.loggedInAccounts.get(currentKey).returnChar().returnMana();
                     int monsterTotalMP = Server.loggedInAccounts.get(currentKey).returnChar().returnTotalMana();
 
-                    String sendBackToMe = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\r";
+                    String sendBackToMe = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
 
                     while (!wroteString) {//------------------------------------As long as we haven't written the string to this account
 
@@ -216,6 +222,43 @@ public class PacketManager {
         //----------------------------------------------------------------------Here at the end, if we had to send to current client, we need to register him for writing.
         if (bitSwitch == 1 || bitSwitch == 2) {
             Server.loggedInAccounts.get(myKey).returnSocket().getChannel().register(selector, SelectionKey.OP_WRITE);
+        }
+    }
+
+    private static void sendObjectsArround(int myKey) {
+        int playerX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
+        int playerY = Server.loggedInAccounts.get(myKey).returnChar().returnX();
+        int zPos = Server.loggedInAccounts.get(myKey).returnChar().returnX();
+        int xRange = playerX - 4;
+        int yRange = playerY - 4;
+        boolean wroteString = false;
+        int o = 0;
+        //----------------------------------------------------------------------Check all tiles in range for objects.
+        while (xRange < playerX + 5) {
+            while (yRange < playerY + 5) {
+                //--------------------------------------------------------------See if there is an object at this position.
+                if (Server.map.containsKey(getIndex(xRange, yRange, zPos))) {
+                    //----------------------------------------------------------If so, send this object to the client.
+                    int objectHere = Server.map.get(getIndex(xRange, yRange, zPos)).returnObject();
+                    String sendBackToMe = "objectInRange=--=" + objectHere + "=--=" + xRange + "=--=" + yRange + "=--=" + zPos + "=--=" + "\n";
+                    Server.console.append(sendBackToMe + ".      Sent to : " + Server.accounts.get(myKey).returnChar().returnName() + "\n");
+
+                    //----------------------------------------------------------As long as we haven't written the string to this account
+                    while (!wroteString) {
+
+                        //------------------------------------------------------If this slot is open, write to it.
+                        if (Server.loggedInAccounts.get(myKey).sendBack[o].isEmpty()) {
+                            Server.loggedInAccounts.get(myKey).sendBack[o] = sendBackToMe;
+                            wroteString = true;//-------------------------------Now that we have written to it. Exit.
+                        }
+                        o++;//--------------------------------------------------Increase iterator.
+                    }
+                    wroteString = false;
+                }
+                yRange++;
+            }
+            yRange = playerY - 4;
+            xRange++;
         }
     }
 

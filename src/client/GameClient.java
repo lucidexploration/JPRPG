@@ -10,6 +10,7 @@ class GameClient {
     private TileGenerator tileGen;
     private PacketManager gameCon;
     private Map<String, Monster> monsterMap;
+    public Map<String, Tile> map;
     private PlayerController playerCon;
 
     public GameClient() throws UnknownHostException, IOException {
@@ -17,6 +18,7 @@ class GameClient {
         gameCon = new PacketManager();
         monsterMap = new HashMap<>();
         playerCon = new PlayerController();
+        map = new HashMap<>();
     }
 
     public PacketManager returnGameController() {

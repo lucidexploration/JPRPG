@@ -58,6 +58,26 @@ class PacketManager extends GameGUI {
                 //--------------------------------------------------------------Now deal with it.
                 updateMonster(monsterName, monsterX, monsterY, monsterHP, monsterTotalHP, monsterMP, monsterTotalMP);
             }
+            if (splits[0].equals("objectInRange")) {
+                //--------------------------------------------------------------Setup the variables.
+                String objectType = splits[1];
+                int objectX = Integer.parseInt(splits[2]);
+                int objectY = Integer.parseInt(splits[3]);
+                int objectZ = Integer.parseInt(splits[4]);
+                //--------------------------------------------------------------Now deal with it.
+                updateObject(objectType, objectX, objectY, objectZ);
+            }
+        }
+    }
+    private void updateObject(String objectType, int objectX, int objectY, int objectZ) {
+        String objectID;
+        objectID = ""+objectX+","+objectY+","+objectZ;
+        if (!GameGUI.gameClient.map.containsKey(objectID)) {//-------If we don't have it, add it to the map.
+            GameGUI.gameClient.map.put(objectID, new Tile(0));
+            GameGUI.gameClient.map.get(objectID).setObjectID(Integer.valueOf(objectType));
+            
+        } else {//---------------------------------------------------------------If we already have it, just update it's variables.
+            GameGUI.gameClient.map.get(objectID).setObjectID(Integer.valueOf(objectType));
         }
     }
 
@@ -158,7 +178,7 @@ class PacketManager extends GameGUI {
         GameGUI.loginButton.setVisible(false);
         GameGUI.chatboxInput.setVisible(true);
         //----------------------------------------------------------------------And show input for another.
-        GameGUI.statusPanel.setVisible(true);
+        GameGUI.statusPanelLeft.setVisible(true);
         //----------------------------------------------------------------------Allow input in gameWindow
         window.setFocusable(true);
         window.requestFocus();

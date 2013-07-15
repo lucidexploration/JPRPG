@@ -1,12 +1,19 @@
 package server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class Tile {
     private int tileID;
     private int tileType;
-    private int extraID;
+    private int objectID;
+    Map<Integer,Integer> objectPile;
     
     public Tile(int type) {
         this.tileType=type;
+        this.objectID=0;
+        this.tileType=0;
+        this.objectPile = new HashMap<>();
     }
     
     public int returnID(){
@@ -17,7 +24,11 @@ class Tile {
         return this.tileType;
     }
     
-    public int returnExtra(){
-        return this.extraID;
+    public int returnObject(){
+        return this.objectID;
+    }
+    
+    public void setObjectID(int object){
+        this.objectID=object;
     }
 }

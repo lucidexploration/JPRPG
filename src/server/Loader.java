@@ -13,6 +13,7 @@ class Loader {
     static void loadAll() {
         loadAccounts();
         loadMap();
+        loadObjects();
         loadMonsters();
     }
     
@@ -61,7 +62,7 @@ class Loader {
         } catch (IOException ex) {
             Server.console.append("scanner never even opened" + "\n");
         }
-        Server.console.append("This is whats loaded in accounts at start : " + Server.accounts.keySet() + "\n");
+        Server.console.append("These accounts loaded : " + Server.accounts.keySet() + "\n");
     }
 
 //==================================================================================================================================================================================
@@ -81,17 +82,48 @@ class Loader {
             }
         }
 
-        int x = 0;
         while (scanner.hasNext()) {//-------------------------------------------As long as there is more in the file, keep reading.
             String info = scanner.nextLine();
             String[] infoSplit = info.split(",");
             String id = infoSplit[0];
             int tileType = Integer.parseInt(infoSplit[1]);
             Server.map.put(id, new Tile(tileType));
-            x++;
         }
         scanner.close();
-        Server.console.append("This is whats loaded on the map at start : " + Server.map.keySet() + "\n");
+        Server.console.append("Map tiles loaded. \n");
+    }
+    
+    //==============================================================================================================================================================================
+    //--------------------------------------------------------------------------LOAD Items/objects. If monster file doesnt exist. Create it.
+    
+    private static void loadObjects() {
+        Scanner scanner = null;
+        File dir = new File(System.getProperty("user.home") + "//JPRPG//");
+        File file = new File(dir, "objects.txt");
+        try {
+            scanner = new Scanner(file);
+        } catch (FileNotFoundException ex) {//----------------------------------If file doesnt exist, create it.
+            try {
+                file.createNewFile();
+                scanner = new Scanner(file);
+            } catch (IOException ex1) {//---------------------------------------If folders dont exist, create them.
+                file.mkdirs();
+            }
+        }
+        int x = 2;
+        while (scanner.hasNext()) {//-------------------------------------------As long as there is more in the file, keep reading.
+            String info = scanner.nextLine();
+            String[] infoSplit = info.split(",");
+            String id = infoSplit[0];
+            int objectType = Integer.parseInt(infoSplit[1]);
+            Server.map.get(id).setObjectID(objectType);
+            while(x<infoSplit.length){
+                Server.map.get(id).objectPile.put(x, Integer.parseInt(infoSplit[x]));
+                x++;
+            }
+        }
+        scanner.close();
+        Server.console.append("Objects have been loaded. \n");
     }
 
 //==================================================================================================================================================================================

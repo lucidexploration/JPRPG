@@ -39,7 +39,8 @@ class GameGUI {
     //--------------------------------------------------------------------------World display objects.
     public static JLabel worldDisplay;
     //--------------------------------------------------------------------------System status objects
-    public static JPanel statusPanel;
+    public static JPanel statusPanelLeft;
+    public static JPanel statusPanelRight;
     //--------------------------------------------------------------------------Status display objects.
     public static JTextArea statusDisplay;
     public static double totalHealth;
@@ -117,7 +118,7 @@ class GameGUI {
             }
         });
     }
-    
+
     //=================================================================================================================================================================================
     //--------------------------------------------------------------------------Load the different client parts.
     private static void loadData() throws UnknownHostException, IOException {
@@ -135,15 +136,23 @@ class GameGUI {
         window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setFocusable(false);
+        //----------------------------------------------------------------------Draw the games background.
+        window.setContentPane(new JPanel() {
+            @Override
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(TileGenerator.backGround, 0, 0, null);
+            }
+        });
+        //----------------------------------------------------------------------Set the frames contentPane to a variable for easier access.
+        Container cp = window.getContentPane();
         //----------------------------------------------------------------------Add the window's layout.
         layoutManager = new GridBagLayout();
         objectPosition = new GridBagConstraints();
-        window.setLayout(layoutManager);
-        //----------------------------------------------------------------------Set the frames contentPane to a variable for easier access.
-        Container cp = window.getContentPane();
+        cp.setLayout(layoutManager);
         //----------------------------------------------------------------------Add game parts to the Window.
         addWorldDisplay(cp);
-        addSystemStatus(cp);
+        addSystemStatusLeft(cp);
         addStatusDisplay(cp);
         addChatBox(cp);
         addTabbedPane(cp);
@@ -246,7 +255,7 @@ class GameGUI {
 
                 g.setColor(Color.black);
                 //--------------------------------------------------------------This stupid math below keeps names centered above the players character, regardless of length.
-                g.drawString(playerCon.returnName(), (5 * 90) + ((90-playerCon.returnName().length())/2)-playerCon.returnName().length()*2, (5 * 90) + 30);
+                g.drawString(playerCon.returnName(), (5 * 90) + ((90 - playerCon.returnName().length()) / 2) - playerCon.returnName().length() * 2, (5 * 90) + 30);
                 tileGen.returnNPC(g, 1, 5 * 90, 5 * 90);
                 Iterator iter = npcMap.keySet().iterator();
                 while (true) {
@@ -266,7 +275,23 @@ class GameGUI {
 
             //------------------------------------------------------------------Draw the items using information recieved from server
             private void drawItems(Graphics g) {
-                tileGen.returnObject(g, 1, 90 * 4, 90 * 4);
+                if (!gameClient.map.isEmpty()) {
+                    Iterator iter = gameClient.map.keySet().iterator();
+                    String nextObject = "";
+                    while (iter.hasNext()) {
+                        nextObject = (String) iter.next();
+                        String[] objectProperties = nextObject.split(",");
+                        int baseX = playerCon.returnX() - 5;
+                        int baseY = playerCon.returnY() - 5;
+                        int x = Integer.valueOf(objectProperties[0]);
+                        int y = Integer.valueOf(objectProperties[1]);
+                        int z = Integer.valueOf(objectProperties[2]);
+                        int itemX = x - baseX;
+                        int itemY = y - baseY;
+                        int object = gameClient.map.get(nextObject).returnObject();
+                        tileGen.returnObject(g, object, itemX*90, itemY*90);
+                    }
+                }
             }
         };
 
@@ -287,20 +312,19 @@ class GameGUI {
 
     //============================================================================================================================================================================
     //--------------------------------------------------------------------------Add system status display.
-    private static void addSystemStatus(Container cp) {
+    private static void addSystemStatusLeft(Container cp) {
         objectPosition.gridx = 0;
         objectPosition.gridy = 2;
-        statusPanel = new JPanel() {
+        statusPanelLeft = new JPanel() {
             @Override
             public void paint(Graphics g) {
-                g.drawImage(tileGen.statusBar, 0, 0, null);
                 g.drawString(frameInLastSecond + " fps", 0, 15);
             }
         };
-        statusPanel.setPreferredSize(new Dimension(900, 20));
-        cp.add(statusPanel, objectPosition);
+        statusPanelLeft.setPreferredSize(new Dimension(900, 20));
+        cp.add(statusPanelLeft, objectPosition);
         window.validate();
-        statusPanel.setVisible(true);
+        statusPanelLeft.setVisible(true);
     }
 
     //=================================================================================================================================================================================
@@ -557,12 +581,12 @@ class GameGUI {
         accCreationButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //add code here to send info to the server
+                //--------------------------------------------------------------add code here to send info to the server
                 if (!accCreationBox.getText().isEmpty() && !passCreationBox.getText().isEmpty() && !nameCreationBox.getText().isEmpty()) {
                     gameClient.returnGameController().createAccount(
                             Integer.valueOf(accCreationBox.getText()),
                             passCreationBox.getText().trim(),
-                            nameCreationBox.getText());
+                            nameCreationBox.getText().trim());
                 }
             }
         });
