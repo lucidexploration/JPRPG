@@ -5,11 +5,6 @@ Jon's PvP Role Playing Game.
 
 An asynchronous multiplayer online game written in pure Java.
 
-Working features include:
--Logging into game accounts
--Movement
--Chat
--Players and objects are sent to players as they can see them
 
 
 
