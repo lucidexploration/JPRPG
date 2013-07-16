@@ -3,8 +3,6 @@ Things I think the game needs to be functionally complete and abstract developme
 Client
     Map
         *-Client needs to know what it can and cannot walk on. Server should verify, but client should know.
-        *-Draw the map based on what the server sends it as it moves. an array would work well for this. lots of shifting data around.
-            x,y,z,1; I must think of a good way to do this. This is where eric's serializing would do wonders...
     Options Pane
         *-Needs actual changeable options
         *-Needs to be saved on exit.
@@ -19,7 +17,6 @@ Server
         *-Finish basic account creation
         *-Accounts on when being cleaned from onlineMap need to be saved to normal accounts map, for server saving.
     Map
-        *-Server sends proper map tiles based on player movement
         *-Map updates from client commands and after updating, notify's all in range of new tile.
     Items
         *-When an item is placed/dropped, a new map tile needs to be made. Unfortunate, but unavoidable with the current system. System might need a redesign.

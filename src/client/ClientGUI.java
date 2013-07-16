@@ -28,10 +28,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 
-/**
- *
- *
- */
 class ClientGUI {
 
     //--------------------------------------------------------------------------The game window.
@@ -266,7 +262,8 @@ class ClientGUI {
                         int monsterX = npcMap.get(currentMonster).returnX() - baseX;
                         int monsterY = npcMap.get(currentMonster).returnY() - baseY;
                         g.setColor(Color.red);
-                        g.drawString(npcMap.get(currentMonster).returnName(), (monsterX * 90) + 10, (monsterY * 90) + 10);
+                        //------------------------------------------------------This stupid math below keeps names centered above the players character, regardless of length.
+                        g.drawString(npcMap.get(currentMonster).returnName(), (monsterX * 90) + ((90 - npcMap.get(currentMonster).returnName().length()) / 2) - npcMap.get(currentMonster).returnName().length() * 2, (monsterY * 90) + 30);
                         tileGen.returnNPC(g, 0, monsterX * tileWidth, monsterY * tileHeight);
                     }
                     break;
@@ -289,7 +286,7 @@ class ClientGUI {
                         int itemX = x - baseX;
                         int itemY = y - baseY;
                         int object = gameClient.map.get(nextObject).returnObject();
-                        tileGen.returnObject(g, object, itemX*90, itemY*90);
+                        tileGen.returnObject(g, object, itemX * 90, itemY * 90);
                     }
                 }
             }
@@ -301,7 +298,7 @@ class ClientGUI {
         objectPosition.gridx = 0;
         objectPosition.gridy = 0;
         objectPosition.fill = GridBagConstraints.BOTH;
-        objectPosition.gridheight = 2;
+        objectPosition.gridheight = 3;
         cp.add(worldDisplay, objectPosition);
         objectPosition.gridheight = 1;
         window.validate();

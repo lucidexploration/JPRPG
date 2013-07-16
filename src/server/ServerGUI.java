@@ -2,10 +2,14 @@ package server;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -23,9 +27,11 @@ public class ServerGUI {
     private static GridBagLayout layout = new GridBagLayout();
     private static GridBagConstraints constraints = new GridBagConstraints();
     private static Server server;
+    public static Map<Integer,String> onlineAccounts;
 
     //=========================================================================================================================
     public static void main(String args[]) throws IOException {
+        onlineAccounts=new HashMap<>();
         makeGUI();
         startRecieving();
     }
@@ -69,8 +75,7 @@ public class ServerGUI {
     }
 
     private static void addOnlineList(Container cp) {
-        onlineList = new JTextArea() {
-        };
+        onlineList = new JTextArea("Online people here.\n");
         onlineList.setEditable(false);
         onlineList.setLineWrap(true);
         onlineList.setWrapStyleWord(true);
@@ -78,6 +83,7 @@ public class ServerGUI {
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         constraints.gridx = 1;
         constraints.gridy = 0;
+        constraints.fill=constraints.BOTH;
         onlineListScroll = new JScrollPane(onlineList);
         onlineListScroll.setPreferredSize(new Dimension(200, 600));
         onlineListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -94,7 +100,7 @@ public class ServerGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    server.saveAndExit();
+                    Server.saveAndExit();
                 } catch (IOException ex) {
                     System.out.println("shit done broke");
                 }

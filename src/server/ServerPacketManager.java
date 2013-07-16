@@ -63,6 +63,7 @@ public class ServerPacketManager {
                         break;
                     }
                     ServerGUI.console.append("login added: " + Server.loggedInAccounts.keySet() + "\n");
+                    ServerGUI.onlineList.append(name+"\n");
                 }
             }
             //------------------------------------------------------------------Now tell everyone arround us that we have logged in.
