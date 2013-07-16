@@ -1,6 +1,6 @@
 package server;
 
-class Characters {
+class Character {
 
     private String name = "";
     private int totalHitPoints = 0;
@@ -12,7 +12,7 @@ class Characters {
     private int zPos = 0;
     private int charType;
 
-    public Characters(String charName,int x,int y,int z,int accountType,int hp,int hpTotal,int mana,int manaTotal) {
+    public Character(String charName,int x,int y,int z,int accountType,int hp,int hpTotal,int mana,int manaTotal) {
         this.name = charName;
         this.charType = accountType;
         this.xPos = x;

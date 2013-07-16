@@ -52,7 +52,7 @@ class Loader {
                 int manaTotal = Integer.parseInt(info[10]);
 
                 //--------------------------------------------------------------Add the variables to server memory on the accounts map.
-                Server.accounts.put(accNumber, new Account(accNumber, password, name, x, y, z, accountType, hp, hpTotal, mana, manaTotal));
+                Server.accounts.put(accNumber, new Accounts(accNumber, password, name, x, y, z, accountType, hp, hpTotal, mana, manaTotal));
             }
         } catch (IOException ex) {
             Server.console.append("Scanner couldnt read the fucking line." + "\n");
@@ -87,7 +87,7 @@ class Loader {
             String[] infoSplit = info.split(",");
             String id = infoSplit[0];
             int tileType = Integer.parseInt(infoSplit[1]);
-            Server.map.put(id, new Tile(tileType));
+            Server.map.put(id, new ServerTile(tileType));
         }
         scanner.close();
         Server.console.append("Map tiles loaded. \n");

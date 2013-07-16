@@ -12,7 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.text.DefaultCaret;
 
-public class ServerRunner {
+public class ServerGUI {
 
     private static JFrame window;
     private static JButton saveAndExit;

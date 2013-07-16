@@ -2,14 +2,14 @@ package client;
 
 import java.util.Map;
 
-public class Tile {
+public class ClientTile {
 
     private int tileID;
     private int tileType;
     private int objectID;
     Map<Integer, Integer> objectPile;
 
-    public Tile(int type) {
+    public ClientTile(int type) {
         this.tileType = type;
     }
 

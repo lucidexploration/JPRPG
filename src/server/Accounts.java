@@ -3,18 +3,18 @@ package server;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-public class Account {
+public class Accounts {
     private int accNumber;
     private String password;
-    private Characters myChar;
+    private Character myChar;
     public String[] sendBack;
     private Socket mySock;
     private SocketAddress myAddress;
     
-    public Account(int accNumber, String password, String charName,int x,int y,int z,int accountType,int hp,int hpTotal,int mana,int manaTotal){
+    public Accounts(int accNumber, String password, String charName,int x,int y,int z,int accountType,int hp,int hpTotal,int mana,int manaTotal){
         this.accNumber=accNumber;
         this.password=password;
-        this.myChar = new Characters(charName,x,y,z,accountType,hp,hpTotal,mana,manaTotal);
+        this.myChar = new Character(charName,x,y,z,accountType,hp,hpTotal,mana,manaTotal);
         this.sendBack = new String[100];
         //----------------------------------------------------------------------Initialize the sendBack[] so that nothing is null.
         int o = 0;
@@ -32,7 +32,7 @@ public class Account {
         return this.password;
     }
     
-    public Characters returnChar(){
+    public Character returnChar(){
         return this.myChar;
     }
     public void setSocket(Socket sock){

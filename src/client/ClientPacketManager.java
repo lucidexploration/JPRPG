@@ -7,13 +7,13 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-class PacketManager extends GameGUI {
+class ClientPacketManager extends ClientGUI {
 
     private Socket sock;//------------------------------------------------------this is the socket connecting us to the server
     private PrintWriter output;//-----------------------------------------------this is the output stream
     private BufferedReader input;//---------------------------------------------the input stream
 
-    public PacketManager() throws UnknownHostException, IOException {
+    public ClientPacketManager() throws UnknownHostException, IOException {
         //----------------------------------------------------------------------connects to the server
         //----------------------------------------------------------------------this will need to be updated with the servers ip.
         sock = new Socket("localhost", 7171);
@@ -72,29 +72,29 @@ class PacketManager extends GameGUI {
     private void updateObject(String objectType, int objectX, int objectY, int objectZ) {
         String objectID;
         objectID = ""+objectX+","+objectY+","+objectZ;
-        if (!GameGUI.gameClient.map.containsKey(objectID)) {//-------If we don't have it, add it to the map.
-            GameGUI.gameClient.map.put(objectID, new Tile(0));
-            GameGUI.gameClient.map.get(objectID).setObjectID(Integer.valueOf(objectType));
+        if (!ClientGUI.gameClient.map.containsKey(objectID)) {//-------If we don't have it, add it to the map.
+            ClientGUI.gameClient.map.put(objectID, new ClientTile(0));
+            ClientGUI.gameClient.map.get(objectID).setObjectID(Integer.valueOf(objectType));
             
         } else {//---------------------------------------------------------------If we already have it, just update it's variables.
-            GameGUI.gameClient.map.get(objectID).setObjectID(Integer.valueOf(objectType));
+            ClientGUI.gameClient.map.get(objectID).setObjectID(Integer.valueOf(objectType));
         }
     }
 
     private void updateMonster(String monsterName, int monsterX, int monsterY, int hp, int hptotal, int mp, int mptotal) {
-        if (monsterName.equals(GameGUI.playerCon.returnName())) {
-            GameGUI.playerCon.setPos(monsterX, monsterY);
+        if (monsterName.equals(ClientGUI.playerCon.returnName())) {
+            ClientGUI.playerCon.setPos(monsterX, monsterY);
             return;
         }
-        if (!GameGUI.gameClient.returnNPCMap().containsKey(monsterName)) {//-------If we don't have it, add it to the map.
-            GameGUI.gameClient.returnNPCMap().put(monsterName, new Monster(monsterName, monsterX, monsterY, hp, hptotal, mp, mptotal));
+        if (!ClientGUI.gameClient.returnNPCMap().containsKey(monsterName)) {//-------If we don't have it, add it to the map.
+            ClientGUI.gameClient.returnNPCMap().put(monsterName, new ClientMonster(monsterName, monsterX, monsterY, hp, hptotal, mp, mptotal));
         } else {//---------------------------------------------------------------If we already have it, just update it's variables.
-            GameGUI.gameClient.returnNPCMap().get(monsterName).setX(monsterX);
-            GameGUI.gameClient.returnNPCMap().get(monsterName).setY(monsterY);
-            GameGUI.gameClient.returnNPCMap().get(monsterName).setHP(hp);
-            GameGUI.gameClient.returnNPCMap().get(monsterName).setTotalHP(hptotal);
-            GameGUI.gameClient.returnNPCMap().get(monsterName).setMana(mp);
-            GameGUI.gameClient.returnNPCMap().get(monsterName).setTotalMana(mptotal);
+            ClientGUI.gameClient.returnNPCMap().get(monsterName).setX(monsterX);
+            ClientGUI.gameClient.returnNPCMap().get(monsterName).setY(monsterY);
+            ClientGUI.gameClient.returnNPCMap().get(monsterName).setHP(hp);
+            ClientGUI.gameClient.returnNPCMap().get(monsterName).setTotalHP(hptotal);
+            ClientGUI.gameClient.returnNPCMap().get(monsterName).setMana(mp);
+            ClientGUI.gameClient.returnNPCMap().get(monsterName).setTotalMana(mptotal);
         }
     }
 
@@ -129,7 +129,7 @@ class PacketManager extends GameGUI {
      * Updates chat window.
      */
     public void recieveChat(String charName, String text) {
-        GameGUI.chatBox.append("\n" + charName + ":" + text);
+        ClientGUI.chatBox.append("\n" + charName + ":" + text);
     }
 
     /*
@@ -165,20 +165,20 @@ class PacketManager extends GameGUI {
 
     public void recieveLogIn(String charName, int x, int y, int hp, int totalhp, int mana, int totalmana) {
         //----------------------------------------------------------------------Update Character Information on Client
-        GameGUI.playerCon.setName(charName);
-        GameGUI.playerCon.setPos(x, y);
-        GameGUI.playerCon.setHP(hp);
-        GameGUI.playerCon.setTotalHP(totalhp);
-        GameGUI.playerCon.setMana(mana);
-        GameGUI.playerCon.setTotalMana(totalmana);
+        ClientGUI.playerCon.setName(charName);
+        ClientGUI.playerCon.setPos(x, y);
+        ClientGUI.playerCon.setHP(hp);
+        ClientGUI.playerCon.setTotalHP(totalhp);
+        ClientGUI.playerCon.setMana(mana);
+        ClientGUI.playerCon.setTotalMana(totalmana);
         //----------------------------------------------------------------------Since we are logged in, we no longer need a few client components, so let's hide them.
-        GameGUI.loginBox.setVisible(false);
-        GameGUI.passwordBox.setVisible(false);
-        GameGUI.createAccount.setVisible(false);
-        GameGUI.loginButton.setVisible(false);
-        GameGUI.chatboxInput.setVisible(true);
+        ClientGUI.loginBox.setVisible(false);
+        ClientGUI.passwordBox.setVisible(false);
+        ClientGUI.createAccount.setVisible(false);
+        ClientGUI.loginButton.setVisible(false);
+        ClientGUI.chatboxInput.setVisible(true);
         //----------------------------------------------------------------------And show input for another.
-        GameGUI.statusPanelLeft.setVisible(true);
+        ClientGUI.statusPanelLeft.setVisible(true);
         //----------------------------------------------------------------------Allow input in gameWindow
         window.setFocusable(true);
         window.requestFocus();

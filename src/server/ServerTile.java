@@ -3,13 +3,13 @@ package server;
 import java.util.HashMap;
 import java.util.Map;
 
-class Tile {
+class ServerTile {
     private int tileID;
     private int tileType;
     private int objectID;
     Map<Integer,Integer> objectPile;
     
-    public Tile(int type) {
+    public ServerTile(int type) {
         this.tileType=type;
         this.objectID=0;
         this.tileType=0;

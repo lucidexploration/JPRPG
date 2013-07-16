@@ -1,8 +1,3 @@
-SERIALIZE SERVER AND CLIENT
-    server will now send Packet.class object's. will be standardized for easier client reading. will contain an static int for type of packet,
-    whether chat or movement, then will contain the rest of the data however it needs to be represented. a map, will be a 2d array that just gets
-    copied over the clients 2d array whenever an update happens.
-
 DEFAULT MAP TILE is no tile. on the sky, there is nothing but empty space. on the ground, it is grass. underground, it is dirt. the tile BECOMES something
      when we update it on the server, either through a client chat update command, or using a tool to dig. If we dig, the tile becomes a a dug out square 
     (if we are underground that is. on the surface, digging would produce a hole that drops down, into the ground.) This would allow for less to be 
@@ -11,12 +6,7 @@ DEFAULT MAP TILE is no tile. on the sky, there is nothing but empty space. on th
 
 need to make a logout method for when closing the sockets to remove players from onlineAccounts that updates their information on accounts map.
 
-need to notifySelfofAllPlayersInRange on first login.
-
 need to send mapinformation on first login, and updated map information on movement.
 
 need to create a few new tiles and work on map update commands.
 
-create a server gui, with a button that saves and exits.
-    also a jtextarea that displays System.out.println() output
-    also a jpanel that displays who is logged in.

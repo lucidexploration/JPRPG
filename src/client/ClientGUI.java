@@ -32,7 +32,7 @@ import javax.swing.text.DefaultCaret;
  *
  *
  */
-class GameGUI {
+class ClientGUI {
 
     //--------------------------------------------------------------------------The game window.
     public static JFrame window;
@@ -98,7 +98,7 @@ class GameGUI {
     public static GameClient gameClient;
     public static PlayerController playerCon;
     public static TileGenerator tileGen;
-    public static Map<String, Monster> npcMap;
+    public static Map<String, ClientMonster> npcMap;
 
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

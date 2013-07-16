@@ -8,20 +8,20 @@ import java.util.Map;
 class GameClient {
 
     private TileGenerator tileGen;
-    private PacketManager gameCon;
-    private Map<String, Monster> monsterMap;
-    public Map<String, Tile> map;
+    private ClientPacketManager gameCon;
+    private Map<String, ClientMonster> monsterMap;
+    public Map<String, ClientTile> map;
     private PlayerController playerCon;
 
     public GameClient() throws UnknownHostException, IOException {
         tileGen = new TileGenerator();
-        gameCon = new PacketManager();
+        gameCon = new ClientPacketManager();
         monsterMap = new HashMap<>();
         playerCon = new PlayerController();
         map = new HashMap<>();
     }
 
-    public PacketManager returnGameController() {
+    public ClientPacketManager returnGameController() {
         return this.gameCon;
     }
 
@@ -29,7 +29,7 @@ class GameClient {
         return this.tileGen;
     }
 
-    public Map<String, Monster> returnNPCMap() {
+    public Map<String, ClientMonster> returnNPCMap() {
         return this.monsterMap;
     }
 

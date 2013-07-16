@@ -6,18 +6,18 @@ import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
 
-public class Server extends ServerRunner {
+public class Server extends ServerGUI {
 
     //--------------------------------------------------------------------------Server objects
     private static int ports[];
     public static ByteBuffer echoBuffer = ByteBuffer.allocate(1024);
     //--------------------------------------------------------------------------Account objects
-    public static Map<Integer, Account> accounts;
-    public static Map<Integer, Account> loggedInAccounts;
+    public static Map<Integer, Accounts> accounts;
+    public static Map<Integer, Accounts> loggedInAccounts;
     //--------------------------------------------------------------------------Creature objects
-    public static Map<Integer, Monsters> monsters;
+    public static Map<Integer, ServerMonster> monsters;
     //--------------------------------------------------------------------------Map objects
-    public static Map<String, Tile> map;
+    public static Map<String, ServerTile> map;
 
     //=============================================================================================================================================================================
     //--------------------------------------------------------------------------Constructor
@@ -117,8 +117,8 @@ public class Server extends ServerRunner {
                         } catch (java.io.IOException e) {
                             
                             //--------------------------------------------------If this account was online, we need to update his information for the next time he logs in.
-                            if(loggedInAccounts.containsKey(PacketManager.returnOnlineKey(sc.getRemoteAddress()))){
-                                int thisKey = PacketManager.returnOnlineKey(sc.getRemoteAddress());
+                            if(loggedInAccounts.containsKey(ServerPacketManager.returnOnlineKey(sc.getRemoteAddress()))){
+                                int thisKey = ServerPacketManager.returnOnlineKey(sc.getRemoteAddress());
                                 accounts.put(thisKey, loggedInAccounts.get(thisKey));
                             }
                             //--------------------------------------------------Close this socket
@@ -129,12 +129,12 @@ public class Server extends ServerRunner {
                         }
                         String message = new String(echoBuffer.array());
 
-                        PacketManager.interpretPacket(message.trim(), sc, selector);
+                        ServerPacketManager.interpretPacket(message.trim(), sc, selector);
                         try {
-                            if (loggedInAccounts.containsKey(PacketManager.returnOnlineKey(sc.getRemoteAddress()))) {
+                            if (loggedInAccounts.containsKey(ServerPacketManager.returnOnlineKey(sc.getRemoteAddress()))) {
                                 int o = 0;
-                                while (o < loggedInAccounts.get(PacketManager.returnOnlineKey(sc.getRemoteAddress())).sendBack.length) {
-                                    if (!loggedInAccounts.get(PacketManager.returnOnlineKey(sc.getRemoteAddress())).sendBack[o].isEmpty()) {
+                                while (o < loggedInAccounts.get(ServerPacketManager.returnOnlineKey(sc.getRemoteAddress())).sendBack.length) {
+                                    if (!loggedInAccounts.get(ServerPacketManager.returnOnlineKey(sc.getRemoteAddress())).sendBack[o].isEmpty()) {
                                         sc.register(selector, SelectionKey.OP_WRITE);
                                         break;
                                     }
@@ -158,8 +158,8 @@ public class Server extends ServerRunner {
                 } else if ((key.readyOps() & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {
                     SocketChannel sc = (SocketChannel) key.channel();
                     //----------------------------------------------------------Check map of logged in accounts to identify this account.
-                    PacketManager.sendToClient(sc);//-----------------------------------------Send the messages.
-                    PacketManager.eraseSendback(sc);//----------------------------------------Erase the sent messages.
+                    ServerPacketManager.sendToClient(sc);//-----------------------------------------Send the messages.
+                    ServerPacketManager.eraseSendback(sc);//----------------------------------------Erase the sent messages.
                     echoBuffer = ByteBuffer.allocate(1024);//-------------------Create a new clean buffer for the next go arround.
                     sc.register(selector, SelectionKey.OP_READ);//--------------Everything has been sent to the client, so now we register this socket for reading again.
                     it.remove();

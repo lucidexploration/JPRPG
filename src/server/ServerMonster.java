@@ -1,5 +1,5 @@
 package server;
 
-class Monsters {
+class ServerMonster {
     
 }

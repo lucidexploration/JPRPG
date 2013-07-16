@@ -10,22 +10,22 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.UUID;
 
-public class PacketManager {
+public class ServerPacketManager {
 
-    public PacketManager() {
+    public ServerPacketManager() {
     }
 
     public static void interpretPacket(String packet, SocketChannel sc, Selector selector) throws IOException {
         String[] splits = packet.split("=--=");
         //create account
         if (splits[0].equals("create")) {
-            ServerRunner.console.append(Server.accounts.keySet().toString() + "\n");
+            ServerGUI.console.append(Server.accounts.keySet().toString() + "\n");
             Server.echoBuffer = ByteBuffer.allocate(1024);
         }
 
         //----------------------------------------------------------------------LOGIN
         if (splits[0].equals("login")) {//--------------------------------------If this is a login packet
-            ServerRunner.console.append(Server.accounts.keySet().toString() + "\n");
+            ServerGUI.console.append(Server.accounts.keySet().toString() + "\n");
 
             //------------------------------------------------------------------And if we have this account
             if (Server.accounts.containsKey(Integer.parseInt(splits[1]))) {
@@ -62,7 +62,7 @@ public class PacketManager {
                         b++;
                         break;
                     }
-                    ServerRunner.console.append("login added: " + Server.loggedInAccounts.keySet() + "\n");
+                    ServerGUI.console.append("login added: " + Server.loggedInAccounts.keySet() + "\n");
                 }
             }
             //------------------------------------------------------------------Now tell everyone arround us that we have logged in.
@@ -77,6 +77,7 @@ public class PacketManager {
             String sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
 
             notifyAllInRange(myKey, selector, sendBack, 2);
+            sendObjectsArround(myKey);
         }
 
         //----------------------------------------------------------------------ATTACK
@@ -225,30 +226,30 @@ public class PacketManager {
         }
     }
 
-    private static void sendObjectsArround(int myKey) {
-        int playerX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
-        int playerY = Server.loggedInAccounts.get(myKey).returnChar().returnX();
-        int zPos = Server.loggedInAccounts.get(myKey).returnChar().returnX();
-        int xRange = playerX - 4;
-        int yRange = playerY - 4;
+    private static void sendObjectsArround(int playersKey) {
+        int playerX = Server.loggedInAccounts.get(playersKey).returnChar().returnX();
+        int playerY = Server.loggedInAccounts.get(playersKey).returnChar().returnY();
+        int zPos = Server.loggedInAccounts.get(playersKey).returnChar().returnZ();
+        int xRange = playerX - 5;
+        int yRange = playerY - 5;
         boolean wroteString = false;
         int o = 0;
         //----------------------------------------------------------------------Check all tiles in range for objects.
-        while (xRange < playerX + 5) {
-            while (yRange < playerY + 5) {
+        while (xRange < playerX + 4) {
+            while (yRange < playerY + 4) {
                 //--------------------------------------------------------------See if there is an object at this position.
                 if (Server.map.containsKey(getIndex(xRange, yRange, zPos))) {
                     //----------------------------------------------------------If so, send this object to the client.
                     int objectHere = Server.map.get(getIndex(xRange, yRange, zPos)).returnObject();
                     String sendBackToMe = "objectInRange=--=" + objectHere + "=--=" + xRange + "=--=" + yRange + "=--=" + zPos + "=--=" + "\n";
-                    Server.console.append(sendBackToMe + ".      Sent to : " + Server.accounts.get(myKey).returnChar().returnName() + "\n");
+                    Server.console.append(sendBackToMe + ".      Sent to : " + Server.accounts.get(playersKey).returnChar().returnName() + "\n");
 
                     //----------------------------------------------------------As long as we haven't written the string to this account
                     while (!wroteString) {
 
                         //------------------------------------------------------If this slot is open, write to it.
-                        if (Server.loggedInAccounts.get(myKey).sendBack[o].isEmpty()) {
-                            Server.loggedInAccounts.get(myKey).sendBack[o] = sendBackToMe;
+                        if (Server.loggedInAccounts.get(playersKey).sendBack[o].isEmpty()) {
+                            Server.loggedInAccounts.get(playersKey).sendBack[o] = sendBackToMe;
                             wroteString = true;//-------------------------------Now that we have written to it. Exit.
                         }
                         o++;//--------------------------------------------------Increase iterator.
@@ -319,7 +320,7 @@ public class PacketManager {
                 break;
             }
             String message = Server.loggedInAccounts.get(theKey).sendBack[o];
-            ServerRunner.console.append("Sent : " + message + "      To : " + Server.loggedInAccounts.get(theKey).returnChar().returnName() + "\n");
+            ServerGUI.console.append("Sent : " + message + "      To : " + Server.loggedInAccounts.get(theKey).returnChar().returnName() + "\n");
             Server.echoBuffer = ByteBuffer.allocate(1024);
             Server.echoBuffer.put(message.getBytes());
             Server.echoBuffer.flip();
