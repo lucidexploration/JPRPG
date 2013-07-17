@@ -25,7 +25,7 @@ class TileGenerator {
     //--------------------------------------------------------------------------Sprites
     private Image grass;
     private Image tree;
-    private Image character;
+    public Image character;
     public static Image statusBackground;
     public static Image backGround;
     public static Image overlay;

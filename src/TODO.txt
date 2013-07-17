@@ -5,8 +5,6 @@ Client
         *-Need to remove creatures from memory when they are no longer in range.
     Accounts
         *-Finish account creation including customizable characters
-    OverLay
-        *-Client needs an overlay, that displays the title screen with the login and account creation buttons on it.
     Map
         *-Client needs to know what it can and cannot walk on. Server should verify, but client should know.
     Options Pane
@@ -22,6 +20,7 @@ Server
     Accounts
         *-Finish basic account creation
     Map
+        *-Server needs to send map information for 3 floors below the client. This should allow for looking down mountains.
         *-Map updates from client commands and after updating, notify's all in range of new tile.
     Items
         *-When an item is placed/dropped, a new map tile needs to be made. Unfortunate, but unavoidable with the current system. System might need a redesign.

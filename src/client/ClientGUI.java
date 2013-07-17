@@ -60,7 +60,7 @@ class ClientGUI {
     public static JButton createAccount;
     //--------------------------------------------------------------------------Account creation objects.
     public static JPanel accCreationPanel;
-    public static JTextField accCreationBox;
+    public static JTextField accNumberBox;
     public static JTextField passCreationBox;
     public static JButton accCreationButton;
     public static JTextField nameCreationBox;
@@ -539,19 +539,12 @@ class ClientGUI {
         loginButton = new JButton("Login");
         //----------------------------------------------------------------------Position and Add Login buttons and boxes.
         //----------------------------------------------------------------------Login box.
-        objectPosition.anchor = GridBagConstraints.WEST;
-        objectPosition.gridx = 0;
-        objectPosition.gridy = 0;
-        objectPosition.fill = GridBagConstraints.NONE;
         loginBox.setPreferredSize(new Dimension(190, 20));
-        overlay.add(loginBox, objectPosition);
+        overlay.add(loginBox);
         window.validate();
         //----------------------------------------------------------------------Password box.
-        objectPosition.gridx = 2;
-        objectPosition.gridy = 2;
-        objectPosition.anchor = GridBagConstraints.EAST;
         loginBox.setPreferredSize(new Dimension(190, 20));
-        overlay.add(passwordBox, objectPosition);
+        overlay.add(passwordBox);
         window.validate();
         //----------------------------------------------------------------------When login button is pressed, send the login information to the server.
         loginButton.addActionListener(new java.awt.event.ActionListener() {
@@ -567,50 +560,39 @@ class ClientGUI {
             }
         });
         //----------------------------------------------------------------------Login button.
-        objectPosition.gridx = 3;
-        objectPosition.gridy = 2;
-        objectPosition.anchor = GridBagConstraints.WEST;
-        objectPosition.fill = GridBagConstraints.NONE;
         overlay.add(loginButton, objectPosition);
         window.validate();
         //----------------------------------------------------------------------Account creation buttons and windows.
         createAccount = new JButton("Create Account");
         createAccount.setFocusable(false);
         createAccount.setText("Create Account");
-        accCreationPanel = new JPanel();
-        accCreationBox = new JTextField("Insert Acc Number here");
+        accCreationPanel = new JPanel(){
+            @Override
+            public void paint(Graphics g){
+                super.paint(g);
+                g.drawImage(tileGen.character, 100, 200, null);
+            }
+        };
+        accCreationPanel.setPreferredSize(new Dimension(400,400));
+        accNumberBox = new JTextField("Insert Acc Number here");
         passCreationBox = new JTextField("Insert password here");
         accCreationButton = new JButton("Send to Server");
         nameCreationBox = new JTextField("Insert name here");
         extraCreationBox = new JTextField("extra");
-        //----------------------------------------------------------------------Add account creation input to the panel that displays when popped up and position it all.
-        accCreationPanel.setLayout(new GridBagLayout());
-        objectPosition.gridx = 0;
-        objectPosition.gridy = 0;
-        objectPosition.fill = GridBagConstraints.BOTH;
-        objectPosition.anchor = GridBagConstraints.CENTER;
-        accCreationPanel.add(accCreationBox, objectPosition);
-        objectPosition.gridx = 1;
-        objectPosition.gridy = 0;
+
+        accCreationPanel.add(accNumberBox, objectPosition);
         accCreationPanel.add(passCreationBox, objectPosition);
-        objectPosition.gridx = 2;
-        objectPosition.gridy = 2;
-        objectPosition.anchor = GridBagConstraints.CENTER;
         accCreationPanel.add(accCreationButton, objectPosition);
-        objectPosition.gridx = 0;
-        objectPosition.gridy = 1;
         accCreationPanel.add(nameCreationBox, objectPosition);
-        objectPosition.gridx=0;
-        objectPosition.gridy=2;
         accCreationPanel.add(extraCreationBox,objectPosition);
         //----------------------------------------------------------------------Send new account information when the button is pressed.
         accCreationButton.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //--------------------------------------------------------------add code here to send info to the server
-                if (!accCreationBox.getText().isEmpty() && !passCreationBox.getText().isEmpty() && !nameCreationBox.getText().isEmpty()) {
+                if (!accNumberBox.getText().isEmpty() && !passCreationBox.getText().isEmpty() && !nameCreationBox.getText().isEmpty()) {
                     gameClient.returnGameController().createAccount(
-                            Integer.valueOf(accCreationBox.getText()),
+                            Integer.valueOf(accNumberBox.getText()),
                             passCreationBox.getText().trim(),
                             nameCreationBox.getText().trim());
                 }
@@ -627,11 +609,7 @@ class ClientGUI {
             }
         });
         //----------------------------------------------------------------------Add and align the account creation button.
-        objectPosition.gridx = 3;
-        objectPosition.gridy = 2;
-        objectPosition.anchor = GridBagConstraints.EAST;
-        objectPosition.fill = objectPosition.NONE;
-        overlay.add(createAccount, objectPosition);
+        overlay.add(createAccount);
         window.validate();
     }
 }
