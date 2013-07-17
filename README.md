@@ -7,7 +7,7 @@ An asynchronous multiplayer online game written in pure Java.
 
 
 
-
+![alt tag](http://s2.postimg.org/nwyz1l9mx/currentstatus.png)
 ![alt tag](http://s17.postimg.org/i51nw5033/currentstatus.png)
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/edf7e76f1ceeae4da0145090bf204c69 "githalytics.com")](http://githalytics.com/lucidexploration/JPRPG)
 
