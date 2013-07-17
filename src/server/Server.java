@@ -71,6 +71,8 @@ public class Server extends ServerGUI {
         }
 
         while (true) {
+            removeClosedAccounts(loggedInAccounts.keySet().iterator(), selector);//We need to make sure all the loggedInAccounts are still logged in.
+            //------------------------------------------------------------------Also need to write these closed accounts to the accounts map for when saving and exiting.
 
             int num = selector.select();//--------------------------------------Wait for the selected keys.
 
@@ -103,9 +105,6 @@ public class Server extends ServerGUI {
                     //----------------------------------------------------------Now we we the client's input.
 
                 } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {//We now have data, so read the data
-
-                    removeClosedAccounts(loggedInAccounts.keySet().iterator(), selector);//We need to make sure all the loggedInAccounts are still logged in.
-                    //----------------------------------------------------------Also need to write these closed accounts to the accounts map for when saving and exiting.
 
                     SocketChannel sc = (SocketChannel) key.channel();
 
@@ -171,7 +170,7 @@ public class Server extends ServerGUI {
     
     //====================================================================================================================================================================
     //--------------------------------------------------------------------------If a client has disconnected, remove it from the list.
-    public static void removeClosedAccounts(Iterator<Integer> iterator, Selector selector) {
+    public static void removeClosedAccounts(Iterator<Integer> iterator, Selector selector) throws ClosedChannelException {
         while (iterator.hasNext()) {//------------------------------As long as there are more accounts to check.
             int theKey;
             try {
@@ -180,7 +179,10 @@ public class Server extends ServerGUI {
                 break;
             }
             if (loggedInAccounts.get(theKey).returnSocket().isClosed()) {
+                String name = loggedInAccounts.get(theKey).returnChar().returnName();
+                String sendBack = "monsterGone=--="+name+"\n";
                 loggedInAccounts.remove(theKey);
+                ServerPacketManager.writeToAllOnline(selector, sendBack);
             }
         }
     }

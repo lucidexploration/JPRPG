@@ -4,6 +4,4 @@ DEFAULT MAP TILE is no tile. on the sky, there is nothing but empty space. on th
     sent to the clients.
 
 
-need to make a logout method for when closing the sockets to remove players from onlineAccounts that updates their information on accounts map.
-
 need to create a few new tiles and work on map update commands.

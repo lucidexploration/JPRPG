@@ -4,7 +4,7 @@ Client
     Monsters
         *-Need to remove creatures from memory when they are no longer in range.
     Accounts
-        *-Finish account creation including customizable characters
+        *-Finish account creation including customizable characters.  To this end, i need to finish the different colored character sprites for the game.
     Map
         *-Client needs to know what it can and cannot walk on. Server should verify, but client should know.
     Options Pane

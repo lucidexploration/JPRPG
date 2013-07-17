@@ -79,17 +79,34 @@ class ClientGUI {
     public static TimerTask task = new TimerTask() {
         @Override
         public void run() {
+            //------------------------------------------------------------------Check for packets from server.
             try {
                 gameClient.returnGameController().recieveInput();
             } catch (IOException ex) {
                 //--------------------------------------------------------------This will occur if the socket closes. In that case, exit client.
                 System.exit(-1);
             }
+            //------------------------------------------------------------------Redraw the world.
             worldDisplay.repaint();
             if ((System.currentTimeMillis() - lastSent) >= 1000) {
                 canSend = true;
             }
+            cleanOutOfRangeMonsters();
+        }
 
+        private void cleanOutOfRangeMonsters() {
+            Iterator iter =gameClient.returnNPCMap().keySet().iterator();
+            while(iter.hasNext()){
+                String nextmonster = (String) iter.next();
+                int playerX=playerCon.returnX();
+                int playerY=playerCon.returnY();
+                int monsterX=gameClient.returnNPCMap().get(nextmonster).returnX();
+                int monsterY=gameClient.returnNPCMap().get(nextmonster).returnY();
+                int diffX = playerX-monsterX;
+                int diffY = playerY - monsterY;
+                if((diffX<-4||diffX>5)&&(diffY<-4||diffY>5))
+                    gameClient.returnNPCMap().remove(nextmonster);
+            }
         }
     };
     //--------------------------------------------------------------------------Add the game client.

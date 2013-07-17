@@ -58,6 +58,15 @@ class ClientPacketManager extends ClientGUI {
                 //--------------------------------------------------------------Now deal with it.
                 updateMonster(monsterName, monsterX, monsterY, monsterHP, monsterTotalHP, monsterMP, monsterTotalMP);
             }
+            if (splits[0].equals("monsterGone")) {
+                //--------------------------------------------------------------Setup the variables.
+                String monsterName = splits[1];
+                //--------------------------------------------------------------Now deal with it.
+                if (ClientGUI.gameClient.returnNPCMap().containsKey(monsterName)) {
+                    ClientGUI.gameClient.returnNPCMap().remove(monsterName);
+                    ClientGUI.worldDisplay.repaint();
+                }
+            }
             if (splits[0].equals("objectInRange")) {
                 //--------------------------------------------------------------Setup the variables.
                 String objectType = splits[1];
@@ -69,13 +78,14 @@ class ClientPacketManager extends ClientGUI {
             }
         }
     }
+
     private void updateObject(String objectType, int objectX, int objectY, int objectZ) {
         String objectID;
-        objectID = ""+objectX+","+objectY+","+objectZ;
+        objectID = "" + objectX + "," + objectY + "," + objectZ;
         if (!ClientGUI.gameClient.map.containsKey(objectID)) {//-------If we don't have it, add it to the map.
             ClientGUI.gameClient.map.put(objectID, new ClientTile(0));
             ClientGUI.gameClient.map.get(objectID).setObjectID(Integer.valueOf(objectType));
-            
+
         } else {//---------------------------------------------------------------If we already have it, just update it's variables.
             ClientGUI.gameClient.map.get(objectID).setObjectID(Integer.valueOf(objectType));
         }
