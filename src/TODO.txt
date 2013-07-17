@@ -1,6 +1,12 @@
 Things I think the game needs to be functionally complete and abstract development can begin (quests/monster ai).
 
 Client
+    Monsters
+        *-Need to remove creatures from memory when they are no longer in range.
+    Accounts
+        *-Finish account creation including customizable characters
+    OverLay
+        *-Client needs an overlay, that displays the title screen with the login and account creation buttons on it.
     Map
         *-Client needs to know what it can and cannot walk on. Server should verify, but client should know.
     Options Pane
@@ -15,7 +21,6 @@ Client
 Server
     Accounts
         *-Finish basic account creation
-        *-Accounts on when being cleaned from onlineMap need to be saved to normal accounts map, for server saving.
     Map
         *-Map updates from client commands and after updating, notify's all in range of new tile.
     Items

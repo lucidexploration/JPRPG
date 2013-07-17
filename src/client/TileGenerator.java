@@ -28,13 +28,15 @@ class TileGenerator {
     private Image character;
     public static Image statusBackground;
     public static Image backGround;
+    public static Image overlay;
 
     public TileGenerator() throws IOException {
         grass = ImageIO.read(getClass().getResourceAsStream("/assets/grass.gif"));
         tree = ImageIO.read(getClass().getResourceAsStream("/assets/tree.gif"));
         character = ImageIO.read(getClass().getResourceAsStream("/assets/character.gif"));
-        statusBackground = ImageIO.read(getClass().getResourceAsStream("/assets/statusbackground.gif"));
-        backGround = ImageIO.read(getClass().getResourceAsStream("/assets/background.gif"));
+        statusBackground = ImageIO.read(getClass().getResourceAsStream("/assets/statusbackground.png"));
+        backGround = ImageIO.read(getClass().getResourceAsStream("/assets/background.png"));
+        overlay = ImageIO.read(getClass().getResourceAsStream("/assets/overlay.png"));
         tiles = new char[rows * cols * levels];
     }
 

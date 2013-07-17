@@ -172,6 +172,14 @@ class ClientPacketManager extends ClientGUI {
         ClientGUI.playerCon.setMana(mana);
         ClientGUI.playerCon.setTotalMana(totalmana);
         //----------------------------------------------------------------------Since we are logged in, we no longer need a few client components, so let's hide them.
+        ClientGUI.overlay.setVisible(false);
+        ClientGUI.worldDisplay.setVisible(true);
+        ClientGUI.statusDisplay.setVisible(true);
+        ClientGUI.chatBox.setVisible(true);
+        ClientGUI.chatboxInput.setVisible(true);
+        ClientGUI.tabbedPane.setVisible(true);
+        ClientGUI.statusPanelLeft.setVisible(true);
+        ClientGUI.chatScrollPane.setVisible(true);
         ClientGUI.loginBox.setVisible(false);
         ClientGUI.passwordBox.setVisible(false);
         ClientGUI.createAccount.setVisible(false);

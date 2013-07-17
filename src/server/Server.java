@@ -201,7 +201,6 @@ public class Server extends ServerGUI {
                 int tileType = map.get(nextTile).returnType();
                 //--------------------------------------------------------------Write map to file.
                 String writeThis = index + "," + tileType + System.lineSeparator();
-                System.out.println(writeThis);
                 mapWriter.write(writeThis);
                 mapWriter.flush();
             }
@@ -234,7 +233,6 @@ public class Server extends ServerGUI {
                 String writeThis = accountNumber + "," + password + "," + name + "," + xPos + "," + yPos + "," + zPos + "," + accType + "," + hp + "," + hpTotal + "," + mp + "," + mpTotal + System.lineSeparator();
                 accWriter.write(writeThis);
                 accWriter.flush();
-                System.out.println(writeThis);
             }
             break;
         }
