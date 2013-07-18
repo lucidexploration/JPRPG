@@ -251,8 +251,8 @@ class ClientGUI {
             @Override
             public void paint(Graphics g) {
                 drawWorld(g);
-                drawItems(g);
                 drawPlayersNPCS(g);
+                drawMapObjects(g);
 
                 long currentTime = System.currentTimeMillis();
                 if (currentTime > nextSecond) {
@@ -311,7 +311,7 @@ class ClientGUI {
             }
 
             //------------------------------------------------------------------Draw the items using information recieved from server
-            private void drawItems(Graphics g) {
+            private void drawMapObjects(Graphics g) {
                 if (!gameClient.map.isEmpty()) {
                     Iterator iter = gameClient.map.keySet().iterator();
                     String nextObject = "";
@@ -335,7 +335,7 @@ class ClientGUI {
         //----------------------------------------------------------------------Set world display area Options
         worldDisplay.setPreferredSize(new Dimension(900, 900));
         worldDisplay.setVisible(false);
-        //position the world within the window and add it
+        //----------------------------------------------------------------------position the world within the window and add it
         objectPosition.gridx = 0;
         objectPosition.gridy = 0;
         objectPosition.fill = GridBagConstraints.BOTH;
