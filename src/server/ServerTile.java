@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 class ServerTile {
-    private int tileID;
     private int tileType;
     private int objectID;
     Map<Integer,Integer> objectPile;
@@ -12,12 +11,7 @@ class ServerTile {
     public ServerTile(int type) {
         this.tileType=type;
         this.objectID=0;
-        this.tileType=0;
         this.objectPile = new HashMap<>();
-    }
-    
-    public int returnID(){
-        return this.tileID;
     }
     
     public int returnType(){

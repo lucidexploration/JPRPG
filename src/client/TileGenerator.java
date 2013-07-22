@@ -24,14 +24,18 @@ class TileGenerator {
     final int WATER = 0;
     //--------------------------------------------------------------------------Sprites
     private Image grass;
+    private Image grass2;
+    private Image grass3;
     private Image tree;
-    public Image character;
+    private Image character;
     public static Image statusBackground;
     public static Image backGround;
     public static Image overlay;
 
     public TileGenerator() throws IOException {
         grass = ImageIO.read(getClass().getResourceAsStream("/assets/grass.gif"));
+        grass2 = ImageIO.read(getClass().getResourceAsStream("/assets/grass2.gif"));
+        grass3 = ImageIO.read(getClass().getResourceAsStream("/assets/grass3.gif"));
         tree = ImageIO.read(getClass().getResourceAsStream("/assets/tree.gif"));
         character = ImageIO.read(getClass().getResourceAsStream("/assets/character.gif"));
         statusBackground = ImageIO.read(getClass().getResourceAsStream("/assets/statusbackground.png"));
@@ -68,8 +72,7 @@ class TileGenerator {
     //-------------------Graphics Below Here-------------------\\
     //-------------Tiles--------------
     private void emptySquare(Graphics g, int xPos, int yPos) {
-        g.drawImage(grass, xPos, yPos, null);
-
+        g.drawImage(grass3, xPos, yPos, null);
     }
 
     //------------People----------------

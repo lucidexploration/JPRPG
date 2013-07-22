@@ -587,7 +587,7 @@ class ClientGUI {
             @Override
             public void paint(Graphics g){
                 super.paint(g);
-                g.drawImage(tileGen.character, 100, 200, null);
+                tileGen.returnNPC(g, 0, 100, 200);
             }
         };
         accCreationPanel.setPreferredSize(new Dimension(400,400));
