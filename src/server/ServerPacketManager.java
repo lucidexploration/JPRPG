@@ -78,7 +78,7 @@ public class ServerPacketManager {
             String sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
 
             notifyAllInRange(myKey, selector, sendBack, 2);
-            sendTilesArround(myKey,0);
+//            sendTilesArround(myKey, 0);
             sendObjectsArround(myKey);
         }
 
@@ -120,7 +120,7 @@ public class ServerPacketManager {
                     monsterX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
-                    sendTilesArround(myKey,1);
+//                    sendTilesArround(myKey, 1);
                     sendObjectsArround(myKey);
                     notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
@@ -131,7 +131,7 @@ public class ServerPacketManager {
                     monsterX = Server.loggedInAccounts.get(myKey).returnChar().returnX();
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
-                    sendTilesArround(myKey,2);
+//                    sendTilesArround(myKey, 2);
                     sendObjectsArround(myKey);
                     notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
@@ -142,7 +142,7 @@ public class ServerPacketManager {
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     //----------------------------------------------------------Prepare message for write to other players.
                     sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
-                    sendTilesArround(myKey,3);
+//                    sendTilesArround(myKey, 3);
                     sendObjectsArround(myKey);
                     notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
@@ -153,7 +153,7 @@ public class ServerPacketManager {
                     monsterY = Server.loggedInAccounts.get(myKey).returnChar().returnY();
                     //----------------------------------------------------------Prepare message for write to other players.
                     sendBack = "monsterInRange=--=" + monsterName + "=--=" + monsterX + "=--=" + monsterY + "=--=" + monsterHP + "=--=" + monsterTotalHP + "=--=" + monsterMP + "=--=" + monsterTotalMP + "=--=+\n";
-                    sendTilesArround(myKey,4);
+//                    sendTilesArround(myKey, 4);
                     sendObjectsArround(myKey);
                     notifyAllInRange(myKey, selector, sendBack, 0);
                     break;
@@ -164,6 +164,11 @@ public class ServerPacketManager {
     }
 
     //===========================================================================================================================================================================
+    //--------------------------------------------------------------------------Send message to everyone that can see this player
+    //--------------------------------------------------------------------------For bitSwitch : 
+    //--------------------------------------------------------------------------    0==other people
+    //--------------------------------------------------------------------------    1==just the current person
+    //--------------------------------------------------------------------------    2==other people and current person
     public static void notifyAllInRange(int myKey, Selector selector, String sendBack, int bitSwitch) throws ClosedChannelException {
         int o = 0;
         Iterator keys = Server.loggedInAccounts.keySet().iterator();//----------This iterator contains the list of logged in accounts to cycle through.
@@ -244,52 +249,51 @@ public class ServerPacketManager {
         int playerX = Server.loggedInAccounts.get(playersKey).returnChar().returnX();
         int playerY = Server.loggedInAccounts.get(playersKey).returnChar().returnY();
         int zPos = Server.loggedInAccounts.get(playersKey).returnChar().returnZ();
-        int xRange = playerX - 6;
-        int yRange = playerY - 6;
+        int xRange = playerX - 5;
+        int yRange = playerY - 5;
         boolean wroteString = false;
         int o = 0;
         //----------------------------------------------------------------------Check all tiles in range for objects.
-        while (xRange < playerX + 4) {
-            while (yRange < playerY + 4) {
+        while (xRange <= playerX + 4) {
+            while (yRange <= playerY + 4) {
                 //--------------------------------------------------------------See if there is an object at this position.
                 if (Server.map.containsKey(getIndex(xRange, yRange, zPos))) {
-                        //----------------------------------------------------------If so, send this object to the client.
-                        int tileHere = Server.map.get(getIndex(xRange, yRange, zPos)).returnType();
-                        String sendBackToMe = "tileAt=--=" + tileHere + "=--=" + xRange + "=--=" + yRange + "=--=" + zPos + "=--=" + "\n";
-                        Server.console.append(sendBackToMe + ".      Sent to : " + Server.accounts.get(playersKey).returnChar().returnName() + "\n");
+                    //----------------------------------------------------------If so, send this object to the client.
+                    int tileHere = Server.map.get(getIndex(xRange, yRange, zPos)).returnType();
+                    String sendBackToMe = "tileAt=--=" + tileHere + "=--=" + xRange + "=--=" + yRange + "=--=" + zPos + "=--=" + "\n";
+                    Server.console.append(sendBackToMe + ".      Sent to : " + Server.accounts.get(playersKey).returnChar().returnName() + "\n");
 
-                        //----------------------------------------------------------As long as we haven't written the string to this account
-                        while (!wroteString) {
+                    //----------------------------------------------------------As long as we haven't written the string to this account
+                    while (!wroteString) {
 
-                            //------------------------------------------------------If this slot is open, write to it.
-                            if (Server.loggedInAccounts.get(playersKey).sendBack[o].isEmpty()) {
-                                Server.loggedInAccounts.get(playersKey).sendBack[o] = sendBackToMe;
-                                wroteString = true;//-------------------------------Now that we have written to it. Exit.
-                            }
-                            o++;//--------------------------------------------------Increase iterator.
+                        //------------------------------------------------------If this slot is open, write to it.
+                        if (Server.loggedInAccounts.get(playersKey).sendBack[o].isEmpty()) {
+                            Server.loggedInAccounts.get(playersKey).sendBack[o] = sendBackToMe;
+                            wroteString = true;//-------------------------------Now that we have written to it. Exit.
                         }
-                        wroteString = false;
-                    
+                        o++;//--------------------------------------------------Increase iterator.
+                    }
+                    wroteString = false;
+
                 }
                 yRange++;
             }
-            yRange = playerY - 4;
+            yRange = playerY - 5;
             xRange++;
         }
     }
-    
-    
+
     private static void sendObjectsArround(int playersKey) {
         int playerX = Server.loggedInAccounts.get(playersKey).returnChar().returnX();
         int playerY = Server.loggedInAccounts.get(playersKey).returnChar().returnY();
         int zPos = Server.loggedInAccounts.get(playersKey).returnChar().returnZ();
-        int xRange = playerX - 6;
-        int yRange = playerY - 6;
+        int xRange = playerX - 5;
+        int yRange = playerY - 5;
         boolean wroteString = false;
         int o = 0;
         //----------------------------------------------------------------------Check all tiles in range for objects.
-        while (xRange < playerX + 4) {
-            while (yRange < playerY + 4) {
+        while (xRange <= playerX + 4) {
+            while (yRange <= playerY + 4) {
                 //--------------------------------------------------------------See if there is an object at this position.
                 if (Server.map.containsKey(getIndex(xRange, yRange, zPos))) {
                     if (Server.map.get(getIndex(xRange, yRange, zPos)).returnObject() != 0) {
@@ -313,7 +317,7 @@ public class ServerPacketManager {
                 }
                 yRange++;
             }
-            yRange = playerY - 4;
+            yRange = playerY - 5;
             xRange++;
         }
     }
