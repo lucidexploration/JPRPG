@@ -1,6 +1,3 @@
-Game
-    *-Rename the game "Lucid Exploration"
-
 Client
     *-BattleList using map displayed in new tab.
     *-Private chat commands.

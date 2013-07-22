@@ -146,7 +146,7 @@ class ClientGUI {
     //=================================================================================================================================================================================
     private static void makeGUI() {
         //----------------------------------------------------------------------Create the Window.
-        window = new JFrame("JPRPG");
+        window = new JFrame("LucidExploration");
         //----------------------------------------------------------------------set the windows options
         window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

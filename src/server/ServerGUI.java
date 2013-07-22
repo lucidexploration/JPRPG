@@ -2,13 +2,11 @@ package server;
 
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -43,7 +41,7 @@ public class ServerGUI {
     }
 
     private static void makeGUI() {
-        window = new JFrame("Server");
+        window = new JFrame("LucidExploration Server");
         window.setResizable(false);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Container cp = window.getContentPane();
