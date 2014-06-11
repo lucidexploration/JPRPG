@@ -3,7 +3,7 @@ JPRPG
 
 Jon's PvP Role Playing Game.
 
-An asynchronous multiplayer online game written in pure Java.
+An asynchronous multiplayer online game prototype written in pure Java. Made for the purpose of testing a few ideas.
 
 
 
