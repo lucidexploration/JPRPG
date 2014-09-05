@@ -1,3 +1,5 @@
+Work discontinued. This was a valuable learning experience, but I have moved onto my next iteration of this project.
+
 JPRPG
 =====
 
